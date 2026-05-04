@@ -15,6 +15,7 @@ final class SourcesViewModel: ObservableObject {
     @Published private(set) var sources: [NewsSource] = []
     @Published private(set) var categories: [String] = []
     @Published private(set) var visibleSources: [NewsSource] = []
+    @Published private(set) var isRefreshing = false
     @Published var selectedCategories: Set<String> = [] {
         didSet {
             applyFilters()
@@ -53,6 +54,26 @@ final class SourcesViewModel: ObservableObject {
 
     func retry() async {
         await load()
+    }
+
+    func refresh() async {
+        isRefreshing = true
+        let requestID = UUID()
+        latestRequestID = requestID
+
+        do {
+            let fetchedSources = try await repository.fetchSources()
+            guard latestRequestID == requestID else { return }
+
+            sources = fetchedSources
+            categories = SourceFilterService.categories(from: fetchedSources)
+            applyFilters()
+            isRefreshing = false
+            state = visibleSources.isEmpty ? .empty : .loaded
+        } catch {
+            guard latestRequestID == requestID else { return }
+            isRefreshing = false
+        }
     }
 
     func toggleCategory(_ category: String) {

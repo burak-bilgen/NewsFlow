@@ -70,6 +70,9 @@ struct SourcesView: View {
         }
         .listStyle(.insetGrouped)
         .animation(.easeInOut(duration: 0.2), value: viewModel.visibleSources)
+        .refreshable {
+            await viewModel.refresh()
+        }
         .accessibilityIdentifier("sources.list")
     }
 }
