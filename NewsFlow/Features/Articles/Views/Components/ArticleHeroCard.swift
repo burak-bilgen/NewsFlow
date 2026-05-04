@@ -93,18 +93,6 @@ struct ArticleHeroCard: View {
     }
 }
 
-// Helper for optional matchedGeometryEffect with two values
-extension View {
-    @ViewBuilder
-    func ifLet<T, U, Content: View>(_ value1: T?, _ value2: U?, transform: (Self, T, U) -> Content) -> some View {
-        if let value1, let value2 {
-            transform(self, value1, value2)
-        } else {
-            self
-        }
-    }
-}
-
 #if DEBUG
 #Preview {
     ArticleHeroCard(

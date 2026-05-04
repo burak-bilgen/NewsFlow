@@ -15,11 +15,11 @@ enum Accessibility {
 }
 
 extension View {
-    func accessibleAnimation(_ animation: Animation?) -> some View {
+    func accessibleAnimation<V: Equatable>(_ animation: Animation?, value: V) -> some View {
         if Accessibility.isReduceMotionEnabled {
-            return self.animation(nil)
+            return self.animation(nil, value: value)
         } else {
-            return self.animation(animation)
+            return self.animation(animation, value: value)
         }
     }
 }

@@ -42,13 +42,13 @@ struct PullToRefreshIndicator: View {
                 rotation = 360
             }
         }
-        .onChange(of: isRefreshing, perform: { newValue in
+        .onChange(of: isRefreshing) { newValue in
             if newValue {
                 rotation = 360
             } else {
                 rotation = 0
             }
-        })
+        }
     }
 }
 
