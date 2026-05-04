@@ -1,0 +1,32 @@
+"sources.title" = "Haber Kaynakları";
+"sources.loading" = "Kaynaklar yükleniyor...";
+"sources.empty.title" = "Kaynak bulunamadı";
+"sources.empty.message" = "Kategori filtrelerini değiştirin veya tekrar deneyin.";
+"source.description.missing" = "Açıklama bulunmuyor.";
+
+"articles.loading" = "Haberler yükleniyor...";
+"articles.empty.title" = "Haber bulunamadı";
+"articles.empty.message" = "Bu kaynakta güncel başlık bulunmuyor.";
+"article.title.untitled" = "Başlıksız haber";
+"article.date.unknown" = "Tarih yok";
+"article.image.placeholder" = "Haber görseli yer tutucusu";
+
+"readingList.add" = "Okuma listeme ekle";
+"readingList.remove" = "Okuma listemden çıkar";
+
+"retry.button" = "Tekrar Dene";
+"ok.button" = "Tamam";
+"warning.title" = "Uyarı";
+"error.title" = "Bir sorun oluştu";
+"error.generic" = "Bilgiler alınamadı!";
+"error.network" = "Bağlantınızı kontrol edip tekrar deneyin.";
+"error.missingApiKey" = "NewsAPI anahtarı eksik. Kurulum adımlarını kontrol edin.";
+"error.simulatedFetch" = "Bilgiler alınamadı!";
+
+"category.business" = "İş";
+"category.entertainment" = "Eğlence";
+"category.general" = "Genel";
+"category.health" = "Sağlık";
+"category.science" = "Bilim";
+"category.sports" = "Spor";
+"category.technology" = "Teknoloji";

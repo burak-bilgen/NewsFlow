@@ -1,0 +1,32 @@
+"sources.title" = "News Sources";
+"sources.loading" = "Loading sources...";
+"sources.empty.title" = "No sources found";
+"sources.empty.message" = "Try changing category filters or retry.";
+"source.description.missing" = "No description available.";
+
+"articles.loading" = "Loading articles...";
+"articles.empty.title" = "No articles found";
+"articles.empty.message" = "There are no current headlines for this source.";
+"article.title.untitled" = "Untitled article";
+"article.date.unknown" = "No date";
+"article.image.placeholder" = "Article image placeholder";
+
+"readingList.add" = "Okuma listeme ekle";
+"readingList.remove" = "Okuma listemden çıkar";
+
+"retry.button" = "Tekrar Dene";
+"ok.button" = "OK";
+"warning.title" = "Uyarı";
+"error.title" = "Something went wrong";
+"error.generic" = "Bilgiler alınamadı!";
+"error.network" = "Check your connection and try again.";
+"error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
+"error.simulatedFetch" = "Bilgiler alınamadı!";
+
+"category.business" = "Business";
+"category.entertainment" = "Entertainment";
+"category.general" = "General";
+"category.health" = "Health";
+"category.science" = "Science";
+"category.sports" = "Sports";
+"category.technology" = "Technology";
