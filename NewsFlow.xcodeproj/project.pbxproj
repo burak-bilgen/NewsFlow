@@ -416,8 +416,9 @@
 				DEVELOPMENT_TEAM = Z8P38BHKU6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Boyner News";
-				INFOPLIST_KEY_NewsAPIKey = "$(NEWS_API_KEY)";
+				INFOPLIST_FILE = NewsFlow/Info.plist;
+				EXCLUDED_SOURCE_FILE_NAMES = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NewsFlow;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -452,8 +453,9 @@
 				DEVELOPMENT_TEAM = Z8P38BHKU6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Boyner News";
-				INFOPLIST_KEY_NewsAPIKey = "$(NEWS_API_KEY)";
+				INFOPLIST_FILE = NewsFlow/Info.plist;
+				EXCLUDED_SOURCE_FILE_NAMES = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NewsFlow;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
