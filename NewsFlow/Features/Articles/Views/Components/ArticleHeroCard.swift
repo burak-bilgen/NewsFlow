@@ -1,0 +1,92 @@
+import SwiftUI
+
+struct ArticleHeroCard: View {
+    let article: Article
+    let sourceName: String
+    let isSaved: Bool
+    let onToggle: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            ArticleImageView(url: article.imageURL)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            LinearGradient(
+                colors: [
+                    AppPalette.gradientStart,
+                    AppPalette.gradientMid,
+                    AppPalette.gradientEnd
+                ],
+                startPoint: .bottom,
+                endPoint: .top
+            )
+
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                HStack {
+                    Text(sourceName.uppercased())
+                        .font(.system(size: 11, weight: .black))
+                        .tracking(1.2)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, AppSpacing.sm)
+                        .padding(.vertical, AppSpacing.xxs)
+                        .background(
+                            Capsule()
+                                .fill(AppPalette.primaryRed)
+                        )
+
+                    Spacer()
+
+                    Button {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.5)) {
+                            onToggle()
+                        }
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(isSaved ? AppPalette.goldAccent : .white)
+                            .frame(width: 40, height: 40)
+                            .background(
+                                Circle()
+                                    .fill(Color.black.opacity(0.35))
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .scaleEffect(isSaved ? 1.2 : 1.0)
+                    }
+                }
+
+                Spacer(minLength: 60)
+
+                Text(article.title)
+                    .font(.system(size: 22, weight: .black, design: .serif))
+                    .foregroundColor(.white)
+                    .lineLimit(3)
+                    .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 2)
+
+                Text(article.displayDate)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+            }
+            .padding(AppSpacing.lg)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+        .shadow(color: AppPalette.shadowColor, radius: 20, x: 0, y: 10)
+    }
+}
+
+#if DEBUG
+#Preview {
+    ArticleHeroCard(
+        article: NewsFixture.articlesBySource["bbc-news"]![0],
+        sourceName: "BBC News",
+        isSaved: false,
+        onToggle: {}
+    )
+    .frame(height: 400)
+    .padding()
+}
+#endif
