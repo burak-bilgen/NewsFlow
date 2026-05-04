@@ -130,6 +130,7 @@ private struct CategoryFilterView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(viewModel.localizedCategory(category))
                     .accessibilityIdentifier("category.chip.\(category)")
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
             }
             .padding(.horizontal, AppSpacing.md)

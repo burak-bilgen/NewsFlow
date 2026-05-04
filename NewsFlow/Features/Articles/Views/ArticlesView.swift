@@ -120,6 +120,7 @@ private struct ArticleRowView: View {
                 Text(article.title)
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(3)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(article.displayDate)
                     .font(.caption)
@@ -138,6 +139,7 @@ private struct ArticleRowView: View {
         .padding(AppSpacing.md)
         .cardSurface()
         .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(article.title), \(article.displayDate)")
     }
 }
 
