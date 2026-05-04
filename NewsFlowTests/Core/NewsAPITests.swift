@@ -107,3 +107,222 @@ final class NewsAPIDecodingTests: XCTestCase {
         XCTAssertNotNil(article.publishedAt)
     }
 }
+
+// MARK: - Mock URLSession
+
+actor MockURLSession: URLSessionProtocol {
+    var result: Result<(Data, URLResponse), Error>
+
+    init(result: Result<(Data, URLResponse), Error>) {
+        self.result = result
+    }
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        try result.get()
+    }
+}
+
+// MARK: - NewsAPIClient Tests
+
+final class NewsAPIClientTests: XCTestCase {
+    private func makeHTTPResponse(statusCode: Int) -> HTTPURLResponse {
+        HTTPURLResponse(
+            url: URL(string: "https://newsapi.org/v2/top-headlines")!,
+            statusCode: statusCode,
+            httpVersion: nil,
+            headerFields: nil
+        )!
+    }
+
+    private func makeClient(
+        sessionResult: Result<(Data, URLResponse), Error>,
+        apiKey: String = "test-key"
+    ) -> NewsAPIClient {
+        let session = MockURLSession(result: sessionResult)
+        let builder = NewsAPIRequestBuilder(
+            baseURLProvider: { URL(string: "https://newsapi.org") },
+            apiKeyProvider: { apiKey }
+        )
+        return NewsAPIClient(session: session, requestBuilder: builder)
+    }
+
+    func testRequestReturnsDecodedResponse() async throws {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+            let value: Int
+        }
+
+        let data = """
+        {"status": "ok", "value": 42}
+        """.data(using: .utf8)!
+        let response = makeHTTPResponse(statusCode: 200)
+        let client = makeClient(sessionResult: .success((data, response)))
+
+        let result = try await client.request(TestResponse.self, endpoint: .sources)
+        XCTAssertEqual(result.status, "ok")
+        XCTAssertEqual(result.value, 42)
+    }
+
+    func testRequestThrowsInvalidResponseForNonHTTPResponse() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+        }
+
+        let data = Data("{}".utf8)
+        let response = URLResponse(
+            url: URL(string: "https://newsapi.org/v2/sources")!,
+            mimeType: nil,
+            expectedContentLength: 0,
+            textEncodingName: nil
+        )
+        let client = makeClient(sessionResult: .success((data, response)))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected invalidResponse error")
+        } catch let error as NewsAPIError {
+            XCTAssertEqual(error, .invalidResponse)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testRequestThrowsEmptyResponseForEmptyData() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+        }
+
+        let response = makeHTTPResponse(statusCode: 200)
+        let client = makeClient(sessionResult: .success((Data(), response)))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected emptyResponse error")
+        } catch let error as NewsAPIError {
+            XCTAssertEqual(error, .emptyResponse)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testRequestThrowsNetworkForURLError() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+        }
+
+        let client = makeClient(sessionResult: .failure(URLError(.notConnectedToInternet)))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected network error")
+        } catch let error as NewsAPIError {
+            XCTAssertEqual(error, .network)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testRequestThrowsCancelledForCancellationError() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+        }
+
+        let client = makeClient(sessionResult: .failure(CancellationError()))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected cancelled error")
+        } catch let error as NewsAPIError {
+            XCTAssertEqual(error, .cancelled)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testRequestThrowsAPIStatusForNonOkStatus() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+        }
+
+        let data = """
+        {"status": "error", "code": "apiKeyInvalid", "message": "API key invalid"}
+        """.data(using: .utf8)!
+        let response = makeHTTPResponse(statusCode: 200)
+        let client = makeClient(sessionResult: .success((data, response)))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected apiStatus error")
+        } catch let error as NewsAPIError {
+            if case .apiStatus(let code, let message) = error {
+                XCTAssertEqual(code, "apiKeyInvalid")
+                XCTAssertEqual(message, "API key invalid")
+            } else {
+                XCTFail("Expected apiStatus error, got \(error)")
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testRequestThrowsDecodingForInvalidJSON() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+            let value: Int
+        }
+
+        let data = Data("not json".utf8)
+        let response = makeHTTPResponse(statusCode: 200)
+        let client = makeClient(sessionResult: .success((data, response)))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected decoding error")
+        } catch let error as NewsAPIError {
+            XCTAssertEqual(error, .decoding)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testRequestThrowsHTTPErrorForNon2xxStatus() async {
+        struct TestResponse: NewsAPIResponseEnvelope {
+            let status: String
+            let code: String?
+            let message: String?
+        }
+
+        let data = """
+        {"status": "error", "code": "rateLimited", "message": "Too many requests"}
+        """.data(using: .utf8)!
+        let response = makeHTTPResponse(statusCode: 429)
+        let client = makeClient(sessionResult: .success((data, response)))
+
+        do {
+            _ = try await client.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected apiStatus error")
+        } catch let error as NewsAPIError {
+            if case .apiStatus(let code, _) = error {
+                XCTAssertEqual(code, "rateLimited")
+            } else {
+                XCTFail("Expected apiStatus error, got \(error)")
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+}

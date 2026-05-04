@@ -5,6 +5,7 @@ protocol ArticleRequestErrorSimulating {
     func reset() async
 }
 
+#if DEBUG
 actor EveryThirdRequestErrorSimulator: ArticleRequestErrorSimulating {
     private var requestCount = 0
     private let failingInterval: Int
@@ -22,3 +23,4 @@ actor EveryThirdRequestErrorSimulator: ArticleRequestErrorSimulating {
         requestCount = 0
     }
 }
+#endif

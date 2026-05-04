@@ -11,11 +11,15 @@ actor FilePersistentStore: PersistentStore {
     private let fileManager: FileManager
     private let baseURL: URL
 
-    init(fileManager: FileManager = .default) throws {
+    init(fileManager: FileManager = .default, baseURL: URL? = nil) throws {
         self.fileManager = fileManager
-        let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        self.baseURL = urls[0].appendingPathComponent("NewsFlowCache", isDirectory: true)
-        try fileManager.createDirectory(at: baseURL, withIntermediateDirectories: true)
+        if let baseURL {
+            self.baseURL = baseURL
+        } else {
+            let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+            self.baseURL = urls[0].appendingPathComponent("NewsFlowCache", isDirectory: true)
+        }
+        try fileManager.createDirectory(at: self.baseURL, withIntermediateDirectories: true)
     }
 
     func save<T: Encodable>(_ value: T, forKey key: String) async throws {

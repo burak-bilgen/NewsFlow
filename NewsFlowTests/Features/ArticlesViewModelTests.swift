@@ -461,6 +461,110 @@ final class ArticlesViewModelTests: XCTestCase {
         viewModel.stopAutomaticRefresh()
     }
 
+    // MARK: - Prefetch
+
+    func testPrefetchLoadsNextPageSilently() async {
+        let page1 = (1...3).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let page2 = (4...6).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let repository = ArticlesRepositorySpy(result: .success(page1 + page2))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false, false]),
+            pageSize: 3
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.articles.count, 6)
+        XCTAssertEqual(viewModel.state, .loaded)
+
+        await viewModel.prefetchNextPageIfNeeded()
+        XCTAssertEqual(repository.requestCount, 2)
+        XCTAssertEqual(viewModel.articles.count, 12) // 6 + 6 (spy returns all items each time)
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertFalse(viewModel.isLoadingMore)
+    }
+
+    func testPrefetchDoesNotChangeStateWhenAlreadyLoaded() async {
+        let articles = (1...5).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let repository = ArticlesRepositorySpy(result: .success(articles))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false, false]),
+            pageSize: 2
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.state, .loaded)
+
+        let stateBeforePrefetch = viewModel.state
+        await viewModel.prefetchNextPageIfNeeded()
+        XCTAssertEqual(viewModel.state, stateBeforePrefetch)
+        XCTAssertFalse(viewModel.isPrefetching)
+    }
+
+    func testPrefetchIsIgnoredWhenNoMorePages() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .success([article]))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            pageSize: 10
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertFalse(viewModel.hasMorePages)
+
+        await viewModel.prefetchNextPageIfNeeded()
+        XCTAssertEqual(repository.requestCount, 1)
+    }
+
+    func testPrefetchIsIgnoredWhenAlreadyPrefetching() async {
+        let articles = (1...5).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let repository = DelayedArticlesRepositorySpy(
+            result: .success(articles),
+            delayNanoseconds: 100_000_000
+        )
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false, false]),
+            pageSize: 2
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.state, .loaded)
+
+        let expectation = expectation(description: "prefetch completes")
+        Task {
+            await viewModel.prefetchNextPageIfNeeded()
+            expectation.fulfill()
+        }
+
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        XCTAssertTrue(viewModel.isPrefetching)
+
+        // Second prefetch should be ignored while first is in-flight
+        await viewModel.prefetchNextPageIfNeeded()
+        XCTAssertEqual(repository.requestCount, 2) // only 2 total: initial + first prefetch
+
+        await fulfillment(of: [expectation], timeout: 2)
+        XCTAssertFalse(viewModel.isPrefetching)
+    }
+
     // MARK: - Error Simulator
 
     func testEveryThirdRequestErrorSimulatorIsDeterministic() async {

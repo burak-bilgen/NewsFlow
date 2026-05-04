@@ -30,6 +30,7 @@ final class ArticlesViewModel: ObservableObject {
         case retry
         case automatic
         case loadMore
+        case prefetch
     }
 
     @Published private(set) var state: State = .idle
@@ -37,6 +38,7 @@ final class ArticlesViewModel: ObservableObject {
     @Published private(set) var savedArticleIDs: Set<String> = []
     @Published private(set) var isRefreshing = false
     @Published private(set) var isLoadingMore = false
+    @Published private(set) var isPrefetching = false
     @Published private(set) var hasMorePages = true
     @Published var carouselSelection = 0
     @Published var warningMessage: String?
@@ -106,6 +108,16 @@ final class ArticlesViewModel: ObservableObject {
         guard !isLoadingMore, hasMorePages else { return }
         currentPage += 1
         await fetch(mode: .loadMore)
+    }
+
+    /// Prefetches the next page silently before the user reaches the end
+    /// of the list so that no loading animation is shown while scrolling.
+    func prefetchNextPageIfNeeded() async {
+        guard !isPrefetching, !isLoadingMore, hasMorePages, state == .loaded else { return }
+        isPrefetching = true
+        currentPage += 1
+        await fetch(mode: .prefetch)
+        isPrefetching = false
     }
 
     /// Starts a background task that silently refreshes every 60 seconds.
@@ -194,7 +206,7 @@ final class ArticlesViewModel: ObservableObject {
             isLoadingMore = true
         case .pullToRefresh:
             isRefreshing = true
-        case .automatic:
+        case .automatic, .prefetch:
             break
         }
     }
@@ -252,10 +264,13 @@ final class ArticlesViewModel: ObservableObject {
     }
 
     private func resetLoadingState(mode: FetchMode) {
-        if mode == .loadMore {
+        switch mode {
+        case .loadMore:
             isLoadingMore = false
-        } else {
+        case .pullToRefresh:
             isRefreshing = false
+        case .automatic, .prefetch, .initial, .retry:
+            break
         }
     }
 }

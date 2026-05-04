@@ -8,7 +8,8 @@ import SwiftUI
 /// and automatic background refresh every 60 seconds.
 struct ArticlesView: View {
     @StateObject private var viewModel: ArticlesViewModel
-    @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common)
+    @State private var timerConnection: Cancellable?
     var heroNamespace: Namespace.ID?
 
     init(viewModel: ArticlesViewModel, heroNamespace: Namespace.ID? = nil) {
@@ -27,8 +28,12 @@ struct ArticlesView: View {
             await viewModel.loadIfNeeded()
             viewModel.startAutomaticRefresh()
         }
+        .onAppear {
+            timerConnection = carouselTimer.connect()
+        }
         .onDisappear {
             viewModel.stopAutomaticRefresh()
+            timerConnection?.cancel()
         }
         .onReceive(carouselTimer) { _ in
             advanceCarousel()
@@ -121,6 +126,12 @@ struct ArticlesView: View {
                         .delay(Double(index) * 0.05),
                         value: viewModel.state
                     )
+                    .onAppear {
+                        let threshold = max(viewModel.listArticles.count - 3, 0)
+                        if index >= threshold {
+                            Task { await viewModel.prefetchNextPageIfNeeded() }
+                        }
+                    }
                 }
 
                 // Load More button for pagination

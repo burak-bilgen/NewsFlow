@@ -37,5 +37,6 @@ final class LanguageManager: ObservableObject {
         currentLanguage = language
         UserDefaults.standard.set(language.rawValue, forKey: key)
         UserDefaults.standard.set([language.rawValue], forKey: "AppleLanguages")
+        L10n.invalidateCache()
     }
 }

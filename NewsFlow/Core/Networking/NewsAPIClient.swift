@@ -1,5 +1,11 @@
 import Foundation
 
+protocol URLSessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: URLSessionProtocol {}
+
 protocol NewsAPIClientProtocol {
     func request<Response: NewsAPIResponseEnvelope>(
         _ responseType: Response.Type,
@@ -8,12 +14,12 @@ protocol NewsAPIClientProtocol {
 }
 
 final class NewsAPIClient: NewsAPIClientProtocol {
-    private let session: URLSession
+    private let session: URLSessionProtocol
     private let requestBuilder: NewsAPIRequestBuilding
     private let decoder: JSONDecoder
 
     init(
-        session: URLSession = .shared,
+        session: URLSessionProtocol = URLSession.shared,
         requestBuilder: NewsAPIRequestBuilding,
         decoder: JSONDecoder = JSONDecoder()
     ) {
