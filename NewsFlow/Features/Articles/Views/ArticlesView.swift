@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ArticlesView: View {
     @StateObject private var viewModel: ArticlesViewModel
+    @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     init(viewModel: ArticlesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -20,6 +21,9 @@ struct ArticlesView: View {
         }
         .onDisappear {
             viewModel.stopAutomaticRefresh()
+        }
+        .onReceive(carouselTimer) { _ in
+            advanceCarousel()
         }
         .alert(
             L10n.text("warning.title"),
@@ -89,6 +93,14 @@ struct ArticlesView: View {
             await viewModel.pullToRefresh()
         }
         .accessibilityIdentifier("articles.list")
+    }
+
+    private func advanceCarousel() {
+        let count = viewModel.featuredArticles.count
+        guard count > 1 else { return }
+        withAnimation(.easeInOut(duration: 0.25)) {
+            viewModel.carouselSelection = (viewModel.carouselSelection + 1) % count
+        }
     }
 }
 
