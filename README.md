@@ -1,6 +1,6 @@
 # NewsFlow
 
-> A professional news reader app built with SwiftUI, featuring a Netflix-style source browser, auto-refreshing article feeds, and offline reading list support.
+> A professional news reader app built with SwiftUI, featuring a Netflix-style source browser, auto-refreshing article feeds, offline reading list support, and intelligent prefetching.
 
 <p align="center">
   <img src="https://img.shields.io/badge/iOS-15.0%2B-blue" alt="iOS 15.0+">
@@ -13,29 +13,70 @@
 
 ## Features
 
-- **Netflix-Style Source Browser** — Browse news sources grouped by category in horizontally scrolling rows
-- **Hero Carousel** — Featured articles with cinematic gradient overlays and auto-advancing pagination
+### Core Features
+- **Netflix-Style Source Browser** — Browse English news sources grouped by category in horizontally scrolling rows
+- **Category Multi-Selection** — Dynamically filter sources by multiple categories client-side
+- **Hero Carousel** — Top 3 articles displayed in a cinematic auto-advancing carousel (5s interval)
+- **Reading List** — Bookmark/unbookmark articles with persistent local storage and haptic feedback
 - **Real-Time Updates** — Pull-to-refresh and automatic background refresh every 60 seconds
-- **Reading List** — Bookmark articles for offline reading with haptic feedback
-- **Error Simulation** — Every 3rd request intentionally fails to demonstrate retry flows (debug builds)
-- **Dark Mode Support** — Three theme modes: Light, Dark, System
-- **Accessibility First** — Full VoiceOver support, Dynamic Type, and Reduce Motion awareness
+- **Prefetching** — Next page of articles is silently prefetched before the user reaches the end of the list
+
+### Quality & Reliability
+- **Error Simulation** — Every 3rd non-automatic request intentionally fails to demonstrate retry flows (debug builds only)
+- **Image Caching** — In-memory NSCache with a count limit of 100; images do not re-download when scrolling back
+- **Disk Caching** — Page 1 of articles and the sources list are cached to disk with TTL (60s/300s)
+- **Localization** — Full Turkish (TR) and English (EN) support with in-app language switching
+- **Theming** — Three theme modes: Light, Dark, System
+
+### Accessibility
+- Full VoiceOver support with accessibility identifiers
+- Dynamic Type support
+- Reduce Motion awareness for animations
+- Haptic feedback for all interactive actions
 
 ---
 
 ## Architecture
 
-| Layer | Responsibility |
-|-------|---------------|
-| **Presentation** | SwiftUI Views + ViewModels (MVVM) |
-| **Domain** | Models, Use Cases, Protocols |
-| **Data** | Repositories, Network Layer, Persistence |
+NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principles.
+
+### Layered Architecture
+
+| Layer | Components | Responsibility |
+|-------|-----------|---------------|
+| **Presentation** | SwiftUI Views, ViewModels | UI rendering and user interaction state |
+| **Domain** | Models, Protocols, Sorting/Filtering | Business logic and entity definitions |
+| **Data** | Repositories, Network Client, Persistence | Data access, caching, and external API calls |
 
 ### Design Patterns
-- **MVVM** — One ViewModel per screen with `@Published` state management
-- **Repository Pattern** — Abstracted data sources (remote + local cache)
-- **Dependency Injection** — `AppContainer` composes all dependencies
-- **Protocol-Oriented** — Testable via protocol stubs (`TestDoubles.swift`)
+
+- **MVVM** — One `@MainActor` ViewModel per screen with `@Published` state management
+- **Repository Pattern** — Protocol-driven data access with remote + local cache layers
+- **Dependency Injection** — `AppContainer` composition root wires all dependencies via constructor injection
+- **Protocol-Oriented Programming** — Every layer is abstracted by protocols for testability
+
+### Concurrency
+- `async/await` for all networking and persistence operations
+- `@MainActor` on ViewModels to ensure UI updates happen on the main thread
+- `actor` isolation for `FilePersistentStore`, `CachedRepositories`, and `UserDefaultsReadingListRepository`
+- Request nonce (`latestRequestID`) prevents stale callback race conditions
+
+---
+
+## Tech Stack
+
+- **Language:** Swift 5.9+
+- **UI Framework:** SwiftUI (iOS 15+)
+- **Networking:** `URLSession` with `async/await` (no third-party libraries)
+- **Image Caching:** Custom `NSCache`-based `ImageCacheService`
+- **Persistence:** `FilePersistentStore` (disk JSON cache) + `UserDefaults` (reading list)
+- **Testing:** XCTest (unit + UI tests)
+- **Build Tool:** Xcode 15+
+
+### Why No Third-Party Dependencies?
+- `URLSession` + `async/await` provides everything needed for networking
+- Custom image caching gives full control over memory pressure handling
+- No external SPM dependencies keeps binary size small and build times fast
 
 ---
 
@@ -44,23 +85,38 @@
 ```
 NewsFlow/
 ├── App/
-│   ├── Composition/AppContainer.swift      # DI container
-│   ├── Routing/RootNavigationView.swift    # Navigation setup
-│   └── NewsFlowApp.swift                   # @main entry point
+│   ├── Composition/AppContainer.swift       # DI composition root
+│   ├── Routing/RootNavigationView.swift     # Navigation setup
+│   └── NewsFlowApp.swift                    # @main entry point
 ├── Core/
-│   ├── DesignSystem/                       # Colors, Spacing, Modifiers
-│   ├── Localization/                       # L10n helper
-│   ├── Networking/                         # NewsAPI client
-│   ├── Persistence/                        # File & in-memory stores
-│   └── Utilities/                          # Formatters, Fixtures
+│   ├── DesignSystem/                        # Colors, Spacing, Modifiers, Shimmer
+│   ├── Localization/                        # L10n helper + LanguageManager
+│   ├── Networking/                          # NewsAPI client, request builder, errors
+│   ├── Persistence/                         # File & in-memory stores, cached repositories
+│   ├── PreviewSupport/                      # MockRepositories, NewsFixture (DEBUG only)
+│   └── Utilities/                           # Formatters, Error Simulator (DEBUG only)
 ├── Features/
-│   ├── Articles/                           # Article list & detail
-│   ├── Sources/                            # Netflix-style source browser
-│   ├── Settings/                           # Theme preferences
-│   └── ReadingList/                        # Bookmark persistence
-└── Tests/
-    ├── NewsFlowTests/                      # Unit tests (64 tests)
-    └── NewsFlowUITests/                    # UI automation tests
+│   ├── Articles/
+│   │   ├── Models/                          # Article, ArticlesDTO
+│   │   ├── Repositories/                    # ArticlesRepositoryProtocol + implementations
+│   │   ├── Sorting/                         # ArticleSorting strategy
+│   │   ├── ViewModels/                      # ArticlesViewModel
+│   │   └── Views/                           # ArticlesView, ArticleDetailView, Components
+│   ├── Sources/
+│   │   ├── Models/                          # NewsSource, SourcesDTO
+│   │   ├── Services/                        # SourceFilterService
+│   │   ├── Repositories/                    # SourcesRepositoryProtocol + implementations
+│   │   ├── ViewModels/                      # SourcesViewModel
+│   │   └── Views/                           # SourcesView, Components
+│   ├── Settings/
+│   │   └── Views/                           # SettingsView, Components
+│   └── ReadingList/
+│       ├── Repositories/                    # ReadingListRepositoryProtocol + implementations
+│       └── (no separate screen; toggled inline)
+├── Assets.xcassets/
+├── LaunchScreen.storyboard
+├── Info.plist
+└── Localizable.strings (en, tr)
 ```
 
 ---
@@ -90,13 +146,15 @@ cd NewsFlow
 open NewsFlow.xcodeproj
 ```
 
-### 3. Configure API Key (optional)
+### 3. Configure API Key
 
-The app uses [NewsAPI.org](https://newsapi.org) for live data. Add your API key to `Info.plist` under the key `NewsAPIKey`, or use the bundled mock data for previews and testing.
+The app uses [NewsAPI.org](https://newsapi.org) for live data. Add your API key to the build settings or `Info.plist` under the key `NewsAPIKey`.
+
+For previews and UI testing, the app includes bundled mock data and does not require a valid API key.
 
 ### 4. Build & Run
 
-Select the `NewsFlow` scheme and run on iPhone 15 Simulator (or any iOS 15+ device).
+Select the `NewsFlow` scheme and run on iPhone 15+ Simulator (or any iOS 15+ device).
 
 ---
 
@@ -131,43 +189,55 @@ swiftlint --fix
 
 ## Testing
 
-### Unit Tests (64 tests)
+### Unit Tests (117 tests)
 
 ```bash
 xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow \
-  -destination 'platform=iOS Simulator,name=iPhone 15'
+  -destination 'platform=iOS Simulator,name=iPhone 17e'
 ```
 
 **Coverage areas:**
-- ViewModels (state transitions, error handling)
-- Repositories (caching, network fallbacks)
-- Networking (DTO decoding, endpoint building)
-- Filtering & Sorting logic
-- Persistence (reading list, UserDefaults)
+- **ViewModels** — State transitions, error handling, pagination, prefetch, auto-refresh, carousel clamping, stale request cancellation
+- **Repositories** — Caching (hit/miss/expiration), network fallbacks, deduplication
+- **Networking** — `NewsAPIClient` error mapping, `NewsAPIRequestBuilder` URL construction, DTO decoding
+- **Filtering & Sorting** — English source filtering, multi-category union filtering, newest-first sorting
+- **Persistence** — Reading list add/remove/toggle, `FilePersistentStore` save/load/remove, cache metadata
 
 ### UI Tests
 
 Automated end-to-end flows:
 1. Launch app → verify sources list loads
-2. Filter by category → verify rows update
-3. Tap source → verify article carousel appears
-4. Tap bookmark → verify saved state changes
+2. Tap source → verify article screen appears
+3. Pull-to-refresh → verify reload completes
+4. Error simulation → verify alert + retry recovers
+5. Carousel auto-advance → verify page indicator updates
+
+Run UI tests:
+```bash
+xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow \
+  -destination 'platform=iOS Simulator,name=iPhone 17e' \
+  -only-testing:NewsFlowUITests
+```
 
 ---
 
 ## Key Technical Decisions
 
-### Why MVVM over MVC?
+### Prefetching Implementation
 
-MVVM separates UI logic from business logic, making ViewModels highly testable without spinning up a UI. SwiftUI's `@StateObject` and `@Published` fit naturally into this pattern.
+Before the user reaches the last 3 articles, `ArticlesViewModel.prefetchNextPageIfNeeded()` is triggered via `.onAppear` on `ArticleCardView`. This loads the next page in the background without changing the UI state (`isPrefetching` flag prevents duplicate requests).
 
-### Why no third-party networking library?
+### Image Caching Strategy
 
-`URLSession` + `async/await` (iOS 15+) provides everything we need. Avoiding Alamofire/AlamofireImage keeps binary size small and removes an external dependency.
+`ImageCacheService` uses `NSCache<NSString, CacheEntry>` with a `countLimit` of 100. Images are loaded via `URLSession` and stored in memory. There is no disk caching for images (only for article/source JSON data), keeping the implementation simple while avoiding re-downloads during scrolling.
 
-### Why manual image caching?
+### Error Simulation (Debug Only)
 
-`ImageCacheService` wraps `NSCache` with disk spillover. This gives us full control over memory pressure handling and cache eviction policies.
+`EveryThirdRequestErrorSimulator` is wrapped in `#if DEBUG` and only injected in debug/UITest builds. It deterministically fails every 3rd non-automatic request, allowing reliable testing of retry flows and error UI without relying on flaky network conditions.
+
+### Localization Performance
+
+`L10n.text()` caches the resolved `Bundle` to avoid repeated `UserDefaults` lookups and file system access on every localized string fetch. The cache is invalidated when `LanguageManager.setLanguage()` is called.
 
 ---
 
@@ -205,5 +275,5 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  Built with ❤️ using SwiftUI
+  Built with using SwiftUI
 </p>

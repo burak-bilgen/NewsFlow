@@ -53,6 +53,7 @@ struct ArticleCardView: View {
                                 .scaleEffect(isSaved ? 1.15 : 1.0)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("article.bookmark")
                     }
                 }
                 .padding(.vertical, AppSpacing.xs)

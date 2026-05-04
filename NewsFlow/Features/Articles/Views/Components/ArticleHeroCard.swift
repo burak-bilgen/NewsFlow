@@ -70,6 +70,7 @@ struct ArticleHeroCard: View {
                             .scaleEffect(isSaved ? 1.2 : 1.0)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("article.bookmark")
                 }
 
                 Spacer(minLength: 60)

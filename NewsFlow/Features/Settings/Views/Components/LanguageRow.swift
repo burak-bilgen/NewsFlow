@@ -22,5 +22,6 @@ struct LanguageRow: View {
                 }
             }
         }
+        .accessibilityIdentifier("language.row.\(language.rawValue)")
     }
 }

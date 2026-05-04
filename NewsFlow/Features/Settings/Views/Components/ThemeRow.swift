@@ -29,6 +29,7 @@ struct ThemeRow: View {
                 }
             }
         }
+        .accessibilityIdentifier("theme.row.\(theme.rawValue)")
     }
 
     @ViewBuilder
