@@ -32,6 +32,7 @@
 "settings.about" = "About";
 "settings.version" = "Version";
 "settings.build" = "Build";
+"settings.language" = "Language";
 "settings.appSubtitle" = "Your daily news companion";
 
 "category.business" = "Business";

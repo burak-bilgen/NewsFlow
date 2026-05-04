@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var themeManager: ThemeManager
+    @EnvironmentObject private var languageManager: LanguageManager
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -19,6 +20,24 @@ struct SettingsView: View {
                 }
             } header: {
                 Text(L10n.text("settings.appearance"))
+                    .font(.system(size: 13, weight: .bold))
+                    .textCase(.uppercase)
+            }
+
+            Section {
+                ForEach(AppLanguage.allCases) { language in
+                    LanguageRow(
+                        language: language,
+                        isSelected: languageManager.currentLanguage == language
+                    ) {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            languageManager.setLanguage(language)
+                        }
+                        Haptic.light()
+                    }
+                }
+            } header: {
+                Text(L10n.text("settings.language"))
                     .font(.system(size: 13, weight: .bold))
                     .textCase(.uppercase)
             }
@@ -91,6 +110,33 @@ struct SettingsView: View {
     }
 }
 
+// MARK: - Language Row
+
+private struct LanguageRow: View {
+    let language: AppLanguage
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: AppSpacing.md) {
+                Text(language.displayName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.primary)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(AppPalette.primaryRed)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Theme Row
 
 private struct ThemeRow: View {
@@ -149,6 +195,7 @@ private struct ThemeRow: View {
     NavigationView {
         SettingsView()
             .environmentObject(ThemeManager())
+            .environmentObject(LanguageManager())
     }
 }
 #endif

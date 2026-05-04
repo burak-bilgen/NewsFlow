@@ -32,6 +32,7 @@
 "settings.about" = "Hakkında";
 "settings.version" = "Sürüm";
 "settings.build" = "Yapı";
+"settings.language" = "Dil";
 "settings.appSubtitle" = "Günlük haber arkadaşınız";
 
 "category.business" = "İş";
