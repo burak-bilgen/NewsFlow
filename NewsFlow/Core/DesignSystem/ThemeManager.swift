@@ -35,11 +35,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
 final class ThemeManager: ObservableObject {
     private let key = "app.theme.preference"
 
-    @Published var currentTheme: AppTheme {
-        didSet {
-            UserDefaults.standard.set(currentTheme.rawValue, forKey: key)
-        }
-    }
+    @Published private(set) var currentTheme: AppTheme
 
     init() {
         let stored = UserDefaults.standard.string(forKey: key) ?? "system"
@@ -47,6 +43,8 @@ final class ThemeManager: ObservableObject {
     }
 
     func setTheme(_ theme: AppTheme) {
+        guard currentTheme != theme else { return }
         currentTheme = theme
+        UserDefaults.standard.set(theme.rawValue, forKey: key)
     }
 }
