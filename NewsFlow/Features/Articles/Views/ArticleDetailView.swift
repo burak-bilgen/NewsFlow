@@ -1,5 +1,5 @@
-import SwiftUI
 import SafariServices
+import SwiftUI
 
 // MARK: - SafariView
 
@@ -75,7 +75,7 @@ struct ArticleDetailView: View {
                             HStack {
                                 Image(systemName: "safari")
                                     .font(.system(size: 16, weight: .semibold))
-                                Text("Read Full Article")
+                                Text(L10n.text("article.readFull"))
                                     .font(.subheadline.weight(.bold))
                                 Spacer()
                                 Image(systemName: "arrow.up.right")

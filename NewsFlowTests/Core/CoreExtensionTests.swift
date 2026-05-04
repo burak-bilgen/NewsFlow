@@ -88,23 +88,23 @@ final class APIConfigTests: XCTestCase {
 
 final class SourceDTOEdgeCaseTests: XCTestCase {
     func testDomainModelReturnsNilForNilID() {
-        let dto = SourceDTO(id: nil, name: "Test", description: "Desc", category: "tech", language: "en")
+        let dto = SourceDTO(id: nil, name: "Test", description: "Desc", url: nil, category: "tech", language: "en")
         XCTAssertNil(dto.domainModel())
     }
 
     func testDomainModelReturnsNilForEmptyID() {
-        let dto = SourceDTO(id: "", name: "Test", description: "Desc", category: "tech", language: "en")
+        let dto = SourceDTO(id: "", name: "Test", description: "Desc", url: nil, category: "tech", language: "en")
         XCTAssertNil(dto.domainModel())
     }
 
     func testDomainModelUsesIDWhenNameIsNil() {
-        let dto = SourceDTO(id: "test", name: nil, description: nil, category: nil, language: nil)
+        let dto = SourceDTO(id: "test", name: nil, description: nil, url: nil, category: nil, language: nil)
         let model = dto.domainModel()
         XCTAssertEqual(model?.name, "test")
     }
 
     func testDomainModelDefaultsCategory() {
-        let dto = SourceDTO(id: "test", name: "Test", description: "D", category: nil, language: "en")
+        let dto = SourceDTO(id: "test", name: "Test", description: "D", url: nil, category: nil, language: "en")
         let model = dto.domainModel()
         XCTAssertEqual(model?.category, "general")
     }

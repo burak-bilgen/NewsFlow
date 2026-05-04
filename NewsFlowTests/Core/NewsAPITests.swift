@@ -31,7 +31,7 @@ final class NewsAPIRequestBuilderTests: XCTestCase {
             apiKeyProvider: { "test-key" }
         )
 
-        let request = try builder.makeRequest(endpoint: .topHeadlines(sourceID: "bbc-news"))
+        let request = try builder.makeRequest(endpoint: .topHeadlines(sourceID: "bbc-news", page: 1, pageSize: 20))
         let components = try XCTUnwrap(
             URLComponents(url: try XCTUnwrap(request.url), resolvingAgainstBaseURL: false)
         )
