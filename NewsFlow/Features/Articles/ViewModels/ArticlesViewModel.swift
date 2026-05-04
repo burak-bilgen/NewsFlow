@@ -13,6 +13,7 @@ import Foundation
 /// - `FetchMode` distinguishes UI-driven loads (initial/retry) from silent
 ///   background refreshes (automatic) so we don't show full-screen spinners
 ///   when auto-refreshing every 60s.
+/// - Pagination: page 1 is cached, subsequent pages append to the list.
 @MainActor
 final class ArticlesViewModel: ObservableObject {
     enum State: Equatable {
@@ -28,12 +29,15 @@ final class ArticlesViewModel: ObservableObject {
         case pullToRefresh
         case retry
         case automatic
+        case loadMore
     }
 
     @Published private(set) var state: State = .idle
     @Published private(set) var articles: [Article] = []
     @Published private(set) var savedArticleIDs: Set<String> = []
     @Published private(set) var isRefreshing = false
+    @Published private(set) var isLoadingMore = false
+    @Published private(set) var hasMorePages = true
     @Published var carouselSelection = 0
     @Published var warningMessage: String?
 
@@ -43,23 +47,27 @@ final class ArticlesViewModel: ObservableObject {
     private let readingListRepository: ReadingListRepositoryProtocol
     private let sortingStrategy: ArticleSorting
     private let errorSimulator: ArticleRequestErrorSimulating?
+    private let pageSize: Int
 
     /// Unique ID for the most recent fetch request. Used to drop stale callbacks.
     private var latestRequestID = UUID()
     private var automaticRefreshTask: Task<Void, Never>?
+    private var currentPage = 1
 
     init(
         source: NewsSource,
         articlesRepository: ArticlesRepositoryProtocol,
         readingListRepository: ReadingListRepositoryProtocol,
         sortingStrategy: ArticleSorting = ArticleSorter(),
-        errorSimulator: ArticleRequestErrorSimulating? = nil
+        errorSimulator: ArticleRequestErrorSimulating? = nil,
+        pageSize: Int = 20
     ) {
         self.source = source
         self.articlesRepository = articlesRepository
         self.readingListRepository = readingListRepository
         self.sortingStrategy = sortingStrategy
         self.errorSimulator = errorSimulator
+        self.pageSize = pageSize
     }
 
     deinit {
@@ -79,15 +87,25 @@ final class ArticlesViewModel: ObservableObject {
     /// Loads articles only on first appearance. Prevents re-loading on re-appear.
     func loadIfNeeded() async {
         guard case .idle = state else { return }
+        currentPage = 1
         await fetch(mode: .initial)
     }
 
     func pullToRefresh() async {
+        currentPage = 1
         await fetch(mode: .pullToRefresh)
     }
 
     func retry() async {
+        currentPage = 1
         await fetch(mode: .retry)
+    }
+
+    /// Loads the next page of articles for infinite scrolling.
+    func loadMore() async {
+        guard !isLoadingMore, hasMorePages else { return }
+        currentPage += 1
+        await fetch(mode: .loadMore)
     }
 
     /// Starts a background task that silently refreshes every 60 seconds.
@@ -145,6 +163,8 @@ final class ArticlesViewModel: ObservableObject {
         // Pull-to-refresh uses the ScrollView's built-in indicator instead.
         if mode == .initial || mode == .retry {
             state = .loading
+        } else if mode == .loadMore {
+            isLoadingMore = true
         } else if mode != .automatic {
             isRefreshing = true
         }
@@ -152,56 +172,86 @@ final class ArticlesViewModel: ObservableObject {
         // Debug feature: every 3rd non-automatic request fails on purpose.
         if let errorSimulator, mode != .automatic, await errorSimulator.shouldSimulateError() {
             guard latestRequestID == requestID else { return }
-            isRefreshing = false
+            resetLoadingState(mode: mode)
             warningMessage = L10n.text("error.simulatedFetch")
-            state = articles.isEmpty ? .error(L10n.text("error.simulatedFetch")) : .loaded
+            if articles.isEmpty {
+                state = .error(L10n.text("error.simulatedFetch"))
+            }
             return
         }
 
         do {
             // Fetch articles and saved IDs in parallel — they're independent.
-            async let fetchedArticles = articlesRepository.fetchArticles(sourceID: source.id)
+            async let fetchedResult = articlesRepository.fetchArticles(
+                sourceID: source.id,
+                page: currentPage,
+                pageSize: pageSize
+            )
             async let savedIDs = readingListRepository.savedArticleIDs()
-            let result = try await (fetchedArticles, savedIDs)
+            let result = try await (fetchedResult, savedIDs)
 
             // Drop this callback if a newer request started while we were waiting.
             guard latestRequestID == requestID else { return }
             handleFetchSuccess(result.0, savedIDs: result.1, mode: mode, requestID: requestID)
         } catch let error as NewsAPIError where error == .cancelled {
             // User cancelled (e.g. view disappeared) — just reset the flag.
-            isRefreshing = false
+            resetLoadingState(mode: mode)
         } catch let error as NewsAPIError {
             guard latestRequestID == requestID else { return }
-            handleFetchError(error.userMessage, requestID: requestID)
+            handleFetchError(error.userMessage, requestID: requestID, mode: mode)
         } catch {
             guard latestRequestID == requestID else { return }
-            handleFetchError(L10n.text("error.generic"), requestID: requestID)
+            handleFetchError(L10n.text("error.generic"), requestID: requestID, mode: mode)
         }
     }
 
     /// Updates the UI with fresh data. For automatic refreshes, silently
     /// skips if nothing changed so the user isn't interrupted.
-    private func handleFetchSuccess(_ fetched: [Article], savedIDs: Set<String>, mode: FetchMode, requestID: UUID) {
-        let sorted = sortingStrategy.newestFirst(fetched)
+    private func handleFetchSuccess(
+        _ result: PaginatedResult<Article>,
+        savedIDs: Set<String>,
+        mode: FetchMode,
+        requestID: UUID
+    ) {
+        if mode == .loadMore {
+            // Append new articles instead of replacing
+            let existingIDs = Set(articles.map(\.id))
+            let newArticles = result.items.filter { !existingIDs.contains($0.id) }
+            articles.append(contentsOf: newArticles)
+        } else {
+            let sorted = sortingStrategy.newestFirst(result.items)
 
-        // Automatic refresh: don't disturb the UI if articles haven't changed.
-        if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
-            isRefreshing = false
-            return
+            // Automatic refresh: don't disturb the UI if articles haven't changed.
+            if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
+                resetLoadingState(mode: mode)
+                return
+            }
+
+            articles = sorted
         }
 
-        articles = sorted
+        hasMorePages = result.hasMorePages
         savedArticleIDs = savedIDs
         carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
         warningMessage = nil
-        isRefreshing = false
+        resetLoadingState(mode: mode)
         state = articles.isEmpty ? .empty : .loaded
     }
 
-    private func handleFetchError(_ message: String, requestID: UUID) {
+    private func handleFetchError(_ message: String, requestID: UUID, mode: FetchMode) {
         guard latestRequestID == requestID else { return }
-        isRefreshing = false
-        state = articles.isEmpty ? .error(message) : .loaded
+        resetLoadingState(mode: mode)
+        if articles.isEmpty {
+            state = .error(message)
+        }
         warningMessage = message
+    }
+
+    private func resetLoadingState(mode: FetchMode) {
+        if mode == .loadMore {
+            isLoadingMore = false
+        } else {
+            isRefreshing = false
+        }
     }
 }

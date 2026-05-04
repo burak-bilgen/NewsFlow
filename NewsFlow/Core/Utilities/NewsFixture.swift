@@ -136,8 +136,21 @@ final class MockArticlesRepository: ArticlesRepositoryProtocol {
         self.articlesBySource = articlesBySource
     }
 
-    func fetchArticles(sourceID: String) async throws -> [Article] {
-        articlesBySource[sourceID] ?? []
+    func fetchArticles(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        let allArticles = articlesBySource[sourceID] ?? []
+        let startIndex = (page - 1) * pageSize
+        let endIndex = min(startIndex + pageSize, allArticles.count)
+
+        guard startIndex < allArticles.count else {
+            return PaginatedResult(items: [], currentPage: page, hasMorePages: false)
+        }
+
+        let items = Array(allArticles[startIndex..<endIndex])
+        return PaginatedResult(
+            items: items,
+            currentPage: page,
+            hasMorePages: endIndex < allArticles.count
+        )
     }
 }
 

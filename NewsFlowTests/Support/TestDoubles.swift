@@ -21,9 +21,14 @@ final class ArticlesRepositorySpy: ArticlesRepositoryProtocol {
         self.result = result
     }
 
-    func fetchArticles(sourceID: String) async throws -> [Article] {
+    func fetchArticles(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
         requestCount += 1
-        return try result.get()
+        let items = try result.get()
+        return PaginatedResult(
+            items: items,
+            currentPage: page,
+            hasMorePages: items.count >= pageSize
+        )
     }
 }
 
@@ -70,7 +75,8 @@ enum TestFactory {
         name: "BBC News",
         description: "News source",
         category: "general",
-        language: "en"
+        language: "en",
+        url: "https://www.bbc.co.uk/news"
     )
 
     static func article(id: String, title: String, publishedAt: Date?) -> Article {

@@ -122,6 +122,15 @@ struct ArticlesView: View {
                         value: viewModel.state
                     )
                 }
+
+                // Load More button for pagination
+                if viewModel.hasMorePages {
+                    LoadMoreButton(isLoading: viewModel.isLoadingMore) {
+                        Task { await viewModel.loadMore() }
+                    }
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.sm)
+                }
             }
             .padding(.vertical, AppSpacing.lg)
         }

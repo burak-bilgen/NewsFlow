@@ -2,7 +2,7 @@ import Foundation
 
 enum NewsAPIEndpoint: Equatable {
     case sources
-    case topHeadlines(sourceID: String)
+    case topHeadlines(sourceID: String, page: Int, pageSize: Int)
 
     var path: String {
         switch self {
@@ -19,8 +19,12 @@ enum NewsAPIEndpoint: Equatable {
         case .sources:
             return []
 
-        case let .topHeadlines(sourceID):
-            return [URLQueryItem(name: "sources", value: sourceID)]
+        case let .topHeadlines(sourceID, page, pageSize):
+            return [
+                URLQueryItem(name: "sources", value: sourceID),
+                URLQueryItem(name: "page", value: String(page)),
+                URLQueryItem(name: "pageSize", value: String(pageSize))
+            ]
         }
     }
 }

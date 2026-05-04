@@ -3,10 +3,10 @@ import XCTest
 
 final class SourceFilteringTests: XCTestCase {
     private let sources = [
-        NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en"),
-        NewsSource(id: "tc", name: "TechCrunch", description: "B", category: "technology", language: "en"),
-        NewsSource(id: "espn", name: "ESPN", description: "C", category: "sports", language: "en"),
-        NewsSource(id: "fr", name: "French", description: "D", category: "general", language: "fr")
+        NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil),
+        NewsSource(id: "tc", name: "TechCrunch", description: "B", category: "technology", language: "en", url: nil),
+        NewsSource(id: "espn", name: "ESPN", description: "C", category: "sports", language: "en", url: nil),
+        NewsSource(id: "fr", name: "French", description: "D", category: "general", language: "fr", url: nil)
     ]
 
     private let filterService = SourceFilterService()
