@@ -39,7 +39,12 @@ final class AppContainer: ObservableObject {
 
         let requestBuilder = NewsAPIRequestBuilder()
         let client = NewsAPIClient(requestBuilder: requestBuilder)
-        let store = try! FilePersistentStore()
+        let store: PersistentStore
+        do {
+            store = try FilePersistentStore()
+        } catch {
+            store = InMemoryPersistentStore()
+        }
         return AppContainer(
             sourcesRepository: CachedSourcesRepository(
                 remoteRepository: NewsAPISourcesRepository(client: client),
