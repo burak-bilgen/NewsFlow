@@ -17,6 +17,7 @@ final class AppRouter: ObservableObject, AppRouterProtocol {
 struct RootNavigationView: View {
     @ObservedObject private var container: AppContainer
     @StateObject private var router = AppRouter()
+    @Namespace private var heroAnimation
 
     init(container: AppContainer) {
         self.container = container
@@ -28,7 +29,8 @@ struct RootNavigationView: View {
                 viewModel: container.makeSourcesViewModel(),
                 articlesViewModel: { source in
                     container.makeArticlesViewModel(source: source)
-                }
+                },
+                heroNamespace: heroAnimation
             )
         }
         .navigationViewStyle(.stack)

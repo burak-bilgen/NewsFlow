@@ -6,13 +6,16 @@ struct SourcesView: View {
     @StateObject private var viewModel: SourcesViewModel
     @EnvironmentObject private var router: AppRouter
     private let articlesViewModel: (NewsSource) -> ArticlesViewModel
+    var heroNamespace: Namespace.ID?
 
     init(
         viewModel: SourcesViewModel,
-        articlesViewModel: @escaping (NewsSource) -> ArticlesViewModel
+        articlesViewModel: @escaping (NewsSource) -> ArticlesViewModel,
+        heroNamespace: Namespace.ID? = nil
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.articlesViewModel = articlesViewModel
+        self.heroNamespace = heroNamespace
     }
 
     var body: some View {
@@ -87,7 +90,8 @@ struct SourcesView: View {
                     CategoryRowView(
                         category: viewModel.localizedCategory(group.category),
                         sources: group.sources,
-                        articlesViewModel: articlesViewModel
+                        articlesViewModel: articlesViewModel,
+                        heroNamespace: heroNamespace
                     )
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .move(edge: .trailing)),
@@ -246,6 +250,7 @@ struct CategoryRowView: View {
     let category: String
     let sources: [NewsSource]
     let articlesViewModel: (NewsSource) -> ArticlesViewModel
+    var heroNamespace: Namespace.ID?
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -268,9 +273,12 @@ struct CategoryRowView: View {
                 HStack(spacing: AppSpacing.md) {
                     ForEach(Array(sources.enumerated()), id: \.element.id) { index, source in
                         NavigationLink {
-                            ArticlesView(viewModel: articlesViewModel(source))
+                            ArticlesView(
+                                viewModel: articlesViewModel(source),
+                                heroNamespace: heroNamespace
+                            )
                         } label: {
-                            SourceMediaCard(source: source)
+                            SourceMediaCard(source: source, heroNamespace: heroNamespace)
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("source.card.\(source.id)")
@@ -288,6 +296,7 @@ struct CategoryRowView: View {
 
 struct SourceMediaCard: View {
     let source: NewsSource
+    var heroNamespace: Namespace.ID?
 
     var body: some View {
         VStack(spacing: AppSpacing.sm) {
@@ -320,6 +329,9 @@ struct SourceMediaCard: View {
                     fallbackInitials
                 }
             }
+            .ifLet(heroNamespace) { view, ns in
+                view.matchedGeometryEffect(id: "source.\(source.id)", in: ns)
+            }
 
             Text(source.name)
                 .font(.system(size: 13, weight: .bold))
@@ -336,5 +348,17 @@ struct SourceMediaCard: View {
             .font(.system(size: 40, weight: .black, design: .serif))
             .foregroundColor(AppPalette.primaryRed)
             .frame(width: 120, height: 120)
+    }
+}
+
+// Helper for optional matchedGeometryEffect
+extension View {
+    @ViewBuilder
+    func ifLet<T, Content: View>(_ value: T?, transform: (Self, T) -> Content) -> some View {
+        if let value {
+            transform(self, value)
+        } else {
+            self
+        }
     }
 }

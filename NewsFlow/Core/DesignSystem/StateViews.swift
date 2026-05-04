@@ -1,18 +1,6 @@
 import SwiftUI
 
-struct LoadingStateView: View {
-    let text: String
-
-    var body: some View {
-        VStack(spacing: AppSpacing.md) {
-            ProgressView()
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
+// MARK: - StateMessageView (Empty / Error / Success states)
 
 struct StateMessageView: View {
     let systemImage: String
@@ -21,29 +9,101 @@ struct StateMessageView: View {
     var retryTitle: String?
     var retryAction: (() -> Void)?
 
+    @State private var isAnimating = false
+
     var body: some View {
-        VStack(spacing: AppSpacing.md) {
-            Image(systemName: systemImage)
-                .font(.largeTitle)
-                .foregroundColor(AppPalette.primaryRed)
+        VStack(spacing: AppSpacing.lg) {
+            Spacer()
 
-            Text(title)
-                .font(.title3.weight(.semibold))
-                .multilineTextAlignment(.center)
+            // Animated illustration with bounce
+            ZStack {
+                // Outer pulsing ring
+                Circle()
+                    .stroke(AppPalette.primaryRed.opacity(0.15), lineWidth: 2)
+                    .frame(width: isAnimating ? 120 : 100, height: isAnimating ? 120 : 100)
+                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isAnimating)
 
-            Text(message)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, AppSpacing.xl)
+                // Middle ring
+                Circle()
+                    .fill(AppPalette.primaryRed.opacity(0.08))
+                    .frame(width: 90, height: 90)
+
+                // Icon
+                Image(systemName: systemImage)
+                    .font(.system(size: 40, weight: .semibold))
+                    .foregroundColor(AppPalette.primaryRed)
+                    .symbolRenderingMode(.hierarchical)
+                    .scaleEffect(isAnimating ? 1.1 : 1.0)
+                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isAnimating)
+            }
+            .frame(width: 120, height: 120)
+
+            VStack(spacing: AppSpacing.sm) {
+                Text(title)
+                    .font(.system(size: 22, weight: .black, design: .serif))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(AppPalette.textPrimary)
+
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundColor(AppPalette.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .padding(.horizontal, AppSpacing.xl)
+            }
 
             if let retryTitle, let retryAction {
-                Button(retryTitle, action: retryAction)
-                    .buttonStyle(ReadingListButtonStyle())
-                    .accessibilityIdentifier("state.retry.button")
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
+                        retryAction()
+                    }
+                    Haptic.light()
+                } label: {
+                    HStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text(retryTitle)
+                            .font(.subheadline.weight(.bold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.vertical, AppSpacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
+                            .fill(AppPalette.primaryRed)
+                            .shadow(color: AppPalette.primaryRed.opacity(0.3), radius: 12, x: 0, y: 6)
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("state.retry.button")
+                .scaleEffect(isAnimating ? 1.02 : 1.0)
+                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isAnimating)
             }
+
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(AppSpacing.xl)
+        .onAppear { isAnimating = true }
     }
 }
+
+#if DEBUG
+#Preview("Error State") {
+    StateMessageView(
+        systemImage: "exclamationmark.triangle.fill",
+        title: "Something Went Wrong",
+        message: "We couldn't load the articles. Please check your connection and try again.",
+        retryTitle: "Try Again",
+        retryAction: {}
+    )
+}
+
+#Preview("Empty State") {
+    StateMessageView(
+        systemImage: "newspaper.fill",
+        title: "No Articles Found",
+        message: "There are no articles available from this source at the moment."
+    )
+}
+#endif

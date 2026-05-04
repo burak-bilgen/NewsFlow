@@ -9,9 +9,11 @@ import SwiftUI
 struct ArticlesView: View {
     @StateObject private var viewModel: ArticlesViewModel
     @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    var heroNamespace: Namespace.ID?
 
-    init(viewModel: ArticlesViewModel) {
+    init(viewModel: ArticlesViewModel, heroNamespace: Namespace.ID? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.heroNamespace = heroNamespace
     }
 
     var body: some View {
@@ -88,9 +90,11 @@ struct ArticlesView: View {
 
     private var articleList: some View {
         ScrollView {
+            PullToRefreshIndicator(isRefreshing: viewModel.isRefreshing)
+
             LazyVStack(spacing: AppSpacing.lg) {
                 if !viewModel.featuredArticles.isEmpty {
-                    FeaturedCarouselView(viewModel: viewModel)
+                    FeaturedCarouselView(viewModel: viewModel, heroNamespace: heroNamespace)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
 

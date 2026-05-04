@@ -4,12 +4,17 @@ struct ArticleHeroCard: View {
     let article: Article
     let sourceName: String
     let isSaved: Bool
+    var heroNamespace: Namespace.ID?
+    var sourceID: String?
     let onToggle: () -> Void
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             ArticleImageView(url: article.imageURL)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ifLet(heroNamespace, sourceID) { view, ns, id in
+                    view.matchedGeometryEffect(id: "source.\(id)", in: ns)
+                }
 
             LinearGradient(
                 colors: [
@@ -75,6 +80,18 @@ struct ArticleHeroCard: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
         .shadow(color: AppPalette.shadowColor, radius: 20, x: 0, y: 10)
+    }
+}
+
+// Helper for optional matchedGeometryEffect with two values
+extension View {
+    @ViewBuilder
+    func ifLet<T, U, Content: View>(_ value1: T?, _ value2: U?, transform: (Self, T, U) -> Content) -> some View {
+        if let value1, let value2 {
+            transform(self, value1, value2)
+        } else {
+            self
+        }
     }
 }
 

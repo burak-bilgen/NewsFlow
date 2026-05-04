@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FeaturedCarouselView: View {
     @ObservedObject var viewModel: ArticlesViewModel
+    var heroNamespace: Namespace.ID?
 
     var body: some View {
         GeometryReader { geometry in
@@ -10,7 +11,9 @@ struct FeaturedCarouselView: View {
                     ArticleHeroCard(
                         article: article,
                         sourceName: viewModel.source.name,
-                        isSaved: viewModel.isSaved(article)
+                        isSaved: viewModel.isSaved(article),
+                        heroNamespace: index == 0 ? heroNamespace : nil,
+                        sourceID: viewModel.source.id
                     ) {
                         Task { await viewModel.toggleReadingList(for: article) }
                     }
