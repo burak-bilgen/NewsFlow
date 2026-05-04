@@ -125,7 +125,9 @@ private struct ArticleRowView: View {
                     .foregroundColor(.secondary)
 
                 Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
-                    onToggle()
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        onToggle()
+                    }
                 }
                 .buttonStyle(ReadingListButtonStyle())
                 .accessibilityIdentifier("readingList.toggle.\(article.id)")
@@ -217,7 +219,9 @@ private struct ArticleHeroCard: View {
                 .foregroundColor(.secondary)
 
             Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
-                onToggle()
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    onToggle()
+                }
             }
             .buttonStyle(ReadingListButtonStyle())
             .accessibilityIdentifier("readingList.toggle.\(article.id)")

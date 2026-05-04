@@ -69,6 +69,7 @@ struct SourcesView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .animation(.easeInOut(duration: 0.2), value: viewModel.visibleSources)
         .accessibilityIdentifier("sources.list")
     }
 }
@@ -82,7 +83,9 @@ private struct CategoryFilterView: View {
                 ForEach(viewModel.categories, id: \.self) { category in
                     let isSelected = viewModel.selectedCategories.contains(category)
                     Button {
-                        viewModel.toggleCategory(category)
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.toggleCategory(category)
+                        }
                     } label: {
                         Text(viewModel.localizedCategory(category))
                             .font(.subheadline.weight(.semibold))
