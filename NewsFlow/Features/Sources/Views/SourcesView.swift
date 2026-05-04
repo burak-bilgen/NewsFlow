@@ -29,14 +29,17 @@ struct SourcesView: View {
         switch viewModel.state {
         case .idle, .loading:
             sourcesSkeleton
+                .transition(.opacity)
         case .loaded:
             sourceList
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
         case .empty:
             StateMessageView(
                 systemImage: "newspaper",
                 title: L10n.text("sources.empty.title"),
                 message: L10n.text("sources.empty.message")
             )
+            .transition(.opacity)
         case let .error(message):
             StateMessageView(
                 systemImage: "exclamationmark.triangle",
@@ -46,6 +49,7 @@ struct SourcesView: View {
             ) {
                 Task { await viewModel.retry() }
             }
+            .transition(.opacity)
         }
     }
 

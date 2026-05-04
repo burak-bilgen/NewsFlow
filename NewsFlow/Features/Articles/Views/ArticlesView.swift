@@ -48,8 +48,10 @@ struct ArticlesView: View {
         switch viewModel.state {
         case .idle, .loading:
             ArticlesSkeletonView()
+                .transition(.opacity)
         case .loaded:
             articleList
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
         case .empty:
             StateMessageView(
                 systemImage: "doc.text.magnifyingglass",
@@ -59,6 +61,7 @@ struct ArticlesView: View {
             ) {
                 Task { await viewModel.retry() }
             }
+            .transition(.opacity)
         case let .error(message):
             StateMessageView(
                 systemImage: "exclamationmark.triangle",
@@ -68,6 +71,7 @@ struct ArticlesView: View {
             ) {
                 Task { await viewModel.retry() }
             }
+            .transition(.opacity)
         }
     }
 
