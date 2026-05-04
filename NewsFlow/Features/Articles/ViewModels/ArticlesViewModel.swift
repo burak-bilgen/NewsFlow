@@ -29,7 +29,7 @@ final class ArticlesViewModel: ObservableObject {
 
     private let articlesRepository: ArticlesRepositoryProtocol
     private let readingListRepository: ReadingListRepositoryProtocol
-    private let errorSimulator: ArticleRequestErrorSimulating
+    private let errorSimulator: ArticleRequestErrorSimulating?
     private var latestRequestID = UUID()
     private var automaticRefreshTask: Task<Void, Never>?
 
@@ -37,12 +37,16 @@ final class ArticlesViewModel: ObservableObject {
         source: NewsSource,
         articlesRepository: ArticlesRepositoryProtocol,
         readingListRepository: ReadingListRepositoryProtocol,
-        errorSimulator: ArticleRequestErrorSimulating
+        errorSimulator: ArticleRequestErrorSimulating? = nil
     ) {
         self.source = source
         self.articlesRepository = articlesRepository
         self.readingListRepository = readingListRepository
         self.errorSimulator = errorSimulator
+    }
+
+    deinit {
+        automaticRefreshTask?.cancel()
     }
 
     var featuredArticles: [Article] {
@@ -109,7 +113,7 @@ final class ArticlesViewModel: ObservableObject {
             isRefreshing = true
         }
 
-        if mode != .automatic, await errorSimulator.shouldSimulateError() {
+        if let errorSimulator, mode != .automatic, await errorSimulator.shouldSimulateError() {
             guard latestRequestID == requestID else { return }
             isRefreshing = false
             warningMessage = L10n.text("error.simulatedFetch")

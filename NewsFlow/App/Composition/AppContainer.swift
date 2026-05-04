@@ -6,13 +6,13 @@ final class AppContainer: ObservableObject {
     private let sourcesRepository: SourcesRepositoryProtocol
     private let articlesRepository: ArticlesRepositoryProtocol
     private let readingListRepository: ReadingListRepositoryProtocol
-    private let errorSimulator: ArticleRequestErrorSimulating
+    private let errorSimulator: ArticleRequestErrorSimulating?
 
     init(
         sourcesRepository: SourcesRepositoryProtocol,
         articlesRepository: ArticlesRepositoryProtocol,
         readingListRepository: ReadingListRepositoryProtocol,
-        errorSimulator: ArticleRequestErrorSimulating
+        errorSimulator: ArticleRequestErrorSimulating? = nil
     ) {
         self.sourcesRepository = sourcesRepository
         self.articlesRepository = articlesRepository
@@ -43,7 +43,7 @@ final class AppContainer: ObservableObject {
             sourcesRepository: NewsAPISourcesRepository(client: client),
             articlesRepository: NewsAPIArticlesRepository(client: client),
             readingListRepository: UserDefaultsReadingListRepository(),
-            errorSimulator: EveryThirdRequestErrorSimulator()
+            errorSimulator: nil
         )
     }
 
