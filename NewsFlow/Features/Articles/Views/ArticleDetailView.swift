@@ -30,16 +30,29 @@ struct ArticleDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+
                 // Hero image
                 ArticleImageView(url: article.imageURL)
-                    .frame(maxWidth: .infinity, minHeight: 300, idealHeight: 300, maxHeight: 300)
+                    .frame(maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: 320)
                     .clipShape(
                         RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
                     )
+                    .overlay(
+                        LinearGradient(
+                            colors: [AppPalette.gradientStart, AppPalette.gradientMid, AppPalette.gradientEnd],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+                    )
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.md)
+                    .shadow(color: AppPalette.shadowColor.opacity(0.4), radius: 24, x: 0, y: 12)
 
-                VStack(alignment: .leading, spacing: AppSpacing.md) {
+                VStack(alignment: .leading, spacing: AppSpacing.lg) {
+
                     // Source badge + date
-                    HStack {
+                    HStack(spacing: AppSpacing.sm) {
                         Text(sourceName.uppercased())
                             .font(.system(size: 11, weight: .black))
                             .tracking(1.2)
@@ -49,6 +62,7 @@ struct ArticleDetailView: View {
                             .background(
                                 Capsule()
                                     .fill(AppPalette.primaryRed)
+                                    .shadow(color: AppPalette.primaryRed.opacity(0.35), radius: 8, x: 0, y: 4)
                             )
 
                         Spacer()
@@ -60,34 +74,37 @@ struct ArticleDetailView: View {
 
                     // Title
                     Text(article.title)
-                        .font(.system(size: 24, weight: .black, design: .serif))
+                        .font(.system(size: 28, weight: .black, design: .serif))
                         .foregroundColor(AppPalette.textPrimary)
-                        .lineSpacing(4)
-
-                    Divider()
-                        .padding(.vertical, AppSpacing.sm)
+                        .lineSpacing(6)
 
                     // Read more button
                     if let url = article.url {
                         Button {
                             showSafari = true
                         } label: {
-                            HStack {
+                            HStack(spacing: AppSpacing.sm) {
                                 Image(systemName: "safari")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.system(size: 18, weight: .semibold))
                                 Text(L10n.text("article.readFull"))
                                     .font(.subheadline.weight(.bold))
                                 Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.system(size: 14, weight: .semibold))
+                                Image(systemName: "arrow.up.right.square.fill")
+                                    .font(.system(size: 18, weight: .semibold))
                             }
                             .foregroundColor(.white)
                             .padding(.horizontal, AppSpacing.lg)
                             .padding(.vertical, AppSpacing.md)
                             .background(
                                 RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
-                                    .fill(AppPalette.primaryRed)
-                                    .shadow(color: AppPalette.primaryRed.opacity(0.3), radius: 12, x: 0, y: 6)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [AppPalette.primaryRed, AppPalette.primaryRedDark],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .shadow(color: AppPalette.primaryRed.opacity(0.35), radius: 16, x: 0, y: 8)
                             )
                         }
                         .buttonStyle(.plain)
@@ -97,7 +114,15 @@ struct ArticleDetailView: View {
                     }
                 }
                 .padding(AppSpacing.lg)
+                .background(
+                    AppPalette.elevatedBackground
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+                )
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.top, AppSpacing.lg)
+                .shadow(color: AppPalette.shadowColor.opacity(0.5), radius: 20, x: 0, y: 10)
             }
+            .padding(.bottom, AppSpacing.xl)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -106,7 +131,7 @@ struct ArticleDetailView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24))
+                        .font(.system(size: 26))
                         .foregroundColor(AppPalette.textSecondary)
                 }
             }

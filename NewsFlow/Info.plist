@@ -4,5 +4,10 @@
 <dict>
 	<key>NewsAPIKey</key>
 	<string>$(NEWS_API_KEY)</string>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIImageName</key>
+		<string>logo</string>
+	</dict>
 </dict>
 </plist>

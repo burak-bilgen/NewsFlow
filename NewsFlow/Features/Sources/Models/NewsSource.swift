@@ -11,16 +11,16 @@ struct NewsSource: Identifiable, Hashable, Codable {
     let language: String
     let url: String?
 
-    /// Extracts the domain from the source URL for Clearbit logo lookup.
-    /// Strips "www." prefix because Clearbit works better with bare domains.
-    /// Example: "https://www.bbc.co.uk" → "https://logo.clearbit.com/bbc.co.uk"
+    /// Extracts the domain from the source URL for favicon lookup.
+    /// Strips "www." prefix for better compatibility.
+    /// Example: "https://www.bbc.co.uk" → "https://www.google.com/s2/favicons?domain=bbc.co.uk&sz=128"
     var logoURL: URL? {
         guard let url else { return nil }
         guard var host = URL(string: url)?.host else { return nil }
         if host.lowercased().hasPrefix("www.") {
             host = String(host.dropFirst(4))
         }
-        return URL(string: "https://logo.clearbit.com/\(host)")
+        return URL(string: "https://www.google.com/s2/favicons?domain=\(host)&sz=128")
     }
 
     /// Returns up to 2 uppercase initials from the source name.

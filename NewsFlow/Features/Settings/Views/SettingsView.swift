@@ -7,8 +7,6 @@ struct SettingsView: View {
 
     var body: some View {
         List {
-            appHeaderSection
-
             Section {
                 ForEach(AppTheme.allCases) { theme in
                     ThemeRow(theme: theme, isSelected: themeManager.currentTheme == theme) {
@@ -69,36 +67,6 @@ struct SettingsView: View {
         .listStyle(.insetGrouped)
                 .navigationTitle(L10n.text("settings.title"))
         .navigationBarTitleDisplayMode(.large)
-    }
-
-    private var appHeaderSection: some View {
-        Section {
-            HStack(spacing: AppSpacing.md) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
-                        .fill(AppPalette.primaryRed)
-                        .frame(width: 64, height: 64)
-                        .shadow(color: AppPalette.primaryRed.opacity(0.3), radius: 12, x: 0, y: 6)
-
-                    Image(systemName: "newspaper.fill")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                }
-
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text("NewsFlow")
-                        .font(.system(size: 22, weight: .black, design: .serif))
-                        .foregroundColor(AppPalette.textPrimary)
-
-                    Text(L10n.text("settings.appSubtitle"))
-                        .font(.subheadline)
-                        .foregroundColor(AppPalette.textSecondary)
-                }
-
-                Spacer()
-            }
-            .padding(.vertical, AppSpacing.sm)
-        }
     }
 
     private var appVersion: String {

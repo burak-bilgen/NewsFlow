@@ -113,11 +113,12 @@ struct SourcesView: View {
     // MARK: - Masthead Header (Newspaper Style)
 
     private var mastheadHeader: some View {
-        VStack(spacing: AppSpacing.xs) {
-            Text("News Flow")
-                .font(.system(size: 40, weight: .black, design: .serif))
-                .tracking(2)
-                .foregroundColor(AppPalette.primaryRed)
+        VStack(spacing: AppSpacing.sm) {
+            Image("logo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 140)
+                .padding(.vertical, AppSpacing.md)
 
             Rectangle()
                 .fill(AppPalette.primaryRed)
