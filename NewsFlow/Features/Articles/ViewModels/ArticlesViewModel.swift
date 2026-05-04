@@ -123,30 +123,37 @@ final class ArticlesViewModel: ObservableObject {
             let result = try await (fetchedArticles, savedIDs)
             guard latestRequestID == requestID else { return }
 
-            let sorted = ArticleSorter.newestFirst(result.0)
-            if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
-                isRefreshing = false
-                return
-            }
-
-            articles = sorted
-            savedArticleIDs = result.1
-            carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
-            warningMessage = nil
-            isRefreshing = false
-            state = articles.isEmpty ? .empty : .loaded
+            handleFetchSuccess(result.0, savedIDs: result.1, mode: mode, requestID: requestID)
         } catch let error as NewsAPIError where error == .cancelled {
             isRefreshing = false
         } catch let error as NewsAPIError {
             guard latestRequestID == requestID else { return }
-            isRefreshing = false
-            state = articles.isEmpty ? .error(error.userMessage) : .loaded
-            warningMessage = error.userMessage
+            handleFetchError(error.userMessage, requestID: requestID)
         } catch {
             guard latestRequestID == requestID else { return }
-            isRefreshing = false
-            state = articles.isEmpty ? .error(L10n.text("error.generic")) : .loaded
-            warningMessage = L10n.text("error.generic")
+            handleFetchError(L10n.text("error.generic"), requestID: requestID)
         }
+    }
+
+    private func handleFetchSuccess(_ fetched: [Article], savedIDs: Set<String>, mode: FetchMode, requestID: UUID) {
+        let sorted = ArticleSorter.newestFirst(fetched)
+        if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
+            isRefreshing = false
+            return
+        }
+
+        articles = sorted
+        savedArticleIDs = savedIDs
+        carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
+        warningMessage = nil
+        isRefreshing = false
+        state = articles.isEmpty ? .empty : .loaded
+    }
+
+    private func handleFetchError(_ message: String, requestID: UUID) {
+        guard latestRequestID == requestID else { return }
+        isRefreshing = false
+        state = articles.isEmpty ? .error(message) : .loaded
+        warningMessage = message
     }
 }

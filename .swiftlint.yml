@@ -1,0 +1,9 @@
+identifier_name:
+  excluded:
+    - xs
+    - sm
+    - md
+    - lg
+    - xl
+    - xxs
+    - id
