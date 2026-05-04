@@ -52,25 +52,7 @@ final class SourcesViewModel: ObservableObject {
     /// Loads sources from the repository. Only runs if not already loading.
     func load() async {
         guard state != .loading else { return }
-        let requestID = UUID()
-        latestRequestID = requestID
-        state = .loading
-
-        do {
-            let fetchedSources = try await repository.fetchSources()
-            guard latestRequestID == requestID else { return }
-
-            sources = fetchedSources
-            categories = filterService.categories(from: fetchedSources)
-            applyFilters()
-            state = visibleSources.isEmpty ? .empty : .loaded
-        } catch let error as NewsAPIError {
-            guard latestRequestID == requestID else { return }
-            state = .error(error.userMessage)
-        } catch {
-            guard latestRequestID == requestID else { return }
-            state = .error(L10n.text("error.generic"))
-        }
+        await performFetch(showLoading: true)
     }
 
     /// Retries loading sources. Resets to loading state.
@@ -80,26 +62,10 @@ final class SourcesViewModel: ObservableObject {
 
     /// Pull-to-refresh support. Silently refreshes without showing full-screen loading.
     func refresh() async {
-        isRefreshing = true
-        let requestID = UUID()
-        latestRequestID = requestID
-
-        do {
-            let fetchedSources = try await repository.fetchSources()
-            guard latestRequestID == requestID else { return }
-
-            sources = fetchedSources
-            categories = filterService.categories(from: fetchedSources)
-            applyFilters()
-            isRefreshing = false
-            state = visibleSources.isEmpty ? .empty : .loaded
-        } catch {
-            guard latestRequestID == requestID else { return }
-            isRefreshing = false
-        }
+        await performFetch(showLoading: false)
     }
 
-    /// Toggles a category filter. If all are selected and user taps one, only that one stays.
+    /// Toggles a category filter.
     func toggleCategory(_ category: String) {
         if selectedCategories.contains(category) {
             selectedCategories.remove(category)
@@ -114,6 +80,43 @@ final class SourcesViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    private func performFetch(showLoading: Bool) async {
+        let requestID = UUID()
+        latestRequestID = requestID
+
+        if showLoading {
+            state = .loading
+        } else {
+            isRefreshing = true
+        }
+
+        do {
+            let fetchedSources = try await repository.fetchSources()
+            guard latestRequestID == requestID else { return }
+
+            sources = fetchedSources
+            categories = filterService.categories(from: fetchedSources)
+            applyFilters()
+
+            if !showLoading {
+                isRefreshing = false
+            }
+            state = visibleSources.isEmpty ? .empty : .loaded
+        } catch let error as NewsAPIError {
+            guard latestRequestID == requestID else { return }
+            if !showLoading {
+                isRefreshing = false
+            }
+            state = .error(error.userMessage)
+        } catch {
+            guard latestRequestID == requestID else { return }
+            if !showLoading {
+                isRefreshing = false
+            }
+            state = .error(L10n.text("error.generic"))
+        }
+    }
 
     private func applyFilters() {
         visibleSources = filterService.filter(sources: sources, selectedCategories: selectedCategories)

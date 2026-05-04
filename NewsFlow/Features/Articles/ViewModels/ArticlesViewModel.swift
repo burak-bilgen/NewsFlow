@@ -153,35 +153,21 @@ final class ArticlesViewModel: ObservableObject {
 
     // MARK: - Private
 
-    /// The core fetch pipeline. Handles loading states, error simulation,
-    /// parallel async requests, and stale-request cancellation.
     private func fetch(mode: FetchMode) async {
         let requestID = UUID()
         latestRequestID = requestID
 
-        // Show full-screen skeleton on initial load or retry.
-        // Pull-to-refresh uses the ScrollView's built-in indicator instead.
-        if mode == .initial || mode == .retry {
-            state = .loading
-        } else if mode == .loadMore {
-            isLoadingMore = true
-        } else if mode != .automatic {
-            isRefreshing = true
-        }
+        applyLoadingState(for: mode)
 
         // Debug feature: every 3rd non-automatic request fails on purpose.
-        if let errorSimulator, mode != .automatic, await errorSimulator.shouldSimulateError() {
+        if await shouldSimulateError(mode: mode) {
             guard latestRequestID == requestID else { return }
             resetLoadingState(mode: mode)
-            warningMessage = L10n.text("error.simulatedFetch")
-            if articles.isEmpty {
-                state = .error(L10n.text("error.simulatedFetch"))
-            }
+            applySimulatedError()
             return
         }
 
         do {
-            // Fetch articles and saved IDs in parallel — they're independent.
             async let fetchedResult = articlesRepository.fetchArticles(
                 sourceID: source.id,
                 page: currentPage,
@@ -190,43 +176,55 @@ final class ArticlesViewModel: ObservableObject {
             async let savedIDs = readingListRepository.savedArticleIDs()
             let result = try await (fetchedResult, savedIDs)
 
-            // Drop this callback if a newer request started while we were waiting.
             guard latestRequestID == requestID else { return }
-            handleFetchSuccess(result.0, savedIDs: result.1, mode: mode, requestID: requestID)
+            handleFetchSuccess(result.0, savedIDs: result.1, mode: mode)
         } catch let error as NewsAPIError where error == .cancelled {
-            // User cancelled (e.g. view disappeared) — just reset the flag.
             resetLoadingState(mode: mode)
-        } catch let error as NewsAPIError {
-            guard latestRequestID == requestID else { return }
-            handleFetchError(error.userMessage, requestID: requestID, mode: mode)
         } catch {
             guard latestRequestID == requestID else { return }
-            handleFetchError(L10n.text("error.generic"), requestID: requestID, mode: mode)
+            handleFetchError(error, mode: mode)
         }
     }
 
-    /// Updates the UI with fresh data. For automatic refreshes, silently
-    /// skips if nothing changed so the user isn't interrupted.
+    private func applyLoadingState(for mode: FetchMode) {
+        switch mode {
+        case .initial, .retry:
+            state = .loading
+        case .loadMore:
+            isLoadingMore = true
+        case .pullToRefresh:
+            isRefreshing = true
+        case .automatic:
+            break
+        }
+    }
+
+    private func shouldSimulateError(mode: FetchMode) async -> Bool {
+        guard let errorSimulator, mode != .automatic else { return false }
+        return await errorSimulator.shouldSimulateError()
+    }
+
+    private func applySimulatedError() {
+        let message = L10n.text("error.simulatedFetch")
+        warningMessage = message
+        if articles.isEmpty {
+            state = .error(message)
+        }
+    }
+
     private func handleFetchSuccess(
         _ result: PaginatedResult<Article>,
         savedIDs: Set<String>,
-        mode: FetchMode,
-        requestID: UUID
+        mode: FetchMode
     ) {
         if mode == .loadMore {
-            // Append new articles instead of replacing
-            let existingIDs = Set(articles.map(\.id))
-            let newArticles = result.items.filter { !existingIDs.contains($0.id) }
-            articles.append(contentsOf: newArticles)
+            appendNewArticles(result.items)
         } else {
             let sorted = sortingStrategy.newestFirst(result.items)
-
-            // Automatic refresh: don't disturb the UI if articles haven't changed.
             if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
                 resetLoadingState(mode: mode)
                 return
             }
-
             articles = sorted
         }
 
@@ -238,8 +236,14 @@ final class ArticlesViewModel: ObservableObject {
         state = articles.isEmpty ? .empty : .loaded
     }
 
-    private func handleFetchError(_ message: String, requestID: UUID, mode: FetchMode) {
-        guard latestRequestID == requestID else { return }
+    private func appendNewArticles(_ newItems: [Article]) {
+        let existingIDs = Set(articles.map(\.id))
+        let uniqueNewItems = newItems.filter { !existingIDs.contains($0.id) }
+        articles.append(contentsOf: uniqueNewItems)
+    }
+
+    private func handleFetchError(_ error: Error, mode: FetchMode) {
+        let message = (error as? NewsAPIError)?.userMessage ?? L10n.text("error.generic")
         resetLoadingState(mode: mode)
         if articles.isEmpty {
             state = .error(message)
