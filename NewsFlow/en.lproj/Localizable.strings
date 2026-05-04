@@ -3,6 +3,7 @@
 "sources.empty.title" = "No sources found";
 "sources.empty.message" = "Try changing category filters or retry.";
 "source.description.missing" = "No description available.";
+"sources.mastheadSubtitle" = "Trusted Sources Worldwide";
 
 "articles.loading" = "Loading articles...";
 "articles.empty.title" = "No articles found";
@@ -10,7 +11,9 @@
 "article.title.untitled" = "Untitled article";
 "article.date.unknown" = "No date";
 "article.image.placeholder" = "Article image placeholder";
+"article.readFull" = "Read Full Article";
 "articles.latest" = "Latest News";
+"articles.loadMore" = "Load More Articles";
 
 "readingList.add" = "Okuma listeme ekle";
 "readingList.remove" = "Okuma listemden çıkar";
@@ -23,6 +26,13 @@
 "error.network" = "Check your connection and try again.";
 "error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
 "error.simulatedFetch" = "Bilgiler alınamadı!";
+
+"settings.title" = "Settings";
+"settings.appearance" = "Appearance";
+"settings.about" = "About";
+"settings.version" = "Version";
+"settings.build" = "Build";
+"settings.appSubtitle" = "Your daily news companion";
 
 "category.business" = "Business";
 "category.entertainment" = "Entertainment";

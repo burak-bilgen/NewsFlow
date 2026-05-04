@@ -18,14 +18,14 @@ struct SettingsView: View {
                     }
                 }
             } header: {
-                Text("Appearance")
+                Text(L10n.text("settings.appearance"))
                     .font(.system(size: 13, weight: .bold))
                     .textCase(.uppercase)
             }
 
             Section {
                 HStack {
-                    Label("Version", systemImage: "number")
+                    Label(L10n.text("settings.version"), systemImage: "number")
                         .font(.subheadline)
                     Spacer()
                     Text(appVersion)
@@ -34,7 +34,7 @@ struct SettingsView: View {
                 }
 
                 HStack {
-                    Label("Build", systemImage: "hammer")
+                    Label(L10n.text("settings.build"), systemImage: "hammer")
                         .font(.subheadline)
                     Spacer()
                     Text(appBuild)
@@ -42,13 +42,13 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                 }
             } header: {
-                Text("About")
+                Text(L10n.text("settings.about"))
                     .font(.system(size: 13, weight: .bold))
                     .textCase(.uppercase)
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Settings")
+                .navigationTitle(L10n.text("settings.title"))
         .navigationBarTitleDisplayMode(.large)
     }
 
@@ -71,7 +71,7 @@ struct SettingsView: View {
                         .font(.system(size: 22, weight: .black, design: .serif))
                         .foregroundColor(AppPalette.textPrimary)
 
-                    Text("Your daily news companion")
+                    Text(L10n.text("settings.appSubtitle"))
                         .font(.subheadline)
                         .foregroundColor(AppPalette.textSecondary)
                 }

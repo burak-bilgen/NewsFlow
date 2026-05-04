@@ -15,7 +15,7 @@ struct LoadMoreButton: View {
                         .tint(AppPalette.primaryRed)
                 } else {
                     HStack(spacing: AppSpacing.sm) {
-                        Text("Load More Articles")
+                        Text(L10n.text("articles.loadMore"))
                             .font(.subheadline.weight(.bold))
 
                         Image(systemName: "chevron.down")
