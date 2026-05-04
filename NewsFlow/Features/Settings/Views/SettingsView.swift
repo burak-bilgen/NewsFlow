@@ -148,7 +148,7 @@ private struct ThemeRow: View {
 #Preview {
     NavigationView {
         SettingsView()
-            .environmentObject(ThemeManager.shared)
+            .environmentObject(ThemeManager())
     }
 }
 #endif

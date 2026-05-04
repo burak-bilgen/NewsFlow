@@ -1,8 +1,26 @@
+import Combine
+import SwiftUI
 import UIKit
 
-final class ImageCacheService {
-    static let shared = ImageCacheService()
+// MARK: - ImageCacheService Protocol
 
+/// Abstracts image caching for testability and dependency injection.
+/// The production implementation uses NSCache for memory caching
+/// with automatic eviction under memory pressure.
+protocol ImageCacheServicing: AnyObject {
+    func image(for url: URL) -> UIImage?
+    func loadImage(from url: URL) async -> UIImage?
+}
+
+// MARK: - ImageCacheService Implementation
+
+/// Production image cache backed by NSCache.
+///
+/// Design decisions:
+/// - Not a singleton: injected via AppContainer so tests can swap in mocks.
+/// - NSCache instead of dictionary: automatically evicts under memory pressure.
+/// - countLimit = 100: prevents unbounded growth with high-res news images.
+final class ImageCacheService: ObservableObject, ImageCacheServicing {
     private let cache = NSCache<NSString, CacheEntry>()
     private let session: URLSession
 
@@ -36,6 +54,8 @@ final class ImageCacheService {
         }
     }
 }
+
+// MARK: - Cache Entry
 
 private final class CacheEntry {
     let image: UIImage

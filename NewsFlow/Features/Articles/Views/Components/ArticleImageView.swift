@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ArticleImageView: View {
     let url: URL?
+    @EnvironmentObject var imageCache: ImageCacheService
     @State private var cachedImage: Image?
     @State private var loadTask: Task<Void, Never>?
     @State private var isLoaded = false
@@ -45,7 +46,7 @@ struct ArticleImageView: View {
         .onAppear {
             guard let url, cachedImage == nil else { return }
             loadTask = Task {
-                if let uiImage = await ImageCacheService.shared.loadImage(from: url) {
+                if let uiImage = await imageCache.loadImage(from: url) {
                     guard !Task.isCancelled else { return }
                     cachedImage = Image(uiImage: uiImage)
                 }

@@ -33,7 +33,6 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
 @MainActor
 final class ThemeManager: ObservableObject {
-    static let shared = ThemeManager()
     private let key = "app.theme.preference"
 
     @Published var currentTheme: AppTheme {
