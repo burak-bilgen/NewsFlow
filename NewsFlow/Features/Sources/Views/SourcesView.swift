@@ -28,7 +28,7 @@ struct SourcesView: View {
     private var content: some View {
         switch viewModel.state {
         case .idle, .loading:
-            LoadingStateView(text: L10n.text("sources.loading"))
+            sourcesSkeleton
         case .loaded:
             sourceList
         case .empty:
@@ -74,6 +74,29 @@ struct SourcesView: View {
             await viewModel.refresh()
         }
         .accessibilityIdentifier("sources.list")
+    }
+
+    private var sourcesSkeleton: some View {
+        List {
+            Section {
+                HStack(spacing: AppSpacing.sm) {
+                    ForEach(0..<4, id: \.self) { _ in
+                        ShimmerLine(width: 72, height: 36)
+                    }
+                }
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.sm)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            }
+
+            Section {
+                ForEach(0..<5, id: \.self) { _ in
+                    SourceRowSkeleton()
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
     }
 }
 

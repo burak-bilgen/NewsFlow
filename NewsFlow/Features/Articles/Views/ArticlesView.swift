@@ -47,7 +47,7 @@ struct ArticlesView: View {
     private var content: some View {
         switch viewModel.state {
         case .idle, .loading:
-            LoadingStateView(text: L10n.text("articles.loading"))
+            ArticlesSkeletonView()
         case .loaded:
             articleList
         case .empty:
@@ -229,5 +229,22 @@ private struct ArticleHeroCard: View {
         }
         .padding(AppSpacing.md)
         .cardSurface()
+    }
+}
+
+private struct ArticlesSkeletonView: View {
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: AppSpacing.md) {
+                ArticleHeroSkeleton()
+                    .padding(.horizontal, AppSpacing.md)
+
+                ForEach(0..<3, id: \.self) { _ in
+                    ArticleRowSkeleton()
+                        .padding(.horizontal, AppSpacing.md)
+                }
+            }
+            .padding(.vertical, AppSpacing.md)
+        }
     }
 }
