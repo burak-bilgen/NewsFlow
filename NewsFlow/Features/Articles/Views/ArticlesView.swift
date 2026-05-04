@@ -82,8 +82,13 @@ struct ArticlesView: View {
                     FeaturedCarouselView(viewModel: viewModel)
                 }
 
+                if !viewModel.listArticles.isEmpty {
+                    SectionHeaderView(title: L10n.text("articles.latest"))
+                        .padding(.horizontal, AppSpacing.md)
+                }
+
                 ForEach(viewModel.listArticles) { article in
-                    ArticleRowView(
+                    ArticleCardView(
                         article: article,
                         isSaved: viewModel.isSaved(article)
                     ) {
@@ -109,39 +114,66 @@ struct ArticlesView: View {
     }
 }
 
-private struct ArticleRowView: View {
+private struct SectionHeaderView: View {
+    let title: String
+
+    var body: some View {
+        HStack {
+            Rectangle()
+                .fill(AppPalette.primaryRed)
+                .frame(width: 4, height: 20)
+                .clipShape(RoundedRectangle(cornerRadius: 2))
+
+            Text(title)
+                .font(.title3.weight(.bold))
+                .foregroundColor(AppPalette.textPrimary)
+
+            Spacer()
+        }
+    }
+}
+
+private struct ArticleCardView: View {
     let article: Article
     let isSaved: Bool
     let onToggle: () -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: AppSpacing.md) {
+        VStack(alignment: .leading, spacing: 0) {
             ArticleImageView(url: article.imageURL)
-                .frame(width: 94, height: 86)
-                .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous))
+                .frame(height: 200)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                )
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(article.title)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(3)
+                    .font(.headline.weight(.semibold))
+                    .lineLimit(2)
+                    .foregroundColor(AppPalette.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
-                Text(article.displayDate)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Text(article.displayDate)
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(AppPalette.textSecondary)
 
-                Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        onToggle()
+                    Spacer()
+
+                    Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            onToggle()
+                        }
+                        Haptic.light()
                     }
-                    Haptic.light()
+                    .buttonStyle(ReadingListButtonStyle())
                 }
-                .buttonStyle(ReadingListButtonStyle())
-                .accessibilityIdentifier("readingList.toggle.\(article.id)")
             }
+            .padding(AppSpacing.md)
         }
-        .padding(AppSpacing.md)
-        .cardSurface()
+        .background(AppPalette.elevatedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(article.title), \(article.displayDate)")
     }
@@ -193,13 +225,13 @@ private struct ArticleImageView: View {
     private var placeholder: some View {
         ZStack {
             LinearGradient(
-                colors: [AppPalette.softBlue.opacity(0.14), Color(.tertiarySystemBackground)],
+                colors: [AppPalette.primaryRed.opacity(0.15), Color(.tertiarySystemBackground)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            Image(systemName: "newspaper")
-                .font(.title2)
-                .foregroundColor(AppPalette.softBlue.opacity(0.74))
+            Image(systemName: "newspaper.fill")
+                .font(.system(size: 48))
+                .foregroundColor(AppPalette.primaryRed.opacity(0.4))
         }
         .accessibilityLabel(L10n.text("article.image.placeholder"))
     }
@@ -221,8 +253,8 @@ private struct FeaturedCarouselView: View {
                 .tag(index)
             }
         }
-        .frame(height: 320)
-        .tabViewStyle(.page(indexDisplayMode: .automatic))
+        .frame(height: 380)
+        .tabViewStyle(.page(indexDisplayMode: .always))
         .accessibilityIdentifier("articles.carousel")
     }
 }
@@ -233,31 +265,49 @@ private struct ArticleHeroCard: View {
     let onToggle: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+        ZStack(alignment: .bottomLeading) {
             ArticleImageView(url: article.imageURL)
-                .frame(height: 170)
-                .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Text(article.title)
-                .font(.headline)
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
+            LinearGradient(
+                colors: [Color.black.opacity(0.75), Color.black.opacity(0.2), Color.clear],
+                startPoint: .bottom,
+                endPoint: .top
+            )
 
-            Text(article.displayDate)
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    onToggle()
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                HStack {
+                    Spacer()
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            onToggle()
+                        }
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
+                            .font(.title3.weight(.semibold))
+                            .foregroundColor(isSaved ? AppPalette.goldAccent : .white)
+                            .shadow(color: .black.opacity(0.5), radius: 2)
+                    }
                 }
-                Haptic.light()
+
+                Spacer()
+
+                Text(article.title)
+                    .font(.title3.weight(.bold))
+                    .foregroundColor(.white)
+                    .lineLimit(3)
+                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+
+                Text(article.displayDate)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(.white.opacity(0.85))
+                    .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
             }
-            .buttonStyle(ReadingListButtonStyle())
-            .accessibilityIdentifier("readingList.toggle.\(article.id)")
+            .padding(AppSpacing.lg)
         }
-        .padding(AppSpacing.md)
-        .cardSurface()
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
+        .shadow(color: Color.black.opacity(0.15), radius: 16, x: 0, y: 8)
     }
 }
 

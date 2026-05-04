@@ -7,11 +7,14 @@ enum AppSpacing {
     static let md: CGFloat = 16
     static let lg: CGFloat = 20
     static let xl: CGFloat = 24
+    static let xxl: CGFloat = 32
 }
 
 enum AppRadius {
     static let sm: CGFloat = 8
     static let md: CGFloat = 12
+    static let lg: CGFloat = 16
+    static let xl: CGFloat = 20
 }
 
 enum AppPalette {
@@ -19,8 +22,19 @@ enum AppPalette {
     static let cardBackground = Color(.secondarySystemGroupedBackground)
     static let elevatedBackground = Color(.systemBackground)
     static let border = Color.primary.opacity(0.08)
-    static let softBlue = Color(red: 0.08, green: 0.23, blue: 0.46)
-    static let actionBlue = Color(red: 0.02, green: 0.31, blue: 0.72)
+
+    static let primaryRed = Color(red: 0.77, green: 0.12, blue: 0.23)
+    static let primaryRedDark = Color(red: 0.55, green: 0.05, blue: 0.14)
+    static let primaryRedLight = Color(red: 0.92, green: 0.28, blue: 0.38)
+
+    static let goldAccent = Color(red: 0.85, green: 0.65, blue: 0.13)
+
+    static let textPrimary = Color.primary
+    static let textSecondary = Color.secondary
+    static let textOnImage = Color.white
+
+    static let gradientStart = Color.black.opacity(0.7)
+    static let gradientEnd = Color.black.opacity(0.0)
 }
 
 enum Haptic {
@@ -41,31 +55,52 @@ struct CardSurface: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(AppPalette.elevatedBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
-                    .stroke(AppPalette.border, lineWidth: 1)
-            )
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+            .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
     }
 }
 
 struct ReadingListButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.footnote.weight(.semibold))
-            .multilineTextAlignment(.center)
-            .lineLimit(2)
-            .minimumScaleFactor(0.85)
+            .font(.subheadline.weight(.semibold))
             .foregroundColor(.white)
             .padding(.horizontal, AppSpacing.md)
-            .frame(minHeight: 38)
-            .background(AppPalette.actionBlue.opacity(configuration.isPressed ? 0.82 : 1))
+            .padding(.vertical, AppSpacing.xs)
+            .background(
+                configuration.isPressed
+                    ? AppPalette.primaryRedDark
+                    : AppPalette.primaryRed
+            )
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous))
+    }
+}
+
+struct CategoryChipStyle: ViewModifier {
+    let isSelected: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(1)
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.vertical, AppSpacing.xs)
+            .foregroundColor(isSelected ? .white : AppPalette.primaryRed)
+            .background(isSelected ? AppPalette.primaryRed : AppPalette.elevatedBackground)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(isSelected ? Color.clear : AppPalette.primaryRed.opacity(0.3), lineWidth: 1.5)
+            )
     }
 }
 
 extension View {
     func cardSurface() -> some View {
         modifier(CardSurface())
+    }
+
+    func categoryChip(isSelected: Bool) -> some View {
+        modifier(CategoryChipStyle(isSelected: isSelected))
     }
 }

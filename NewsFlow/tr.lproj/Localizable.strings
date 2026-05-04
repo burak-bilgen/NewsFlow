@@ -10,6 +10,7 @@
 "article.title.untitled" = "Başlıksız haber";
 "article.date.unknown" = "Tarih yok";
 "article.image.placeholder" = "Haber görseli yer tutucusu";
+"articles.latest" = "Son Haberler";
 
 "readingList.add" = "Okuma listeme ekle";
 "readingList.remove" = "Okuma listemden çıkar";

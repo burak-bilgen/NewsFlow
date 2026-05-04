@@ -14,7 +14,7 @@ struct ShimmerEffect: ViewModifier {
                 LinearGradient(
                     stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: Color(.systemBackground).opacity(0.3), location: 0.5),
+                        .init(color: AppPalette.primaryRed.opacity(0.08), location: 0.5),
                         .init(color: .clear, location: 1)
                     ],
                     startPoint: .leading,

@@ -25,7 +25,7 @@ struct StateMessageView: View {
         VStack(spacing: AppSpacing.md) {
             Image(systemName: systemImage)
                 .font(.largeTitle)
-                .foregroundColor(AppPalette.softBlue)
+                .foregroundColor(AppPalette.primaryRed)
 
             Text(title)
                 .font(.title3.weight(.semibold))

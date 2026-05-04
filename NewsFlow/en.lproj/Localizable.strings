@@ -10,6 +10,7 @@
 "article.title.untitled" = "Untitled article";
 "article.date.unknown" = "No date";
 "article.image.placeholder" = "Article image placeholder";
+"articles.latest" = "Latest News";
 
 "readingList.add" = "Okuma listeme ekle";
 "readingList.remove" = "Okuma listemden çıkar";

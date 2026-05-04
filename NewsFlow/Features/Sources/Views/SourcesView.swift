@@ -119,17 +119,7 @@ private struct CategoryFilterView: View {
                         Haptic.light()
                     } label: {
                         Text(viewModel.localizedCategory(category))
-                            .font(.subheadline.weight(.semibold))
-                            .lineLimit(1)
-                            .padding(.horizontal, AppSpacing.md)
-                            .frame(height: 36)
-                            .foregroundColor(isSelected ? .white : AppPalette.softBlue)
-                            .background(isSelected ? AppPalette.softBlue : AppPalette.elevatedBackground)
-                            .clipShape(Capsule())
-                            .overlay(
-                                Capsule()
-                                    .stroke(isSelected ? Color.clear : AppPalette.border, lineWidth: 1)
-                            )
+                            .categoryChip(isSelected: isSelected)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(viewModel.localizedCategory(category))
@@ -148,28 +138,40 @@ private struct SourceRowView: View {
     let category: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(source.name)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .lineLimit(2)
+        HStack(spacing: AppSpacing.md) {
+            ZStack {
+                RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                    .fill(AppPalette.primaryRed.opacity(0.1))
+                    .frame(width: 52, height: 52)
 
-                Spacer(minLength: AppSpacing.sm)
-
-                Text(category)
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(AppPalette.softBlue)
-                    .padding(.horizontal, AppSpacing.sm)
-                    .padding(.vertical, AppSpacing.xxs)
-                    .background(AppPalette.softBlue.opacity(0.1))
-                    .clipShape(Capsule())
+                Text(String(source.name.prefix(1)))
+                    .font(.title2.weight(.bold))
+                    .foregroundColor(AppPalette.primaryRed)
             }
 
-            Text(source.description)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .lineLimit(3)
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(source.name)
+                        .font(.headline.weight(.semibold))
+                        .foregroundColor(AppPalette.textPrimary)
+                        .lineLimit(1)
+
+                    Spacer(minLength: AppSpacing.sm)
+
+                    Text(category)
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(AppPalette.primaryRed)
+                        .padding(.horizontal, AppSpacing.sm)
+                        .padding(.vertical, AppSpacing.xxs)
+                        .background(AppPalette.primaryRed.opacity(0.1))
+                        .clipShape(Capsule())
+                }
+
+                Text(source.description)
+                    .font(.subheadline)
+                    .foregroundColor(AppPalette.textSecondary)
+                    .lineLimit(2)
+            }
         }
         .padding(.vertical, AppSpacing.xs)
         .accessibilityElement(children: .combine)
