@@ -21,11 +21,12 @@ enum AppPalette {
     static let screenBackground = Color(.systemGroupedBackground)
     static let cardBackground = Color(.secondarySystemGroupedBackground)
     static let elevatedBackground = Color(.systemBackground)
-    static let border = Color.primary.opacity(0.08)
+    static let border = Color.primary.opacity(0.1)
 
-    static let primaryRed = Color(red: 0.77, green: 0.12, blue: 0.23)
-    static let primaryRedDark = Color(red: 0.55, green: 0.05, blue: 0.14)
-    static let primaryRedLight = Color(red: 0.92, green: 0.28, blue: 0.38)
+    static let primaryRed = Color(red: 0.72, green: 0.05, blue: 0.15)
+    static let primaryRedDark = Color(red: 0.50, green: 0.02, blue: 0.08)
+    static let primaryRedLight = Color(red: 0.90, green: 0.20, blue: 0.30)
+    static let primaryRedMuted = Color(red: 0.72, green: 0.05, blue: 0.15).opacity(0.12)
 
     static let goldAccent = Color(red: 0.85, green: 0.65, blue: 0.13)
 
@@ -33,8 +34,11 @@ enum AppPalette {
     static let textSecondary = Color.secondary
     static let textOnImage = Color.white
 
-    static let gradientStart = Color.black.opacity(0.7)
+    static let gradientStart = Color.black.opacity(0.85)
+    static let gradientMid = Color.black.opacity(0.45)
     static let gradientEnd = Color.black.opacity(0.0)
+
+    static let shadowColor = Color.black.opacity(0.18)
 }
 
 enum Haptic {
@@ -56,7 +60,16 @@ struct CardSurface: ViewModifier {
         content
             .background(AppPalette.elevatedBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
-            .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+            .shadow(color: AppPalette.shadowColor, radius: 14, x: 0, y: 6)
+    }
+}
+
+struct ElevatedCardSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(AppPalette.elevatedBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
+            .shadow(color: AppPalette.shadowColor, radius: 20, x: 0, y: 10)
     }
 }
 
@@ -98,6 +111,10 @@ struct CategoryChipStyle: ViewModifier {
 extension View {
     func cardSurface() -> some View {
         modifier(CardSurface())
+    }
+
+    func elevatedCardSurface() -> some View {
+        modifier(ElevatedCardSurface())
     }
 
     func categoryChip(isSelected: Bool) -> some View {

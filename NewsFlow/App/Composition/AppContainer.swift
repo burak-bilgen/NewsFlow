@@ -55,7 +55,7 @@ final class AppContainer: ObservableObject {
                 store: store
             ),
             readingListRepository: UserDefaultsReadingListRepository(),
-            errorSimulator: nil
+            errorSimulator: EveryThirdRequestErrorSimulator()
         )
     }
 

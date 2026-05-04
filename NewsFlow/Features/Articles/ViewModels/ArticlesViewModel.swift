@@ -110,7 +110,7 @@ final class ArticlesViewModel: ObservableObject {
         let requestID = UUID()
         latestRequestID = requestID
 
-        if mode == .initial {
+        if mode == .initial || mode == .retry {
             state = .loading
         } else if mode != .automatic {
             isRefreshing = true

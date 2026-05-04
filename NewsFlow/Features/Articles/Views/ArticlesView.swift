@@ -4,6 +4,7 @@ import Combine
 struct ArticlesView: View {
     @StateObject private var viewModel: ArticlesViewModel
     @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    @Namespace private var animation
 
     init(viewModel: ArticlesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -51,7 +52,7 @@ struct ArticlesView: View {
                 .transition(.opacity)
         case .loaded:
             articleList
-                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                .transition(.opacity.combined(with: .scale(scale: 0.97)))
         case .empty:
             StateMessageView(
                 systemImage: "doc.text.magnifyingglass",
@@ -77,9 +78,9 @@ struct ArticlesView: View {
 
     private var articleList: some View {
         ScrollView {
-            LazyVStack(spacing: AppSpacing.md) {
+            LazyVStack(spacing: AppSpacing.lg) {
                 if !viewModel.featuredArticles.isEmpty {
-                    FeaturedCarouselView(viewModel: viewModel)
+                    FeaturedCarouselView(viewModel: viewModel, namespace: animation)
                 }
 
                 if !viewModel.listArticles.isEmpty {
@@ -87,7 +88,7 @@ struct ArticlesView: View {
                         .padding(.horizontal, AppSpacing.md)
                 }
 
-                ForEach(viewModel.listArticles) { article in
+                ForEach(Array(viewModel.listArticles.enumerated()), id: \.element.id) { index, article in
                     ArticleCardView(
                         article: article,
                         isSaved: viewModel.isSaved(article)
@@ -95,9 +96,16 @@ struct ArticlesView: View {
                         Task { await viewModel.toggleReadingList(for: article) }
                     }
                     .padding(.horizontal, AppSpacing.md)
+                    .offset(y: 0)
+                    .opacity(1)
+                    .animation(
+                        .spring(response: 0.5, dampingFraction: 0.8)
+                        .delay(Double(index) * 0.06),
+                        value: viewModel.state == .loaded
+                    )
                 }
             }
-            .padding(.vertical, AppSpacing.md)
+            .padding(.vertical, AppSpacing.lg)
         }
         .refreshable {
             await viewModel.pullToRefresh()
@@ -108,30 +116,38 @@ struct ArticlesView: View {
     private func advanceCarousel() {
         let count = viewModel.featuredArticles.count
         guard count > 1 else { return }
-        withAnimation(Accessibility.isReduceMotionEnabled ? nil : .easeInOut(duration: 0.25)) {
+        withAnimation(Accessibility.isReduceMotionEnabled ? nil : .easeInOut(duration: 0.35)) {
             viewModel.carouselSelection = (viewModel.carouselSelection + 1) % count
         }
     }
 }
 
+// MARK: - Section Header
+
 private struct SectionHeaderView: View {
     let title: String
 
     var body: some View {
-        HStack {
+        HStack(spacing: AppSpacing.sm) {
             Rectangle()
                 .fill(AppPalette.primaryRed)
-                .frame(width: 4, height: 20)
-                .clipShape(RoundedRectangle(cornerRadius: 2))
+                .frame(width: 5, height: 24)
+                .clipShape(RoundedRectangle(cornerRadius: 2.5))
 
             Text(title)
-                .font(.title3.weight(.bold))
+                .font(.system(size: 20, weight: .black, design: .serif))
                 .foregroundColor(AppPalette.textPrimary)
 
             Spacer()
+
+            Capsule()
+                .fill(AppPalette.primaryRedMuted)
+                .frame(width: 40, height: 4)
         }
     }
 }
+
+// MARK: - Article Card (Thumbnail Layout)
 
 private struct ArticleCardView: View {
     let article: Article
@@ -139,57 +155,80 @@ private struct ArticleCardView: View {
     let onToggle: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        HStack(alignment: .top, spacing: AppSpacing.md) {
             ArticleImageView(url: article.imageURL)
-                .frame(height: 200)
-                .clipShape(
+                .frame(width: 100, height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                .overlay(
                     RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                        .stroke(AppPalette.border, lineWidth: 1)
                 )
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(article.title)
-                    .font(.headline.weight(.semibold))
-                    .lineLimit(2)
+                    .font(.system(size: 16, weight: .bold, design: .default))
+                    .lineLimit(3)
                     .foregroundColor(AppPalette.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
+                Spacer(minLength: 0)
+
                 HStack {
                     Text(article.displayDate)
-                        .font(.caption.weight(.medium))
+                        .font(.caption.weight(.semibold))
                         .foregroundColor(AppPalette.textSecondary)
 
                     Spacer()
 
-                    Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             onToggle()
                         }
                         Haptic.light()
+                    } label: {
+                        Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(isSaved ? AppPalette.goldAccent : AppPalette.primaryRed)
+                            .frame(width: 32, height: 32)
+                            .background(
+                                Circle()
+                                    .fill(AppPalette.primaryRedMuted)
+                            )
+                            .scaleEffect(isSaved ? 1.15 : 1.0)
                     }
-                    .buttonStyle(ReadingListButtonStyle())
                 }
             }
-            .padding(AppSpacing.md)
+            .padding(.vertical, AppSpacing.xs)
         }
+        .padding(AppSpacing.md)
         .background(AppPalette.elevatedBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
-        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
+        .shadow(color: AppPalette.shadowColor, radius: 12, x: 0, y: 5)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(article.title), \(article.displayDate)")
     }
 }
 
+// MARK: - Article Image View
+
 private struct ArticleImageView: View {
     let url: URL?
     @State private var cachedImage: Image?
     @State private var loadTask: Task<Void, Never>?
+    @State private var isLoaded = false
 
     var body: some View {
-        Group {
+        ZStack {
             if let cachedImage {
                 cachedImage
                     .resizable()
                     .scaledToFill()
+                    .opacity(isLoaded ? 1 : 0)
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            isLoaded = true
+                        }
+                    }
             } else if let url {
                 AsyncImage(url: url) { phase in
                     switch phase {
@@ -197,6 +236,12 @@ private struct ArticleImageView: View {
                         image
                             .resizable()
                             .scaledToFill()
+                            .opacity(isLoaded ? 1 : 0)
+                            .onAppear {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isLoaded = true
+                                }
+                            }
                     case .failure, .empty:
                         placeholder
                     @unknown default:
@@ -207,6 +252,7 @@ private struct ArticleImageView: View {
                 placeholder
             }
         }
+        .clipped()
         .onAppear {
             guard let url, cachedImage == nil else { return }
             loadTask = Task {
@@ -225,42 +271,53 @@ private struct ArticleImageView: View {
     private var placeholder: some View {
         ZStack {
             LinearGradient(
-                colors: [AppPalette.primaryRed.opacity(0.15), Color(.tertiarySystemBackground)],
+                colors: [AppPalette.primaryRed.opacity(0.12), Color(.tertiarySystemBackground)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             Image(systemName: "newspaper.fill")
-                .font(.system(size: 48))
-                .foregroundColor(AppPalette.primaryRed.opacity(0.4))
+                .font(.system(size: 32))
+                .foregroundColor(AppPalette.primaryRed.opacity(0.35))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityLabel(L10n.text("article.image.placeholder"))
     }
 }
 
+// MARK: - Featured Carousel
+
 private struct FeaturedCarouselView: View {
     @ObservedObject var viewModel: ArticlesViewModel
+    var namespace: Namespace.ID
 
     var body: some View {
-        TabView(selection: $viewModel.carouselSelection) {
-            ForEach(Array(viewModel.featuredArticles.enumerated()), id: \.element.id) { index, article in
-                ArticleHeroCard(
-                    article: article,
-                    isSaved: viewModel.isSaved(article)
-                ) {
-                    Task { await viewModel.toggleReadingList(for: article) }
+        GeometryReader { geometry in
+            TabView(selection: $viewModel.carouselSelection) {
+                ForEach(Array(viewModel.featuredArticles.enumerated()), id: \.element.id) { index, article in
+                    ArticleHeroCard(
+                        article: article,
+                        sourceName: viewModel.source.name,
+                        isSaved: viewModel.isSaved(article)
+                    ) {
+                        Task { await viewModel.toggleReadingList(for: article) }
+                    }
+                    .padding(.horizontal, AppSpacing.md)
+                    .tag(index)
                 }
-                .padding(.horizontal, AppSpacing.md)
-                .tag(index)
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .tabViewStyle(.page(indexDisplayMode: .always))
         }
-        .frame(height: 380)
-        .tabViewStyle(.page(indexDisplayMode: .always))
+        .frame(height: 400)
         .accessibilityIdentifier("articles.carousel")
     }
 }
 
+// MARK: - Hero Card
+
 private struct ArticleHeroCard: View {
     let article: Article
+    let sourceName: String
     let isSaved: Bool
     let onToggle: () -> Void
 
@@ -270,51 +327,78 @@ private struct ArticleHeroCard: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             LinearGradient(
-                colors: [Color.black.opacity(0.75), Color.black.opacity(0.2), Color.clear],
+                colors: [
+                    AppPalette.gradientStart,
+                    AppPalette.gradientMid,
+                    AppPalette.gradientEnd
+                ],
                 startPoint: .bottom,
                 endPoint: .top
             )
 
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
+                    Text(sourceName.uppercased())
+                        .font(.system(size: 11, weight: .black))
+                        .tracking(1.2)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, AppSpacing.sm)
+                        .padding(.vertical, AppSpacing.xxs)
+                        .background(
+                            Capsule()
+                                .fill(AppPalette.primaryRed)
+                        )
+
                     Spacer()
+
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.5)) {
                             onToggle()
                         }
                         Haptic.light()
                     } label: {
                         Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
-                            .font(.title3.weight(.semibold))
+                            .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(isSaved ? AppPalette.goldAccent : .white)
-                            .shadow(color: .black.opacity(0.5), radius: 2)
+                            .frame(width: 40, height: 40)
+                            .background(
+                                Circle()
+                                    .fill(Color.black.opacity(0.35))
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .scaleEffect(isSaved ? 1.2 : 1.0)
                     }
                 }
 
-                Spacer()
+                Spacer(minLength: 60)
 
                 Text(article.title)
-                    .font(.title3.weight(.bold))
+                    .font(.system(size: 22, weight: .black, design: .serif))
                     .foregroundColor(.white)
                     .lineLimit(3)
-                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 2)
 
                 Text(article.displayDate)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundColor(.white.opacity(0.85))
-                    .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
             }
             .padding(AppSpacing.lg)
         }
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
-        .shadow(color: Color.black.opacity(0.15), radius: 16, x: 0, y: 8)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+        .shadow(color: AppPalette.shadowColor, radius: 20, x: 0, y: 10)
     }
 }
+
+// MARK: - Skeleton
 
 private struct ArticlesSkeletonView: View {
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: AppSpacing.md) {
+            LazyVStack(spacing: AppSpacing.lg) {
                 ArticleHeroSkeleton()
                     .padding(.horizontal, AppSpacing.md)
 
@@ -323,7 +407,9 @@ private struct ArticlesSkeletonView: View {
                         .padding(.horizontal, AppSpacing.md)
                 }
             }
-            .padding(.vertical, AppSpacing.md)
+            .padding(.vertical, AppSpacing.lg)
         }
     }
 }
+
+
