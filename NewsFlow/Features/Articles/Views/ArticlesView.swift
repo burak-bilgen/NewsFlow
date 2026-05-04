@@ -108,7 +108,7 @@ struct ArticlesView: View {
     private func advanceCarousel() {
         let count = viewModel.featuredArticles.count
         guard count > 1 else { return }
-        withAnimation(.easeInOut(duration: 0.25)) {
+        withAnimation(Accessibility.isReduceMotionEnabled ? nil : .easeInOut(duration: 0.25)) {
             viewModel.carouselSelection = (viewModel.carouselSelection + 1) % count
         }
     }
