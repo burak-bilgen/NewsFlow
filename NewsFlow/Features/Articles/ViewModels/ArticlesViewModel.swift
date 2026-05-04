@@ -1,6 +1,18 @@
 import Combine
 import Foundation
 
+// MARK: - ArticlesViewModel
+
+/// Manages the state and business logic for the Articles screen.
+///
+/// Key design decisions:
+/// - `@MainActor` keeps all `@Published` updates on the main thread safely.
+/// - `latestRequestID` acts as a request nonce. If a newer request starts before
+///   the old one finishes, stale callbacks are ignored. This prevents race
+///   conditions when the user rapidly pulls to refresh.
+/// - `FetchMode` distinguishes UI-driven loads (initial/retry) from silent
+///   background refreshes (automatic) so we don't show full-screen spinners
+///   when auto-refreshing every 60s.
 @MainActor
 final class ArticlesViewModel: ObservableObject {
     enum State: Equatable {
@@ -31,6 +43,8 @@ final class ArticlesViewModel: ObservableObject {
     private let readingListRepository: ReadingListRepositoryProtocol
     private let sortingStrategy: ArticleSorting
     private let errorSimulator: ArticleRequestErrorSimulating?
+
+    /// Unique ID for the most recent fetch request. Used to drop stale callbacks.
     private var latestRequestID = UUID()
     private var automaticRefreshTask: Task<Void, Never>?
 
@@ -52,14 +66,17 @@ final class ArticlesViewModel: ObservableObject {
         automaticRefreshTask?.cancel()
     }
 
+    /// First 3 articles become the hero carousel.
     var featuredArticles: [Article] {
         Array(articles.prefix(3))
     }
 
+    /// Remaining articles appear in the thumbnail list below.
     var listArticles: [Article] {
         Array(articles.dropFirst(3))
     }
 
+    /// Loads articles only on first appearance. Prevents re-loading on re-appear.
     func loadIfNeeded() async {
         guard case .idle = state else { return }
         await fetch(mode: .initial)
@@ -73,6 +90,8 @@ final class ArticlesViewModel: ObservableObject {
         await fetch(mode: .retry)
     }
 
+    /// Starts a background task that silently refreshes every 60 seconds.
+    /// Cancelled automatically when the view disappears (via `deinit`).
     func startAutomaticRefresh() {
         guard automaticRefreshTask == nil else { return }
         automaticRefreshTask = Task { [weak self] in
@@ -94,6 +113,7 @@ final class ArticlesViewModel: ObservableObject {
     }
 
     #if DEBUG
+    /// Convenience for SwiftUI Previews — sets state without triggering network.
     func withState(_ newState: State) -> Self {
         state = newState
         return self
@@ -113,16 +133,23 @@ final class ArticlesViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Private
+
+    /// The core fetch pipeline. Handles loading states, error simulation,
+    /// parallel async requests, and stale-request cancellation.
     private func fetch(mode: FetchMode) async {
         let requestID = UUID()
         latestRequestID = requestID
 
+        // Show full-screen skeleton on initial load or retry.
+        // Pull-to-refresh uses the ScrollView's built-in indicator instead.
         if mode == .initial || mode == .retry {
             state = .loading
         } else if mode != .automatic {
             isRefreshing = true
         }
 
+        // Debug feature: every 3rd non-automatic request fails on purpose.
         if let errorSimulator, mode != .automatic, await errorSimulator.shouldSimulateError() {
             guard latestRequestID == requestID else { return }
             isRefreshing = false
@@ -132,13 +159,16 @@ final class ArticlesViewModel: ObservableObject {
         }
 
         do {
+            // Fetch articles and saved IDs in parallel — they're independent.
             async let fetchedArticles = articlesRepository.fetchArticles(sourceID: source.id)
             async let savedIDs = readingListRepository.savedArticleIDs()
             let result = try await (fetchedArticles, savedIDs)
-            guard latestRequestID == requestID else { return }
 
+            // Drop this callback if a newer request started while we were waiting.
+            guard latestRequestID == requestID else { return }
             handleFetchSuccess(result.0, savedIDs: result.1, mode: mode, requestID: requestID)
         } catch let error as NewsAPIError where error == .cancelled {
+            // User cancelled (e.g. view disappeared) — just reset the flag.
             isRefreshing = false
         } catch let error as NewsAPIError {
             guard latestRequestID == requestID else { return }
@@ -149,8 +179,12 @@ final class ArticlesViewModel: ObservableObject {
         }
     }
 
+    /// Updates the UI with fresh data. For automatic refreshes, silently
+    /// skips if nothing changed so the user isn't interrupted.
     private func handleFetchSuccess(_ fetched: [Article], savedIDs: Set<String>, mode: FetchMode, requestID: UUID) {
         let sorted = sortingStrategy.newestFirst(fetched)
+
+        // Automatic refresh: don't disturb the UI if articles haven't changed.
         if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
             isRefreshing = false
             return
