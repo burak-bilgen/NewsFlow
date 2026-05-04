@@ -19,6 +19,16 @@ struct SourcesView: View {
             content
         }
         .navigationTitle(L10n.text("sources.title"))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    Image(systemName: "gearshape")
+                        .foregroundColor(AppPalette.primaryRed)
+                }
+            }
+        }
         .task {
             await viewModel.load()
         }
