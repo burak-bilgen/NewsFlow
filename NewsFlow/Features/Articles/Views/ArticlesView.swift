@@ -142,23 +142,44 @@ private struct ArticleRowView: View {
 
 private struct ArticleImageView: View {
     let url: URL?
+    @State private var cachedImage: Image?
+    @State private var loadTask: Task<Void, Never>?
 
     var body: some View {
-        if let url {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case let .success(image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                case .failure, .empty:
-                    placeholder
-                @unknown default:
-                    placeholder
+        Group {
+            if let cachedImage {
+                cachedImage
+                    .resizable()
+                    .scaledToFill()
+            } else if let url {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        placeholder
+                    @unknown default:
+                        placeholder
+                    }
+                }
+            } else {
+                placeholder
+            }
+        }
+        .onAppear {
+            guard let url, cachedImage == nil else { return }
+            loadTask = Task {
+                if let uiImage = await ImageCacheService.shared.loadImage(from: url) {
+                    guard !Task.isCancelled else { return }
+                    cachedImage = Image(uiImage: uiImage)
                 }
             }
-        } else {
-            placeholder
+        }
+        .onDisappear {
+            loadTask?.cancel()
+            loadTask = nil
         }
     }
 
