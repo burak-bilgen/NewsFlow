@@ -79,9 +79,10 @@ final class APIConfigTests: XCTestCase {
         XCTAssertEqual(APIConfig.baseURL?.scheme, "https")
     }
 
-    func testAPIKeyReturnsNilWhenNotConfigured() {
+    func testAPIKeyIsConfiguredFromInfoPlist() {
         let key = APIConfig.apiKey
-        XCTAssertNil(key)
+        XCTAssertNotNil(key)
+        XCTAssertFalse(key?.isEmpty ?? true)
     }
 }
 
