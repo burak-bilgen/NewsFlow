@@ -129,6 +129,7 @@ private struct ArticleRowView: View {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         onToggle()
                     }
+                    Haptic.light()
                 }
                 .buttonStyle(ReadingListButtonStyle())
                 .accessibilityIdentifier("readingList.toggle.\(article.id)")
@@ -244,6 +245,7 @@ private struct ArticleHeroCard: View {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     onToggle()
                 }
+                Haptic.light()
             }
             .buttonStyle(ReadingListButtonStyle())
             .accessibilityIdentifier("readingList.toggle.\(article.id)")

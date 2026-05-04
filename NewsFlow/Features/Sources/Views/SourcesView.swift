@@ -112,6 +112,7 @@ private struct CategoryFilterView: View {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             viewModel.toggleCategory(category)
                         }
+                        Haptic.light()
                     } label: {
                         Text(viewModel.localizedCategory(category))
                             .font(.subheadline.weight(.semibold))

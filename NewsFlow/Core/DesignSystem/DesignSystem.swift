@@ -23,6 +23,20 @@ enum AppPalette {
     static let actionBlue = Color(red: 0.02, green: 0.31, blue: 0.72)
 }
 
+enum Haptic {
+    @MainActor static func light() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    @MainActor static func success() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    @MainActor static func error() {
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
+    }
+}
+
 struct CardSurface: ViewModifier {
     func body(content: Content) -> some View {
         content
