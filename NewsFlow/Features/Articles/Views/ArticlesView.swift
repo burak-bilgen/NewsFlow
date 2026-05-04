@@ -15,7 +15,11 @@ struct ArticlesView: View {
         .navigationTitle(viewModel.source.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            await viewModel.load()
+            await viewModel.loadIfNeeded()
+            viewModel.startAutomaticRefresh()
+        }
+        .onDisappear {
+            viewModel.stopAutomaticRefresh()
         }
         .alert(
             L10n.text("warning.title"),
