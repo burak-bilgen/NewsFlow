@@ -20,8 +20,8 @@ final class SourcesViewModelTests: XCTestCase {
 
     func testLoadSuccessSetsLoadedStateAndFiltersEnglish() async {
         let sources = [
-            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en"),
-            NewsSource(id: "fr", name: "Le Monde", description: "B", category: "general", language: "fr")
+            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil),
+            NewsSource(id: "fr", name: "Le Monde", description: "B", category: "general", language: "fr", url: nil)
         ]
         let viewModel = makeViewModel(result: .success(sources))
 
@@ -34,8 +34,8 @@ final class SourcesViewModelTests: XCTestCase {
 
     func testLoadExtractsCategories() async {
         let sources = [
-            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en"),
-            NewsSource(id: "tc", name: "TC", description: "B", category: "technology", language: "en")
+            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil),
+            NewsSource(id: "tc", name: "TC", description: "B", category: "technology", language: "en", url: nil)
         ]
         let viewModel = makeViewModel(result: .success(sources))
 
@@ -76,8 +76,8 @@ final class SourcesViewModelTests: XCTestCase {
 
     func testToggleCategoryAddsAndRemoves() async {
         let sources = [
-            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en"),
-            NewsSource(id: "tc", name: "TC", description: "B", category: "technology", language: "en")
+            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil),
+            NewsSource(id: "tc", name: "TC", description: "B", category: "technology", language: "en", url: nil)
         ]
         let viewModel = makeViewModel(result: .success(sources))
         await viewModel.load()
@@ -91,9 +91,9 @@ final class SourcesViewModelTests: XCTestCase {
 
     func testFilterByCategoryUpdatesVisibleSources() async {
         let sources = [
-            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en"),
-            NewsSource(id: "tc", name: "TC", description: "B", category: "technology", language: "en"),
-            NewsSource(id: "espn", name: "ESPN", description: "C", category: "sports", language: "en")
+            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil),
+            NewsSource(id: "tc", name: "TC", description: "B", category: "technology", language: "en", url: nil),
+            NewsSource(id: "espn", name: "ESPN", description: "C", category: "sports", language: "en", url: nil)
         ]
         let viewModel = makeViewModel(result: .success(sources))
         await viewModel.load()
@@ -111,7 +111,7 @@ final class SourcesViewModelTests: XCTestCase {
         guard case .error = viewModel.state else { return XCTFail("Expected error") }
 
         let repository = SourcesRepositorySpy(result: .success([
-            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en")
+            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil)
         ]))
         let freshViewModel = SourcesViewModel(repository: repository)
         await freshViewModel.load()
@@ -127,7 +127,7 @@ final class SourcesViewModelTests: XCTestCase {
 
     func testLoadDoesNotExecuteTwiceWhenLoading() async {
         let sources = [
-            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en")
+            NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil)
         ]
         let viewModel = makeViewModel(result: .success(sources))
 
