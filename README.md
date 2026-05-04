@@ -34,7 +34,7 @@ Open `NewsFlow.xcodeproj` in Xcode and run the `NewsFlow` scheme. Requires iOS 1
 The UI test scheme runs with mocked data — no API key needed.
 
 ```sh
-xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow -destination 'platform=iOS Simulator,name=iPhone 17e'
 ```
 
 ## Architecture
