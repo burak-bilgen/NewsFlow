@@ -40,22 +40,8 @@ struct ShimmerLine: View {
     var body: some View {
         RoundedRectangle(cornerRadius: AppSpacing.xxs)
             .fill(Color(.tertiarySystemFill))
-            .frame(width: width, height: height)
+            .frame(maxWidth: width, minHeight: height, maxHeight: height)
             .modifier(ShimmerEffect())
-    }
-}
-
-struct SourceRowSkeleton: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            HStack {
-                ShimmerLine(width: 120, height: 18)
-                Spacer(minLength: AppSpacing.sm)
-                ShimmerLine(width: 60, height: 20)
-            }
-            ShimmerLine(width: .infinity, height: 14)
-        }
-        .padding(.vertical, AppSpacing.xs)
     }
 }
 

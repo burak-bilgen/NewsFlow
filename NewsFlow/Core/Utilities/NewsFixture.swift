@@ -54,7 +54,7 @@ enum NewsFixture {
                 sourceID: sourceID,
                 title: title,
                 imageURL: URL(string: imageURLs[index % imageURLs.count]),
-                publishedAt: Date(timeIntervalSinceNow: -Double(index * 3600)),
+                publishedAt: Date(timeIntervalSinceNow: -Double(index * 3_600)),
                 url: URL(string: "https://example.com/\(sourceID)/\(index)")
             )
         }

@@ -1,5 +1,5 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 protocol AppRouterProtocol: AnyObject {
     func navigateToArticles(for source: NewsSource)

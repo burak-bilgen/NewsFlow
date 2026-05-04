@@ -1,5 +1,5 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 // MARK: - Main View
 
@@ -51,9 +51,11 @@ struct ArticlesView: View {
         case .idle, .loading:
             ArticlesSkeletonView()
                 .transition(.opacity)
+
         case .loaded:
             articleList
                 .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.97)), removal: .opacity))
+
         case .empty:
             StateMessageView(
                 systemImage: "doc.text.magnifyingglass",
@@ -64,6 +66,7 @@ struct ArticlesView: View {
                 Task { await viewModel.retry() }
             }
             .transition(.opacity)
+
         case let .error(message):
             StateMessageView(
                 systemImage: "exclamationmark.triangle",
@@ -274,8 +277,10 @@ struct ArticleImageView: View {
                                     isLoaded = true
                                 }
                             }
+
                     case .failure, .empty:
                         placeholder
+
                     @unknown default:
                         placeholder
                     }

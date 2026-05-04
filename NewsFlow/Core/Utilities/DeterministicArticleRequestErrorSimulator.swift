@@ -15,7 +15,7 @@ actor EveryThirdRequestErrorSimulator: ArticleRequestErrorSimulating {
 
     func shouldSimulateError() async -> Bool {
         requestCount += 1
-        return requestCount % failingInterval == 0
+        return requestCount.isMultiple(of: failingInterval)
     }
 
     func reset() async {

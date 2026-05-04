@@ -130,9 +130,11 @@ private struct ThemeRow: View {
         case .light:
             Image(systemName: "sun.max.fill")
                 .foregroundColor(.orange)
+
         case .dark:
             Image(systemName: "moon.fill")
                 .foregroundColor(.indigo)
+
         case .system:
             Image(systemName: "circle.lefthalf.filled")
                 .foregroundColor(.gray)

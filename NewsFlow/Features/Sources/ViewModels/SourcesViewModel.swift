@@ -1,6 +1,10 @@
-import Foundation
 import Combine
+import Foundation
 
+// MARK: - SourcesViewModel
+
+/// Manages the state and business logic for the news sources screen.
+/// Groups sources by category to support a Netflix-style horizontal browsing experience.
 @MainActor
 final class SourcesViewModel: ObservableObject {
     enum State: Equatable {
@@ -22,6 +26,17 @@ final class SourcesViewModel: ObservableObject {
         }
     }
 
+    /// Sources grouped by category for the Netflix-style horizontal rows.
+    var groupedSources: [(category: String, sources: [NewsSource])] {
+        let grouped = Dictionary(grouping: visibleSources) { $0.category }
+        return categories
+            .filter { selectedCategories.isEmpty || selectedCategories.contains($0) }
+            .compactMap { category -> (String, [NewsSource])? in
+                let sources = grouped[category] ?? []
+                return sources.isEmpty ? nil : (category, sources)
+            }
+    }
+
     private let repository: SourcesRepositoryProtocol
     private let filterService: SourceFiltering
     private var latestRequestID = UUID()
@@ -34,6 +49,7 @@ final class SourcesViewModel: ObservableObject {
         self.filterService = filterService
     }
 
+    /// Loads sources from the repository. Only runs if not already loading.
     func load() async {
         guard state != .loading else { return }
         let requestID = UUID()
@@ -57,10 +73,12 @@ final class SourcesViewModel: ObservableObject {
         }
     }
 
+    /// Retries loading sources. Resets to loading state.
     func retry() async {
         await load()
     }
 
+    /// Pull-to-refresh support. Silently refreshes without showing full-screen loading.
     func refresh() async {
         isRefreshing = true
         let requestID = UUID()
@@ -81,6 +99,7 @@ final class SourcesViewModel: ObservableObject {
         }
     }
 
+    /// Toggles a category filter. If all are selected and user taps one, only that one stays.
     func toggleCategory(_ category: String) {
         if selectedCategories.contains(category) {
             selectedCategories.remove(category)
@@ -89,9 +108,12 @@ final class SourcesViewModel: ObservableObject {
         }
     }
 
+    /// Returns a human-readable localized name for a raw category key.
     func localizedCategory(_ category: String) -> String {
         L10n.text("category.\(category)")
     }
+
+    // MARK: - Private
 
     private func applyFilters() {
         visibleSources = filterService.filter(sources: sources, selectedCategories: selectedCategories)
