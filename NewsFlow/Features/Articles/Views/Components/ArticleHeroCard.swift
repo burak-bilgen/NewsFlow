@@ -20,8 +20,6 @@ struct ArticleHeroCard: View {
     private var cardContent: some View {
         ZStack(alignment: .bottomLeading) {
             ArticleImageView(url: article.imageURL)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
                 .ifLet(heroNamespace, sourceID) { view, ns, id in
                     view.matchedGeometryEffect(id: "source.\(id)", in: ns)
                 }
@@ -89,6 +87,7 @@ struct ArticleHeroCard: View {
             }
             .padding(AppSpacing.lg)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
         .shadow(color: AppPalette.shadowColor, radius: 20, x: 0, y: 10)
     }

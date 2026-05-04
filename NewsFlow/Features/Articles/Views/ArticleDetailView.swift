@@ -32,7 +32,7 @@ struct ArticleDetailView: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Hero image
                 ArticleImageView(url: article.imageURL)
-                    .frame(height: 300)
+                    .frame(maxWidth: .infinity, minHeight: 300, idealHeight: 300, maxHeight: 300)
                     .clipShape(
                         RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
                     )

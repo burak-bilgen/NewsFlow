@@ -1,60 +1,67 @@
 import SwiftUI
 
+/// A safe image view that never expands beyond its container.
+///
+/// Design decisions:
+/// - Uses GeometryReader to measure the *actual* container width and forces
+///   the image to fill that exact space. This prevents the image's intrinsic
+///   size from pushing parent views off-screen.
+/// - `.clipped()` is applied *after* the frame so overflow is visually cut.
+/// - Falls back to a placeholder when the URL is nil or loading fails.
 struct ArticleImageView: View {
     let url: URL?
     @Environment(\.imageCache) private var imageCache
-    @State private var cachedImage: Image?
+    @State private var uiImage: UIImage?
+    @State private var didFail = false
     @State private var loadTask: Task<Void, Never>?
     @State private var isLoaded = false
 
     var body: some View {
-        ZStack {
-            if let cachedImage {
-                cachedImage
-                    .resizable()
-                    .scaledToFill()
-                    .opacity(isLoaded ? 1 : 0)
-                    .onAppear {
-                        withAnimation(.easeInOut(duration: 0.35)) {
-                            isLoaded = true
-                        }
-                    }
-            } else if let url {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case let .success(image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .opacity(isLoaded ? 1 : 0)
-                            .onAppear {
-                                withAnimation(.easeInOut(duration: 0.35)) {
-                                    isLoaded = true
-                                }
+        GeometryReader { geometry in
+            ZStack {
+                if let uiImage {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .opacity(isLoaded ? 1 : 0)
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                isLoaded = true
                             }
-                    case .failure, .empty:
-                        placeholder
-                    @unknown default:
-                        placeholder
-                    }
+                        }
+                } else if didFail || url == nil {
+                    placeholder
+                } else {
+                    placeholder
+                        .opacity(0.6)
                 }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .clipped()
+            .task(id: url) {
+                await loadImage(into: geometry.size)
+            }
+        }
+    }
+
+    private func loadImage(into size: CGSize) async {
+        guard let url else { return }
+        didFail = false
+
+        if let cached = imageCache.image(for: url) {
+            uiImage = cached
+            return
+        }
+
+        loadTask?.cancel()
+        loadTask = Task {
+            if let loaded = await imageCache.loadImage(from: url) {
+                guard !Task.isCancelled else { return }
+                uiImage = loaded
             } else {
-                placeholder
+                guard !Task.isCancelled else { return }
+                didFail = true
             }
-        }
-        .clipped()
-        .onAppear {
-            guard let url, cachedImage == nil else { return }
-            loadTask = Task {
-                if let uiImage = await imageCache.loadImage(from: url) {
-                    guard !Task.isCancelled else { return }
-                    cachedImage = Image(uiImage: uiImage)
-                }
-            }
-        }
-        .onDisappear {
-            loadTask?.cancel()
-            loadTask = nil
         }
     }
 
@@ -69,7 +76,6 @@ struct ArticleImageView: View {
                 .font(.system(size: 32))
                 .foregroundColor(AppPalette.primaryRed.opacity(0.35))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityLabel(L10n.text("article.image.placeholder"))
     }
 }
@@ -78,12 +84,13 @@ struct ArticleImageView: View {
 #Preview {
     VStack(spacing: 20) {
         ArticleImageView(url: URL(string: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400"))
-            .frame(width: 200, height: 200)
+            .frame(height: 200)
             .clipShape(RoundedRectangle(cornerRadius: 12))
 
         ArticleImageView(url: nil)
             .frame(width: 200, height: 200)
             .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+    .padding()
 }
 #endif

@@ -26,14 +26,15 @@ struct ArticleRowSkeleton: View {
                 .modifier(ShimmerEffect())
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                ShimmerLine(width: .infinity, height: 16)
-                ShimmerLine(width: .infinity, height: 16)
-                ShimmerLine(width: 160, height: 16)
+                ShimmerLine(width: 200, height: 16)
+                ShimmerLine(width: 180, height: 16)
+                ShimmerLine(width: 120, height: 16)
 
                 Spacer(minLength: 0)
 
                 ShimmerLine(width: 80, height: 12)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, AppSpacing.xs)
         }
         .padding(AppSpacing.md)
@@ -47,10 +48,10 @@ struct ArticleHeroSkeleton: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             RoundedRectangle(cornerRadius: AppRadius.xl)
                 .fill(Color(.tertiarySystemFill))
-                .frame(height: 220)
+                .frame(maxWidth: .infinity, minHeight: 220, idealHeight: 220, maxHeight: 220)
                 .modifier(ShimmerEffect())
 
-            ShimmerLine(width: .infinity, height: 22)
+            ShimmerLine(width: 260, height: 22)
             ShimmerLine(width: 200, height: 22)
             ShimmerLine(width: 100, height: 12)
         }

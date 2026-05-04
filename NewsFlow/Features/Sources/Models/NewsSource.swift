@@ -12,13 +12,15 @@ struct NewsSource: Identifiable, Hashable, Codable {
     let url: String?
 
     /// Extracts the domain from the source URL for Clearbit logo lookup.
-    /// Example: "https://www.bbc.co.uk" → "bbc.co.uk"
+    /// Strips "www." prefix because Clearbit works better with bare domains.
+    /// Example: "https://www.bbc.co.uk" → "https://logo.clearbit.com/bbc.co.uk"
     var logoURL: URL? {
         guard let url else { return nil }
-        if let host = URL(string: url)?.host {
-            return URL(string: "https://logo.clearbit.com/\(host)")
+        guard var host = URL(string: url)?.host else { return nil }
+        if host.lowercased().hasPrefix("www.") {
+            host = String(host.dropFirst(4))
         }
-        return nil
+        return URL(string: "https://logo.clearbit.com/\(host)")
     }
 
     /// Returns up to 2 uppercase initials from the source name.

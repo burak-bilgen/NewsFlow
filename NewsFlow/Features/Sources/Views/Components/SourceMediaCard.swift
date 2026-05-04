@@ -2,6 +2,9 @@ import SwiftUI
 
 // MARK: - Source Media Card
 
+/// Displays a news source with its logo (fetched from Clearbit) or a
+/// fallback initials placeholder. The entire card has a fixed size so
+/// rows never jitter when images finish loading.
 struct SourceMediaCard: View {
     let source: NewsSource
     var heroNamespace: Namespace.ID?
@@ -53,10 +56,13 @@ struct SourceMediaCard: View {
 
 // MARK: - Cached Async Image
 
+/// Loads an image through the injected ImageCacheService and falls back
+/// to a placeholder if the load fails or the URL is invalid.
 private struct CachedAsyncImage: View {
     let url: URL
     @Environment(\.imageCache) private var imageCache
     @State private var uiImage: UIImage?
+    @State private var didFail = false
 
     var body: some View {
         ZStack {
@@ -65,18 +71,38 @@ private struct CachedAsyncImage: View {
                     .resizable()
                     .scaledToFit()
                     .padding(AppSpacing.sm)
+            } else if didFail {
+                placeholder
             } else {
-                ProgressView()
-                    .scaleEffect(0.7)
-                    .tint(AppPalette.primaryRed.opacity(0.5))
+                placeholder
+                    .opacity(0.5)
             }
         }
-        .task {
-            if let cached = imageCache.image(for: url) {
-                uiImage = cached
-            } else {
-                uiImage = await imageCache.loadImage(from: url)
-            }
+        .task(id: url) {
+            await load()
+        }
+    }
+
+    private func load() async {
+        didFail = false
+        if let cached = imageCache.image(for: url) {
+            uiImage = cached
+            return
+        }
+        if let loaded = await imageCache.loadImage(from: url) {
+            uiImage = loaded
+        } else {
+            didFail = true
+        }
+    }
+
+    private var placeholder: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous)
+                .fill(AppPalette.primaryRed.opacity(0.08))
+            Image(systemName: "newspaper.fill")
+                .font(.system(size: 24))
+                .foregroundColor(AppPalette.primaryRed.opacity(0.3))
         }
     }
 }
