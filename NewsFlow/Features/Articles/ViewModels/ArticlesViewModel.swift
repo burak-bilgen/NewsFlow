@@ -29,6 +29,7 @@ final class ArticlesViewModel: ObservableObject {
 
     private let articlesRepository: ArticlesRepositoryProtocol
     private let readingListRepository: ReadingListRepositoryProtocol
+    private let sortingStrategy: ArticleSorting
     private let errorSimulator: ArticleRequestErrorSimulating?
     private var latestRequestID = UUID()
     private var automaticRefreshTask: Task<Void, Never>?
@@ -37,11 +38,13 @@ final class ArticlesViewModel: ObservableObject {
         source: NewsSource,
         articlesRepository: ArticlesRepositoryProtocol,
         readingListRepository: ReadingListRepositoryProtocol,
+        sortingStrategy: ArticleSorting = ArticleSorter(),
         errorSimulator: ArticleRequestErrorSimulating? = nil
     ) {
         self.source = source
         self.articlesRepository = articlesRepository
         self.readingListRepository = readingListRepository
+        self.sortingStrategy = sortingStrategy
         self.errorSimulator = errorSimulator
     }
 
@@ -140,7 +143,7 @@ final class ArticlesViewModel: ObservableObject {
     }
 
     private func handleFetchSuccess(_ fetched: [Article], savedIDs: Set<String>, mode: FetchMode, requestID: UUID) {
-        let sorted = ArticleSorter.newestFirst(fetched)
+        let sorted = sortingStrategy.newestFirst(fetched)
         if mode == .automatic, sorted.map(\.id) == articles.map(\.id) {
             isRefreshing = false
             return

@@ -9,20 +9,22 @@ final class SourceFilteringTests: XCTestCase {
         NewsSource(id: "fr", name: "French", description: "D", category: "general", language: "fr")
     ]
 
+    private let filterService = SourceFilterService()
+
     func testEnglishSourceFilteringRemovesNonEnglishSources() {
-        let result = SourceFilterService.englishSources(from: sources)
+        let result = filterService.englishSources(from: sources)
 
         XCTAssertEqual(result.map(\.id), ["bbc", "espn", "tc"])
     }
 
     func testCategoryExtractionUsesEnglishSourcesOnly() {
-        let result = SourceFilterService.categories(from: sources)
+        let result = filterService.categories(from: sources)
 
         XCTAssertEqual(result, ["general", "sports", "technology"])
     }
 
     func testMultiCategoryFilteringReturnsSourcesInAnySelectedCategory() {
-        let result = SourceFilterService.filter(
+        let result = filterService.filter(
             sources: sources,
             selectedCategories: ["general", "technology"]
         )

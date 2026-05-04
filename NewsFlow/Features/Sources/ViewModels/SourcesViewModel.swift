@@ -23,10 +23,15 @@ final class SourcesViewModel: ObservableObject {
     }
 
     private let repository: SourcesRepositoryProtocol
+    private let filterService: SourceFiltering
     private var latestRequestID = UUID()
 
-    init(repository: SourcesRepositoryProtocol) {
+    init(
+        repository: SourcesRepositoryProtocol,
+        filterService: SourceFiltering = SourceFilterService()
+    ) {
         self.repository = repository
+        self.filterService = filterService
     }
 
     func load() async {
@@ -40,7 +45,7 @@ final class SourcesViewModel: ObservableObject {
             guard latestRequestID == requestID else { return }
 
             sources = fetchedSources
-            categories = SourceFilterService.categories(from: fetchedSources)
+            categories = filterService.categories(from: fetchedSources)
             applyFilters()
             state = visibleSources.isEmpty ? .empty : .loaded
         } catch let error as NewsAPIError {
@@ -66,7 +71,7 @@ final class SourcesViewModel: ObservableObject {
             guard latestRequestID == requestID else { return }
 
             sources = fetchedSources
-            categories = SourceFilterService.categories(from: fetchedSources)
+            categories = filterService.categories(from: fetchedSources)
             applyFilters()
             isRefreshing = false
             state = visibleSources.isEmpty ? .empty : .loaded
@@ -89,7 +94,7 @@ final class SourcesViewModel: ObservableObject {
     }
 
     private func applyFilters() {
-        visibleSources = SourceFilterService.filter(sources: sources, selectedCategories: selectedCategories)
+        visibleSources = filterService.filter(sources: sources, selectedCategories: selectedCategories)
         if case .loaded = state, visibleSources.isEmpty {
             state = .empty
         } else if case .empty = state, !visibleSources.isEmpty {

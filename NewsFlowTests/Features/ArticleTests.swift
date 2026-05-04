@@ -7,7 +7,7 @@ final class ArticleTests: XCTestCase {
         let new = TestFactory.article(id: "new", title: "New", publishedAt: Date(timeIntervalSince1970: 30))
         let undated = TestFactory.article(id: "undated", title: "Undated", publishedAt: nil)
 
-        let sorted = ArticleSorter.newestFirst([old, undated, new])
+        let sorted = ArticleSorter().newestFirst([old, undated, new])
 
         XCTAssertEqual(sorted.map(\.id), ["new", "old", "undated"])
     }

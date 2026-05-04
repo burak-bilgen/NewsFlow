@@ -17,12 +17,16 @@ final class NewsAPIArticlesRepository: ArticlesRepositoryProtocol {
             endpoint: .topHeadlines(sourceID: sourceID)
         )
 
-        return ArticleSorter.newestFirst(response.articles.compactMap { $0.domainModel(fallbackSourceID: sourceID) })
+        return ArticleSorter().newestFirst(response.articles.compactMap { $0.domainModel(fallbackSourceID: sourceID) })
     }
 }
 
-enum ArticleSorter {
-    static func newestFirst(_ articles: [Article]) -> [Article] {
+protocol ArticleSorting {
+    func newestFirst(_ articles: [Article]) -> [Article]
+}
+
+struct ArticleSorter: ArticleSorting {
+    func newestFirst(_ articles: [Article]) -> [Article] {
         articles.sorted { lhs, rhs in
             switch (lhs.publishedAt, rhs.publishedAt) {
             case let (left?, right?):
