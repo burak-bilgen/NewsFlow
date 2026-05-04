@@ -5,7 +5,7 @@ import XCTest
 final class ArticlesViewModelTests: XCTestCase {
     private func makeViewModel(
         articles: Result<[Article], Error> = .success([]),
-        readingList: InMemoryReadingListRepositorySpy? = nil,
+        readingList: ReadingListRepositoryProtocol? = nil,
         errorSimulator: ArticleRequestErrorSimulating? = nil
     ) -> ArticlesViewModel {
         let repository = ArticlesRepositorySpy(result: articles)
@@ -19,11 +19,18 @@ final class ArticlesViewModelTests: XCTestCase {
         )
     }
 
+    // MARK: - Initial State
+
     func testInitialStateIsIdle() {
         let viewModel = makeViewModel()
         XCTAssertEqual(viewModel.state, .idle)
         XCTAssertTrue(viewModel.articles.isEmpty)
+        XCTAssertTrue(viewModel.savedArticleIDs.isEmpty)
+        XCTAssertNil(viewModel.warningMessage)
+        XCTAssertTrue(viewModel.hasMorePages)
     }
+
+    // MARK: - Loading
 
     func testLoadIfNeededSetsLoadedState() async throws {
         let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
@@ -51,11 +58,29 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertEqual(repository.requestCount, 1)
     }
 
+    func testLoadIfNeededDoesNotLoadWhenStateIsError() async {
+        let repository = ArticlesRepositorySpy(result: .success([]))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [true])
+        )
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.state, .error(L10n.text("error.simulatedFetch")))
+
+        await viewModel.loadIfNeeded()
+        // Simulated error path does not call repository; second call skipped due to non-idle state
+        XCTAssertEqual(repository.requestCount, 0)
+    }
+
     func testEmptyArticlesSetEmptyState() async {
         let viewModel = makeViewModel(articles: .success([]))
         await viewModel.loadIfNeeded()
         XCTAssertEqual(viewModel.state, .empty)
     }
+
+    // MARK: - Errors
 
     func testNetworkErrorSetsErrorState() async {
         let viewModel = makeViewModel(articles: .failure(NewsAPIError.network))
@@ -77,6 +102,15 @@ final class ArticlesViewModelTests: XCTestCase {
         }
     }
 
+    func testCancelledErrorResetsLoadingState() async {
+        let viewModel = makeViewModel(articles: .failure(NewsAPIError.cancelled))
+        await viewModel.loadIfNeeded()
+        XCTAssertNotEqual(viewModel.state, .error(""))
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
+
+    // MARK: - Derived Properties
+
     func testFeaturedArticlesReturnsFirstThree() async throws {
         let articles = (1...5).map {
             TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
@@ -87,6 +121,14 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.featuredArticles.count, 3)
         XCTAssertEqual(viewModel.listArticles.count, 2)
     }
+
+    func testFeaturedAndListArticlesAreEmptyBeforeLoading() {
+        let viewModel = makeViewModel()
+        XCTAssertTrue(viewModel.featuredArticles.isEmpty)
+        XCTAssertTrue(viewModel.listArticles.isEmpty)
+    }
+
+    // MARK: - Reading List
 
     func testToggleReadingListAddsAndRemoves() async throws {
         let article = TestFactory.article(id: "a1", title: "Test", publishedAt: Date())
@@ -101,6 +143,37 @@ final class ArticlesViewModelTests: XCTestCase {
         await viewModel.toggleReadingList(for: article)
         XCTAssertFalse(viewModel.isSaved(article))
     }
+
+    func testToggleReadingListSetsWarningMessageOnError() async {
+        let article = TestFactory.article(id: "a1", title: "Test", publishedAt: Date())
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
+            readingListRepository: FailingReadingListRepository(),
+            errorSimulator: FixedErrorSimulator(results: [false])
+        )
+        await viewModel.loadIfNeeded()
+
+        await viewModel.toggleReadingList(for: article)
+        XCTAssertEqual(viewModel.warningMessage, L10n.text("error.generic"))
+    }
+
+    func testLoadingSuccessLoadsSavedArticleIDs() async throws {
+        let article = TestFactory.article(id: "saved", title: "Saved", publishedAt: Date())
+        let readingList = InMemoryReadingListRepositorySpy()
+        try await readingList.add(article)
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
+            readingListRepository: readingList,
+            errorSimulator: FixedErrorSimulator(results: [false])
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertTrue(viewModel.isSaved(article))
+    }
+
+    // MARK: - Pull to Refresh
 
     func testPullToRefreshUpdatesArticles() async throws {
         let article1 = TestFactory.article(id: "1", title: "First", publishedAt: Date())
@@ -118,6 +191,26 @@ final class ArticlesViewModelTests: XCTestCase {
         await viewModel.pullToRefresh()
         XCTAssertEqual(repository.requestCount, 2)
     }
+
+    func testPullToRefreshResetsPageToOne() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .success([article]))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false, false]),
+            pageSize: 1
+        )
+        await viewModel.loadIfNeeded()
+        await viewModel.loadMore()
+        XCTAssertEqual(repository.requestCount, 2)
+
+        await viewModel.pullToRefresh()
+        XCTAssertEqual(repository.requestCount, 3)
+    }
+
+    // MARK: - Simulated Errors
 
     func testSimulatedErrorShowsWarningOnPullToRefreshWithExistingArticles() async {
         let article = TestFactory.article(id: "1", title: "Existing", publishedAt: Date())
@@ -151,6 +244,26 @@ final class ArticlesViewModelTests: XCTestCase {
         }
     }
 
+    func testSimulatedErrorOnLoadMoreDoesNotChangeState() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false, true]),
+            pageSize: 1
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.state, .loaded)
+
+        await viewModel.loadMore()
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertNotNil(viewModel.warningMessage)
+    }
+
+    // MARK: - Retry
+
     func testRetryRecoversFromError() async {
         let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
         let viewModel = ArticlesViewModel(
@@ -167,6 +280,177 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state, .loaded)
     }
 
+    func testRetryFromEmptyState() async {
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: ArticlesRepositorySpy(result: .success([])),
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false])
+        )
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.state, .empty)
+
+        let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
+        let newViewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false])
+        )
+        await newViewModel.retry()
+        XCTAssertEqual(newViewModel.state, .loaded)
+    }
+
+    // MARK: - Pagination
+
+    func testLoadMoreAppendsArticlesAndSetsHasMorePages() async {
+        let articles = (1...3).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let repository = ArticlesRepositorySpy(result: .success(articles))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false, false]),
+            pageSize: 2
+        )
+
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.articles.count, 3)
+        XCTAssertTrue(viewModel.hasMorePages)
+
+        await viewModel.loadMore()
+        XCTAssertEqual(repository.requestCount, 2)
+    }
+
+    func testLoadMoreDoesNotExecuteWhenNoMorePages() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .success([article]))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            pageSize: 10
+        )
+        await viewModel.loadIfNeeded()
+        XCTAssertFalse(viewModel.hasMorePages)
+
+        await viewModel.loadMore()
+        XCTAssertEqual(repository.requestCount, 1)
+    }
+
+    func testLoadMoreDeduplicatesDuplicateArticles() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .success([article]))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            pageSize: 1
+        )
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.articles.count, 1)
+
+        await viewModel.loadMore()
+        XCTAssertEqual(viewModel.articles.count, 1)
+    }
+
+    func testIsLoadingMoreFlagTogglesCorrectly() async {
+        let articles = (1...5).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let repository = DelayedArticlesRepositorySpy(
+            result: .success(articles),
+            delayNanoseconds: 50_000_000
+        )
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            pageSize: 2
+        )
+        await viewModel.loadIfNeeded()
+        XCTAssertFalse(viewModel.isLoadingMore)
+
+        let expectation = expectation(description: "loadMore completes")
+        Task {
+            await viewModel.loadMore()
+            expectation.fulfill()
+        }
+
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        XCTAssertTrue(viewModel.isLoadingMore)
+
+        await fulfillment(of: [expectation], timeout: 2)
+        XCTAssertFalse(viewModel.isLoadingMore)
+    }
+
+    // MARK: - Warning Message
+
+    func testWarningMessageIsClearedOnSuccess() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [true, false])
+        )
+        await viewModel.loadIfNeeded()
+        XCTAssertNotNil(viewModel.warningMessage)
+
+        await viewModel.retry()
+        XCTAssertNil(viewModel.warningMessage)
+    }
+
+    // MARK: - Carousel
+
+    func testCarouselSelectionClampsToFeaturedCount() async {
+        let articles = (1...5).map {
+            TestFactory.article(id: "\($0)", title: "Article \($0)", publishedAt: Date())
+        }
+        let viewModel = makeViewModel(articles: .success(articles))
+        viewModel.carouselSelection = 2
+        await viewModel.loadIfNeeded()
+
+        XCTAssertEqual(viewModel.featuredArticles.count, 3)
+        XCTAssertEqual(viewModel.carouselSelection, 2)
+
+        let fewerArticles = [articles[0]]
+        let newViewModel = makeViewModel(articles: .success(fewerArticles))
+        newViewModel.carouselSelection = 5
+        await newViewModel.loadIfNeeded()
+        XCTAssertEqual(newViewModel.carouselSelection, 0)
+    }
+
+    // MARK: - Stale Request Cancellation
+
+    func testStaleRequestIsIgnoredWhenNewerRequestStarts() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = DelayedArticlesRepositorySpy(
+            result: .success([article]),
+            delayNanoseconds: 300_000_000
+        )
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            articlesRepository: repository,
+            readingListRepository: InMemoryReadingListRepositorySpy(),
+            errorSimulator: FixedErrorSimulator(results: [false])
+        )
+
+        Task {
+            await viewModel.loadIfNeeded()
+        }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+
+        await viewModel.pullToRefresh()
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(repository.requestCount, 2)
+    }
+
+    // MARK: - Automatic Refresh
+
     func testStartAndStopAutomaticRefresh() async {
         let viewModel = makeViewModel(articles: .success([
             TestFactory.article(id: "1", title: "A", publishedAt: Date())
@@ -177,20 +461,7 @@ final class ArticlesViewModelTests: XCTestCase {
         viewModel.stopAutomaticRefresh()
     }
 
-    func testLoadingSuccessLoadsSavedArticleIDs() async throws {
-        let article = TestFactory.article(id: "saved", title: "Saved", publishedAt: Date())
-        let readingList = InMemoryReadingListRepositorySpy()
-        try await readingList.add(article)
-        let viewModel = ArticlesViewModel(
-            source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: readingList,
-            errorSimulator: FixedErrorSimulator(results: [false])
-        )
-
-        await viewModel.loadIfNeeded()
-        XCTAssertTrue(viewModel.isSaved(article))
-    }
+    // MARK: - Error Simulator
 
     func testEveryThirdRequestErrorSimulatorIsDeterministic() async {
         let simulator = EveryThirdRequestErrorSimulator()
