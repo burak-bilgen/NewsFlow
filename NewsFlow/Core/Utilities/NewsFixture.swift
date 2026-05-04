@@ -8,21 +8,64 @@ enum NewsFixture {
             name: "BBC News",
             description: "Use BBC News for up-to-the-minute news, breaking news, video, audio and feature stories.",
             category: "general",
-            language: "en"
+            language: "en",
+            url: "https://www.bbc.co.uk/news"
         ),
         NewsSource(
             id: "techcrunch",
             name: "TechCrunch",
             description: "The latest technology news and information on startups.",
             category: "technology",
-            language: "en"
+            language: "en",
+            url: "https://techcrunch.com"
         ),
         NewsSource(
-            id: "le-monde",
-            name: "Le Monde",
-            description: "French and international news.",
+            id: "reuters",
+            name: "Reuters",
+            description: "Reuters.com brings you the latest news from around the world.",
             category: "general",
-            language: "fr"
+            language: "en",
+            url: "https://www.reuters.com"
+        ),
+        NewsSource(
+            id: "the-verge",
+            name: "The Verge",
+            description: "The Verge covers the intersection of technology, science, art, and culture.",
+            category: "technology",
+            language: "en",
+            url: "https://www.theverge.com"
+        ),
+        NewsSource(
+            id: "espn",
+            name: "ESPN",
+            description: "ESPN has up-to-the-minute sports news coverage, scores, highlights and commentary.",
+            category: "sports",
+            language: "en",
+            url: "https://www.espn.com"
+        ),
+        NewsSource(
+            id: "bloomberg",
+            name: "Bloomberg",
+            description: "Bloomberg delivers business and markets news, data, analysis, and video.",
+            category: "business",
+            language: "en",
+            url: "https://www.bloomberg.com"
+        ),
+        NewsSource(
+            id: "national-geographic",
+            name: "National Geographic",
+            description: "Reporting our world daily: original nature and science news.",
+            category: "science",
+            language: "en",
+            url: "https://www.nationalgeographic.com"
+        ),
+        NewsSource(
+            id: "entertainment-weekly",
+            name: "Entertainment Weekly",
+            description: "Entertainment Weekly has all the latest news about TV shows, movies, and music.",
+            category: "entertainment",
+            language: "en",
+            url: "https://ew.com"
         )
     ]
 

@@ -32,21 +32,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		6757606D2FA8DE1B003F06BE /* NewsFlow */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NewsFlow;
-			sourceTree = "<group>";
-		};
-		675760802FA8DE1C003F06BE /* NewsFlowTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NewsFlowTests;
-			sourceTree = "<group>";
-		};
-		6757608A2FA8DE1C003F06BE /* NewsFlowUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NewsFlowUITests;
-			sourceTree = "<group>";
-		};
+		6757606D2FA8DE1B003F06BE /* NewsFlow */ = {isa = PBXFileSystemSynchronizedRootGroup; path = NewsFlow; sourceTree = "<group>"; };
+		675760802FA8DE1C003F06BE /* NewsFlowTests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = NewsFlowTests; sourceTree = "<group>"; };
+		6757608A2FA8DE1C003F06BE /* NewsFlowUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = NewsFlowUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -418,6 +406,7 @@
 				DEVELOPMENT_TEAM = Z8P38BHKU6;
 				ENABLE_PREVIEWS = YES;
 				EXCLUDED_SOURCE_FILE_NAMES = Info.plist;
+				GENERATE_APP_INTENTS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NewsFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NewsFlow;
@@ -456,6 +445,7 @@
 				DEVELOPMENT_TEAM = Z8P38BHKU6;
 				ENABLE_PREVIEWS = YES;
 				EXCLUDED_SOURCE_FILE_NAMES = Info.plist;
+				GENERATE_APP_INTENTS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NewsFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NewsFlow;

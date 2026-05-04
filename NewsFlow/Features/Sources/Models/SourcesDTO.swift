@@ -18,6 +18,7 @@ struct SourceDTO: Decodable {
     let id: String?
     let name: String?
     let description: String?
+    let url: String?
     let category: String?
     let language: String?
 
@@ -28,7 +29,8 @@ struct SourceDTO: Decodable {
             name: name?.nilIfBlank ?? id,
             description: description?.nilIfBlank ?? L10n.text("source.description.missing"),
             category: category?.nilIfBlank ?? "general",
-            language: language?.nilIfBlank ?? ""
+            language: language?.nilIfBlank ?? "",
+            url: url?.nilIfBlank
         )
     }
 }
