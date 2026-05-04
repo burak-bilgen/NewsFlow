@@ -25,6 +25,7 @@ struct FeaturedCarouselView: View {
             .tabViewStyle(.page(indexDisplayMode: .always))
         }
         .frame(height: 400)
+        .clipped()
         .accessibilityIdentifier("articles.carousel")
     }
 }

@@ -29,14 +29,12 @@ struct SourcesView: View {
                 NavigationLink {
                     SettingsView()
                 } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 16, weight: .semibold))
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(AppPalette.primaryRed)
                         .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(AppPalette.primaryRedMuted)
-                        )
+                        .background(AppPalette.primaryRedMuted)
+                        .clipShape(Circle())
                 }
             }
         }
@@ -116,9 +114,9 @@ struct SourcesView: View {
 
     private var mastheadHeader: some View {
         VStack(spacing: AppSpacing.xs) {
-            Text("NEWSFLOW")
-                .font(.system(size: 42, weight: .black, design: .serif))
-                .tracking(4)
+            Text("News Flow")
+                .font(.system(size: 40, weight: .black, design: .serif))
+                .tracking(2)
                 .foregroundColor(AppPalette.primaryRed)
 
             Rectangle()

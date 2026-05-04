@@ -21,6 +21,7 @@ struct ArticleHeroCard: View {
         ZStack(alignment: .bottomLeading) {
             ArticleImageView(url: article.imageURL)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
                 .ifLet(heroNamespace, sourceID) { view, ns, id in
                     view.matchedGeometryEffect(id: "source.\(id)", in: ns)
                 }

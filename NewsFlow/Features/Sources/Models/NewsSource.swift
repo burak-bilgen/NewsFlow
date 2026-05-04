@@ -15,10 +15,17 @@ struct NewsSource: Identifiable, Hashable, Codable {
     /// Example: "https://www.bbc.co.uk" → "bbc.co.uk"
     var logoURL: URL? {
         guard let url else { return nil }
-        // Clearbit Logo API: https://logo.clearbit.com/{domain}
         if let host = URL(string: url)?.host {
             return URL(string: "https://logo.clearbit.com/\(host)")
         }
         return nil
+    }
+
+    /// Returns up to 2 uppercase initials from the source name.
+    /// Example: "BBC News" → "BN", "The Verge" → "TV"
+    var nameInitials: String {
+        let words = name.split(separator: " ")
+        let initials = words.prefix(2).compactMap { $0.first?.uppercased() }
+        return initials.joined()
     }
 }
