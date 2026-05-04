@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SourcesView: View {
     @StateObject private var viewModel: SourcesViewModel
+    @EnvironmentObject private var router: AppRouter
     private let articlesViewModel: (NewsSource) -> ArticlesViewModel
 
     init(
