@@ -11,25 +11,23 @@ struct ShimmerEffect: ViewModifier {
     func body(content: Content) -> some View {
         content
             .overlay(
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: AppPalette.primaryRed.opacity(0.08), location: 0.5),
-                        .init(color: .clear, location: 1)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .scaleEffect(x: 3)
-                .offset(x: isAnimating ? containerWidth : -containerWidth)
-                .animation(.easeInOut(duration: duration).repeatForever(autoreverses: false), value: isAnimating)
+                GeometryReader { geometry in
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0),
+                            .init(color: AppPalette.primaryRed.opacity(0.08), location: 0.5),
+                            .init(color: .clear, location: 1)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .scaleEffect(x: 3)
+                    .offset(x: isAnimating ? geometry.size.width : -geometry.size.width)
+                    .animation(.easeInOut(duration: duration).repeatForever(autoreverses: false), value: isAnimating)
+                }
             )
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous))
             .onAppear { isAnimating = true }
-    }
-
-    private var containerWidth: CGFloat {
-        UIScreen.main.bounds.width
     }
 }
 

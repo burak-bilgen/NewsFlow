@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ArticleImageView: View {
     let url: URL?
-    @EnvironmentObject var imageCache: ImageCacheService
+    @Environment(\.imageCache) private var imageCache
     @State private var cachedImage: Image?
     @State private var loadTask: Task<Void, Never>?
     @State private var isLoaded = false

@@ -20,7 +20,7 @@ protocol ImageCacheServicing: AnyObject {
 /// - Not a singleton: injected via AppContainer so tests can swap in mocks.
 /// - NSCache instead of dictionary: automatically evicts under memory pressure.
 /// - countLimit = 100: prevents unbounded growth with high-res news images.
-final class ImageCacheService: ObservableObject, ImageCacheServicing {
+final class ImageCacheService: ImageCacheServicing {
     private let cache = NSCache<NSString, CacheEntry>()
     private let session: URLSession
 
