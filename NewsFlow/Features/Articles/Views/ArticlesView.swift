@@ -24,6 +24,9 @@ struct ArticlesView: View {
                 set: { if !$0 { viewModel.warningMessage = nil } }
             )
         ) {
+            Button(L10n.text("retry.button")) {
+                Task { await viewModel.retry() }
+            }
             Button(L10n.text("ok.button"), role: .cancel) { }
         } message: {
             Text(viewModel.warningMessage ?? "")
@@ -77,6 +80,9 @@ struct ArticlesView: View {
                 }
             }
             .padding(.vertical, AppSpacing.md)
+        }
+        .refreshable {
+            await viewModel.pullToRefresh()
         }
         .accessibilityIdentifier("articles.list")
     }

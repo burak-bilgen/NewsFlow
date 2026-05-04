@@ -11,9 +11,16 @@ final class ArticlesViewModel: ObservableObject {
         case error(String)
     }
 
+    enum FetchMode {
+        case initial
+        case pullToRefresh
+        case retry
+    }
+
     @Published private(set) var state: State = .idle
     @Published private(set) var articles: [Article] = []
     @Published private(set) var savedArticleIDs: Set<String> = []
+    @Published private(set) var isRefreshing = false
     @Published var carouselSelection = 0
     @Published var warningMessage: String?
 
@@ -21,16 +28,19 @@ final class ArticlesViewModel: ObservableObject {
 
     private let articlesRepository: ArticlesRepositoryProtocol
     private let readingListRepository: ReadingListRepositoryProtocol
+    private let errorSimulator: ArticleRequestErrorSimulating
     private var latestRequestID = UUID()
 
     init(
         source: NewsSource,
         articlesRepository: ArticlesRepositoryProtocol,
-        readingListRepository: ReadingListRepositoryProtocol
+        readingListRepository: ReadingListRepositoryProtocol,
+        errorSimulator: ArticleRequestErrorSimulating
     ) {
         self.source = source
         self.articlesRepository = articlesRepository
         self.readingListRepository = readingListRepository
+        self.errorSimulator = errorSimulator
     }
 
     var featuredArticles: [Article] {
@@ -41,33 +51,17 @@ final class ArticlesViewModel: ObservableObject {
         Array(articles.dropFirst(3))
     }
 
-    func load() async {
-        guard state != .loading else { return }
-        let requestID = UUID()
-        latestRequestID = requestID
-        state = .loading
+    func loadIfNeeded() async {
+        guard case .idle = state else { return }
+        await fetch(mode: .initial)
+    }
 
-        do {
-            async let fetchedArticles = articlesRepository.fetchArticles(sourceID: source.id)
-            async let savedIDs = readingListRepository.savedArticleIDs()
-            let result = try await (fetchedArticles, savedIDs)
-            guard latestRequestID == requestID else { return }
-
-            articles = ArticleSorter.newestFirst(result.0)
-            savedArticleIDs = result.1
-            carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
-            state = articles.isEmpty ? .empty : .loaded
-        } catch let error as NewsAPIError {
-            guard latestRequestID == requestID else { return }
-            state = .error(error.userMessage)
-        } catch {
-            guard latestRequestID == requestID else { return }
-            state = .error(L10n.text("error.generic"))
-        }
+    func pullToRefresh() async {
+        await fetch(mode: .pullToRefresh)
     }
 
     func retry() async {
-        await load()
+        await fetch(mode: .retry)
     }
 
     func isSaved(_ article: Article) -> Bool {
@@ -83,6 +77,49 @@ final class ArticlesViewModel: ObservableObject {
                 savedArticleIDs.remove(article.id)
             }
         } catch {
+            warningMessage = L10n.text("error.generic")
+        }
+    }
+
+    private func fetch(mode: FetchMode) async {
+        let requestID = UUID()
+        latestRequestID = requestID
+
+        if mode == .initial {
+            state = .loading
+        } else {
+            isRefreshing = true
+        }
+
+        if mode != .automatic, await errorSimulator.shouldSimulateError() {
+            guard latestRequestID == requestID else { return }
+            isRefreshing = false
+            warningMessage = L10n.text("error.simulatedFetch")
+            state = articles.isEmpty ? .error(L10n.text("error.simulatedFetch")) : .loaded
+            return
+        }
+
+        do {
+            async let fetchedArticles = articlesRepository.fetchArticles(sourceID: source.id)
+            async let savedIDs = readingListRepository.savedArticleIDs()
+            let result = try await (fetchedArticles, savedIDs)
+            guard latestRequestID == requestID else { return }
+
+            articles = ArticleSorter.newestFirst(result.0)
+            savedArticleIDs = result.1
+            carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
+            warningMessage = nil
+            isRefreshing = false
+            state = articles.isEmpty ? .empty : .loaded
+        } catch let error as NewsAPIError {
+            guard latestRequestID == requestID else { return }
+            isRefreshing = false
+            state = articles.isEmpty ? .error(error.userMessage) : .loaded
+            warningMessage = error.userMessage
+        } catch {
+            guard latestRequestID == requestID else { return }
+            isRefreshing = false
+            state = articles.isEmpty ? .error(L10n.text("error.generic")) : .loaded
             warningMessage = L10n.text("error.generic")
         }
     }
