@@ -51,7 +51,11 @@ struct ArticlesView: View {
     private var articleList: some View {
         ScrollView {
             LazyVStack(spacing: AppSpacing.md) {
-                ForEach(viewModel.articles) { article in
+                if !viewModel.featuredArticles.isEmpty {
+                    FeaturedCarouselView(viewModel: viewModel)
+                }
+
+                ForEach(viewModel.listArticles) { article in
                     ArticleRowView(article: article)
                         .padding(.horizontal, AppSpacing.md)
                 }
@@ -121,5 +125,45 @@ private struct ArticleImageView: View {
                 .foregroundColor(AppPalette.softBlue.opacity(0.74))
         }
         .accessibilityLabel(L10n.text("article.image.placeholder"))
+    }
+}
+
+private struct FeaturedCarouselView: View {
+    @ObservedObject var viewModel: ArticlesViewModel
+
+    var body: some View {
+        TabView(selection: $viewModel.carouselSelection) {
+            ForEach(Array(viewModel.featuredArticles.enumerated()), id: \.element.id) { index, article in
+                ArticleHeroCard(article: article)
+                    .padding(.horizontal, AppSpacing.md)
+                    .tag(index)
+            }
+        }
+        .frame(height: 320)
+        .tabViewStyle(.page(indexDisplayMode: .automatic))
+        .accessibilityIdentifier("articles.carousel")
+    }
+}
+
+private struct ArticleHeroCard: View {
+    let article: Article
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            ArticleImageView(url: article.imageURL)
+                .frame(height: 170)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+
+            Text(article.title)
+                .font(.headline)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(article.displayDate)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(AppSpacing.md)
+        .cardSurface()
     }
 }

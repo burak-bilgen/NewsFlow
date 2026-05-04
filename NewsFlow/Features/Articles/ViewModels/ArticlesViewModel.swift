@@ -13,6 +13,7 @@ final class ArticlesViewModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
     @Published private(set) var articles: [Article] = []
+    @Published var carouselSelection = 0
 
     let source: NewsSource
 
@@ -25,6 +26,14 @@ final class ArticlesViewModel: ObservableObject {
     ) {
         self.source = source
         self.articlesRepository = articlesRepository
+    }
+
+    var featuredArticles: [Article] {
+        Array(articles.prefix(3))
+    }
+
+    var listArticles: [Article] {
+        Array(articles.dropFirst(3))
     }
 
     func load() async {
