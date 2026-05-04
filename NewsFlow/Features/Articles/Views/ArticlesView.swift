@@ -106,6 +106,7 @@ struct ArticlesView: View {
                 ForEach(Array(viewModel.listArticles.enumerated()), id: \.element.id) { index, article in
                     ArticleCardView(
                         article: article,
+                        sourceName: viewModel.source.name,
                         isSaved: viewModel.isSaved(article)
                     ) {
                         Task { await viewModel.toggleReadingList(for: article) }
