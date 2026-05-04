@@ -13,6 +13,13 @@ final class SourcesViewModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
     @Published private(set) var sources: [NewsSource] = []
+    @Published private(set) var categories: [String] = []
+    @Published private(set) var visibleSources: [NewsSource] = []
+    @Published var selectedCategories: Set<String> = [] {
+        didSet {
+            applyFilters()
+        }
+    }
 
     private let repository: SourcesRepositoryProtocol
     private var latestRequestID = UUID()
@@ -31,8 +38,10 @@ final class SourcesViewModel: ObservableObject {
             let fetchedSources = try await repository.fetchSources()
             guard latestRequestID == requestID else { return }
 
-            sources = SourceFilterService.englishSources(from: fetchedSources)
-            state = sources.isEmpty ? .empty : .loaded
+            sources = fetchedSources
+            categories = SourceFilterService.categories(from: fetchedSources)
+            applyFilters()
+            state = visibleSources.isEmpty ? .empty : .loaded
         } catch let error as NewsAPIError {
             guard latestRequestID == requestID else { return }
             state = .error(error.userMessage)
@@ -44,5 +53,26 @@ final class SourcesViewModel: ObservableObject {
 
     func retry() async {
         await load()
+    }
+
+    func toggleCategory(_ category: String) {
+        if selectedCategories.contains(category) {
+            selectedCategories.remove(category)
+        } else {
+            selectedCategories.insert(category)
+        }
+    }
+
+    func localizedCategory(_ category: String) -> String {
+        L10n.text("category.\(category)")
+    }
+
+    private func applyFilters() {
+        visibleSources = SourceFilterService.filter(sources: sources, selectedCategories: selectedCategories)
+        if case .loaded = state, visibleSources.isEmpty {
+            state = .empty
+        } else if case .empty = state, !visibleSources.isEmpty {
+            state = .loaded
+        }
     }
 }

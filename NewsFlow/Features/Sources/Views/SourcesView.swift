@@ -51,13 +51,21 @@ struct SourcesView: View {
 
     private var sourceList: some View {
         List {
-            ForEach(viewModel.sources) { source in
-                NavigationLink {
-                    ArticlesView(viewModel: articlesViewModel(source))
-                } label: {
-                    SourceRowView(source: source)
+            Section {
+                CategoryFilterView(viewModel: viewModel)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
+
+            Section {
+                ForEach(viewModel.visibleSources) { source in
+                    NavigationLink {
+                        ArticlesView(viewModel: articlesViewModel(source))
+                    } label: {
+                        SourceRowView(source: source, category: viewModel.localizedCategory(source.category))
+                    }
+                    .accessibilityIdentifier("source.row.\(source.id)")
                 }
-                .accessibilityIdentifier("source.row.\(source.id)")
             }
         }
         .listStyle(.insetGrouped)
@@ -65,15 +73,63 @@ struct SourcesView: View {
     }
 }
 
+private struct CategoryFilterView: View {
+    @ObservedObject var viewModel: SourcesViewModel
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppSpacing.sm) {
+                ForEach(viewModel.categories, id: \.self) { category in
+                    let isSelected = viewModel.selectedCategories.contains(category)
+                    Button {
+                        viewModel.toggleCategory(category)
+                    } label: {
+                        Text(viewModel.localizedCategory(category))
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                            .padding(.horizontal, AppSpacing.md)
+                            .frame(height: 36)
+                            .foregroundColor(isSelected ? .white : AppPalette.softBlue)
+                            .background(isSelected ? AppPalette.softBlue : AppPalette.elevatedBackground)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(isSelected ? Color.clear : AppPalette.border, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(viewModel.localizedCategory(category))
+                    .accessibilityIdentifier("category.chip.\(category)")
+                }
+            }
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.vertical, AppSpacing.sm)
+        }
+    }
+}
+
 private struct SourceRowView: View {
     let source: NewsSource
+    let category: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text(source.name)
-                .font(.headline)
-                .foregroundColor(.primary)
-                .lineLimit(2)
+            HStack(alignment: .firstTextBaseline) {
+                Text(source.name)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+
+                Spacer(minLength: AppSpacing.sm)
+
+                Text(category)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(AppPalette.softBlue)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, AppSpacing.xxs)
+                    .background(AppPalette.softBlue.opacity(0.1))
+                    .clipShape(Capsule())
+            }
 
             Text(source.description)
                 .font(.subheadline)
