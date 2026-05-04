@@ -13,19 +13,24 @@ final class ArticlesViewModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
     @Published private(set) var articles: [Article] = []
+    @Published private(set) var savedArticleIDs: Set<String> = []
     @Published var carouselSelection = 0
+    @Published var warningMessage: String?
 
     let source: NewsSource
 
     private let articlesRepository: ArticlesRepositoryProtocol
+    private let readingListRepository: ReadingListRepositoryProtocol
     private var latestRequestID = UUID()
 
     init(
         source: NewsSource,
-        articlesRepository: ArticlesRepositoryProtocol
+        articlesRepository: ArticlesRepositoryProtocol,
+        readingListRepository: ReadingListRepositoryProtocol
     ) {
         self.source = source
         self.articlesRepository = articlesRepository
+        self.readingListRepository = readingListRepository
     }
 
     var featuredArticles: [Article] {
@@ -43,10 +48,14 @@ final class ArticlesViewModel: ObservableObject {
         state = .loading
 
         do {
-            let fetchedArticles = try await articlesRepository.fetchArticles(sourceID: source.id)
+            async let fetchedArticles = articlesRepository.fetchArticles(sourceID: source.id)
+            async let savedIDs = readingListRepository.savedArticleIDs()
+            let result = try await (fetchedArticles, savedIDs)
             guard latestRequestID == requestID else { return }
 
-            articles = ArticleSorter.newestFirst(fetchedArticles)
+            articles = ArticleSorter.newestFirst(result.0)
+            savedArticleIDs = result.1
+            carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
             state = articles.isEmpty ? .empty : .loaded
         } catch let error as NewsAPIError {
             guard latestRequestID == requestID else { return }
@@ -59,5 +68,22 @@ final class ArticlesViewModel: ObservableObject {
 
     func retry() async {
         await load()
+    }
+
+    func isSaved(_ article: Article) -> Bool {
+        savedArticleIDs.contains(article.id)
+    }
+
+    func toggleReadingList(for article: Article) async {
+        do {
+            let isSaved = try await readingListRepository.toggle(article)
+            if isSaved {
+                savedArticleIDs.insert(article.id)
+            } else {
+                savedArticleIDs.remove(article.id)
+            }
+        } catch {
+            warningMessage = L10n.text("error.generic")
+        }
     }
 }

@@ -17,6 +17,17 @@ struct ArticlesView: View {
         .task {
             await viewModel.load()
         }
+        .alert(
+            L10n.text("warning.title"),
+            isPresented: Binding(
+                get: { viewModel.warningMessage != nil },
+                set: { if !$0 { viewModel.warningMessage = nil } }
+            )
+        ) {
+            Button(L10n.text("ok.button"), role: .cancel) { }
+        } message: {
+            Text(viewModel.warningMessage ?? "")
+        }
         .accessibilityIdentifier("articles.screen")
     }
 
@@ -56,8 +67,13 @@ struct ArticlesView: View {
                 }
 
                 ForEach(viewModel.listArticles) { article in
-                    ArticleRowView(article: article)
-                        .padding(.horizontal, AppSpacing.md)
+                    ArticleRowView(
+                        article: article,
+                        isSaved: viewModel.isSaved(article)
+                    ) {
+                        Task { await viewModel.toggleReadingList(for: article) }
+                    }
+                    .padding(.horizontal, AppSpacing.md)
                 }
             }
             .padding(.vertical, AppSpacing.md)
@@ -68,6 +84,8 @@ struct ArticlesView: View {
 
 private struct ArticleRowView: View {
     let article: Article
+    let isSaved: Bool
+    let onToggle: () -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: AppSpacing.md) {
@@ -83,6 +101,12 @@ private struct ArticleRowView: View {
                 Text(article.displayDate)
                     .font(.caption)
                     .foregroundColor(.secondary)
+
+                Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
+                    onToggle()
+                }
+                .buttonStyle(ReadingListButtonStyle())
+                .accessibilityIdentifier("readingList.toggle.\(article.id)")
             }
         }
         .padding(AppSpacing.md)
@@ -134,9 +158,14 @@ private struct FeaturedCarouselView: View {
     var body: some View {
         TabView(selection: $viewModel.carouselSelection) {
             ForEach(Array(viewModel.featuredArticles.enumerated()), id: \.element.id) { index, article in
-                ArticleHeroCard(article: article)
-                    .padding(.horizontal, AppSpacing.md)
-                    .tag(index)
+                ArticleHeroCard(
+                    article: article,
+                    isSaved: viewModel.isSaved(article)
+                ) {
+                    Task { await viewModel.toggleReadingList(for: article) }
+                }
+                .padding(.horizontal, AppSpacing.md)
+                .tag(index)
             }
         }
         .frame(height: 320)
@@ -147,6 +176,8 @@ private struct FeaturedCarouselView: View {
 
 private struct ArticleHeroCard: View {
     let article: Article
+    let isSaved: Bool
+    let onToggle: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
@@ -162,6 +193,12 @@ private struct ArticleHeroCard: View {
             Text(article.displayDate)
                 .font(.caption)
                 .foregroundColor(.secondary)
+
+            Button(isSaved ? L10n.text("readingList.remove") : L10n.text("readingList.add")) {
+                onToggle()
+            }
+            .buttonStyle(ReadingListButtonStyle())
+            .accessibilityIdentifier("readingList.toggle.\(article.id)")
         }
         .padding(AppSpacing.md)
         .cardSurface()
