@@ -93,6 +93,13 @@ final class ArticlesViewModel: ObservableObject {
         savedArticleIDs.contains(article.id)
     }
 
+    #if DEBUG
+    func withState(_ newState: State) -> Self {
+        state = newState
+        return self
+    }
+    #endif
+
     func toggleReadingList(for article: Article) async {
         do {
             let isSaved = try await readingListRepository.toggle(article)

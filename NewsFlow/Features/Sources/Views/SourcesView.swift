@@ -18,14 +18,20 @@ struct SourcesView: View {
             AppPalette.screenBackground.ignoresSafeArea()
             content
         }
-        .navigationTitle(L10n.text("sources.title"))
+        .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
                     SettingsView()
                 } label: {
                     Image(systemName: "gearshape")
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(AppPalette.primaryRed)
+                        .frame(width: 36, height: 36)
+                        .background(
+                            Circle()
+                                .fill(AppPalette.primaryRedMuted)
+                        )
                 }
             }
         }
@@ -43,7 +49,10 @@ struct SourcesView: View {
                 .transition(.opacity)
         case .loaded:
             sourceList
-                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.97)),
+                    removal: .opacity
+                ))
         case .empty:
             StateMessageView(
                 systemImage: "newspaper",
@@ -73,18 +82,27 @@ struct SourcesView: View {
             }
 
             Section {
-                ForEach(viewModel.visibleSources) { source in
+                ForEach(Array(viewModel.visibleSources.enumerated()), id: \.element.id) { index, source in
                     NavigationLink {
                         ArticlesView(viewModel: articlesViewModel(source))
                     } label: {
                         SourceRowView(source: source, category: viewModel.localizedCategory(source.category))
                     }
                     .accessibilityIdentifier("source.row.\(source.id)")
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .move(edge: .trailing)),
+                        removal: .opacity
+                    ))
+                    .animation(
+                        .spring(response: 0.5, dampingFraction: 0.8)
+                        .delay(Double(index) * 0.04),
+                        value: viewModel.visibleSources
+                    )
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.visibleSources)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.visibleSources)
         .refreshable {
             await viewModel.refresh()
         }
@@ -115,7 +133,31 @@ struct SourcesView: View {
     }
 }
 
-private struct CategoryFilterView: View {
+// MARK: - Preview
+
+#if DEBUG
+#Preview("Sources - Loaded") {
+    NavigationView {
+        SourcesView(
+            viewModel: SourcesViewModel(repository: MockSourcesRepository(sources: NewsFixture.sources)),
+            articlesViewModel: { _ in NewsFixture.previewViewModel() }
+        )
+    }
+}
+
+#Preview("Sources - Loading") {
+    NavigationView {
+        SourcesView(
+            viewModel: SourcesViewModel(repository: MockSourcesRepository(sources: NewsFixture.sources)),
+            articlesViewModel: { _ in NewsFixture.previewViewModel() }
+        )
+    }
+}
+#endif
+
+// MARK: - Category Filter
+
+struct CategoryFilterView: View {
     @ObservedObject var viewModel: SourcesViewModel
 
     var body: some View {
@@ -124,7 +166,7 @@ private struct CategoryFilterView: View {
                 ForEach(viewModel.categories, id: \.self) { category in
                     let isSelected = viewModel.selectedCategories.contains(category)
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             viewModel.toggleCategory(category)
                         }
                         Haptic.light()
@@ -133,6 +175,7 @@ private struct CategoryFilterView: View {
                             .categoryChip(isSelected: isSelected)
                     }
                     .buttonStyle(.plain)
+                    .scaleEffect(isSelected ? 1.05 : 1.0)
                     .accessibilityLabel(viewModel.localizedCategory(category))
                     .accessibilityIdentifier("category.chip.\(category)")
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -144,37 +187,44 @@ private struct CategoryFilterView: View {
     }
 }
 
-private struct SourceRowView: View {
+// MARK: - Source Row
+
+struct SourceRowView: View {
     let source: NewsSource
     let category: String
 
     var body: some View {
         HStack(spacing: AppSpacing.md) {
             ZStack {
-                RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
-                    .fill(AppPalette.primaryRed.opacity(0.1))
-                    .frame(width: 52, height: 52)
+                RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
+                    .fill(AppPalette.primaryRed.opacity(0.08))
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
+                            .stroke(AppPalette.primaryRed.opacity(0.15), lineWidth: 1)
+                    )
 
                 Text(String(source.name.prefix(1)))
-                    .font(.title2.weight(.bold))
+                    .font(.system(size: 24, weight: .black, design: .serif))
                     .foregroundColor(AppPalette.primaryRed)
             }
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(source.name)
-                        .font(.headline.weight(.semibold))
+                        .font(.system(size: 17, weight: .bold))
                         .foregroundColor(AppPalette.textPrimary)
                         .lineLimit(1)
 
                     Spacer(minLength: AppSpacing.sm)
 
                     Text(category)
-                        .font(.caption2.weight(.bold))
+                        .font(.system(size: 11, weight: .black))
+                        .tracking(0.5)
                         .foregroundColor(AppPalette.primaryRed)
                         .padding(.horizontal, AppSpacing.sm)
                         .padding(.vertical, AppSpacing.xxs)
-                        .background(AppPalette.primaryRed.opacity(0.1))
+                        .background(AppPalette.primaryRedMuted)
                         .clipShape(Capsule())
                 }
 

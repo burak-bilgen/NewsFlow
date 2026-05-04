@@ -1,10 +1,11 @@
 import SwiftUI
 import Combine
 
+// MARK: - Main View
+
 struct ArticlesView: View {
     @StateObject private var viewModel: ArticlesViewModel
     @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
-    @Namespace private var animation
 
     init(viewModel: ArticlesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -52,7 +53,7 @@ struct ArticlesView: View {
                 .transition(.opacity)
         case .loaded:
             articleList
-                .transition(.opacity.combined(with: .scale(scale: 0.97)))
+                .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.97)), removal: .opacity))
         case .empty:
             StateMessageView(
                 systemImage: "doc.text.magnifyingglass",
@@ -80,7 +81,8 @@ struct ArticlesView: View {
         ScrollView {
             LazyVStack(spacing: AppSpacing.lg) {
                 if !viewModel.featuredArticles.isEmpty {
-                    FeaturedCarouselView(viewModel: viewModel, namespace: animation)
+                    FeaturedCarouselView(viewModel: viewModel)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
                 if !viewModel.listArticles.isEmpty {
@@ -96,12 +98,14 @@ struct ArticlesView: View {
                         Task { await viewModel.toggleReadingList(for: article) }
                     }
                     .padding(.horizontal, AppSpacing.md)
-                    .offset(y: 0)
-                    .opacity(1)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .move(edge: .bottom)),
+                        removal: .opacity
+                    ))
                     .animation(
-                        .spring(response: 0.5, dampingFraction: 0.8)
-                        .delay(Double(index) * 0.06),
-                        value: viewModel.state == .loaded
+                        .spring(response: 0.55, dampingFraction: 0.75)
+                        .delay(Double(index) * 0.05),
+                        value: viewModel.state
                     )
                 }
             }
@@ -116,15 +120,43 @@ struct ArticlesView: View {
     private func advanceCarousel() {
         let count = viewModel.featuredArticles.count
         guard count > 1 else { return }
-        withAnimation(Accessibility.isReduceMotionEnabled ? nil : .easeInOut(duration: 0.35)) {
+        withAnimation(Accessibility.isReduceMotionEnabled ? nil : .easeInOut(duration: 0.4)) {
             viewModel.carouselSelection = (viewModel.carouselSelection + 1) % count
         }
     }
 }
 
+// MARK: - Preview
+
+#if DEBUG
+#Preview("Articles - Loaded") {
+    NavigationView {
+        ArticlesView(viewModel: NewsFixture.previewViewModel())
+    }
+}
+
+#Preview("Articles - Loading") {
+    NavigationView {
+        ArticlesView(viewModel: NewsFixture.previewViewModel().withState(.loading))
+    }
+}
+
+#Preview("Articles - Empty") {
+    NavigationView {
+        ArticlesView(viewModel: NewsFixture.previewViewModel().withState(.empty))
+    }
+}
+
+#Preview("Articles - Error") {
+    NavigationView {
+        ArticlesView(viewModel: NewsFixture.previewViewModel().withState(.error("Network connection failed")))
+    }
+}
+#endif
+
 // MARK: - Section Header
 
-private struct SectionHeaderView: View {
+struct SectionHeaderView: View {
     let title: String
 
     var body: some View {
@@ -147,9 +179,9 @@ private struct SectionHeaderView: View {
     }
 }
 
-// MARK: - Article Card (Thumbnail Layout)
+// MARK: - Article Card
 
-private struct ArticleCardView: View {
+struct ArticleCardView: View {
     let article: Article
     let isSaved: Bool
     let onToggle: () -> Void
@@ -211,7 +243,7 @@ private struct ArticleCardView: View {
 
 // MARK: - Article Image View
 
-private struct ArticleImageView: View {
+struct ArticleImageView: View {
     let url: URL?
     @State private var cachedImage: Image?
     @State private var loadTask: Task<Void, Never>?
@@ -225,7 +257,7 @@ private struct ArticleImageView: View {
                     .scaledToFill()
                     .opacity(isLoaded ? 1 : 0)
                     .onAppear {
-                        withAnimation(.easeInOut(duration: 0.3)) {
+                        withAnimation(.easeInOut(duration: 0.35)) {
                             isLoaded = true
                         }
                     }
@@ -238,7 +270,7 @@ private struct ArticleImageView: View {
                             .scaledToFill()
                             .opacity(isLoaded ? 1 : 0)
                             .onAppear {
-                                withAnimation(.easeInOut(duration: 0.3)) {
+                                withAnimation(.easeInOut(duration: 0.35)) {
                                     isLoaded = true
                                 }
                             }
@@ -286,9 +318,8 @@ private struct ArticleImageView: View {
 
 // MARK: - Featured Carousel
 
-private struct FeaturedCarouselView: View {
+struct FeaturedCarouselView: View {
     @ObservedObject var viewModel: ArticlesViewModel
-    var namespace: Namespace.ID
 
     var body: some View {
         GeometryReader { geometry in
@@ -315,7 +346,7 @@ private struct FeaturedCarouselView: View {
 
 // MARK: - Hero Card
 
-private struct ArticleHeroCard: View {
+struct ArticleHeroCard: View {
     let article: Article
     let sourceName: String
     let isSaved: Bool
@@ -395,7 +426,7 @@ private struct ArticleHeroCard: View {
 
 // MARK: - Skeleton
 
-private struct ArticlesSkeletonView: View {
+struct ArticlesSkeletonView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: AppSpacing.lg) {
@@ -412,4 +443,45 @@ private struct ArticlesSkeletonView: View {
     }
 }
 
+struct ArticleRowSkeleton: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: AppSpacing.md) {
+            RoundedRectangle(cornerRadius: AppRadius.md)
+                .fill(Color(.tertiarySystemFill))
+                .frame(width: 100, height: 100)
+                .modifier(ShimmerEffect())
 
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                ShimmerLine(width: .infinity, height: 16)
+                ShimmerLine(width: .infinity, height: 16)
+                ShimmerLine(width: 160, height: 16)
+
+                Spacer(minLength: 0)
+
+                ShimmerLine(width: 80, height: 12)
+            }
+            .padding(.vertical, AppSpacing.xs)
+        }
+        .padding(AppSpacing.md)
+        .background(AppPalette.elevatedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
+    }
+}
+
+struct ArticleHeroSkeleton: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            RoundedRectangle(cornerRadius: AppRadius.xl)
+                .fill(Color(.tertiarySystemFill))
+                .frame(height: 220)
+                .modifier(ShimmerEffect())
+
+            ShimmerLine(width: .infinity, height: 22)
+            ShimmerLine(width: 200, height: 22)
+            ShimmerLine(width: 100, height: 12)
+        }
+        .padding(AppSpacing.md)
+        .background(AppPalette.elevatedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+    }
+}

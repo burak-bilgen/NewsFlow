@@ -59,44 +59,6 @@ struct SourceRowSkeleton: View {
     }
 }
 
-struct ArticleRowSkeleton: View {
-    var body: some View {
-        HStack(alignment: .top, spacing: AppSpacing.md) {
-            RoundedRectangle(cornerRadius: AppRadius.sm)
-                .fill(Color(.tertiarySystemFill))
-                .frame(width: 94, height: 86)
-                .modifier(ShimmerEffect())
-
-            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                ShimmerLine(width: .infinity, height: 16)
-                ShimmerLine(width: 200, height: 16)
-                ShimmerLine(width: 80, height: 12)
-                ShimmerLine(width: 140, height: 38)
-            }
-        }
-        .padding(AppSpacing.md)
-        .cardSurface()
-    }
-}
-
-struct ArticleHeroSkeleton: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            RoundedRectangle(cornerRadius: AppRadius.md)
-                .fill(Color(.tertiarySystemFill))
-                .frame(height: 170)
-                .modifier(ShimmerEffect())
-
-            ShimmerLine(width: .infinity, height: 20)
-            ShimmerLine(width: 180, height: 20)
-            ShimmerLine(width: 100, height: 12)
-            ShimmerLine(width: 140, height: 38)
-        }
-        .padding(AppSpacing.md)
-        .cardSurface()
-    }
-}
-
 extension View {
     func shimmer(duration: Double = 1.5) -> some View {
         modifier(ShimmerEffect(duration: duration))
