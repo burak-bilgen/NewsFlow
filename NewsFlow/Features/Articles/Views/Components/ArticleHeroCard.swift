@@ -9,6 +9,15 @@ struct ArticleHeroCard: View {
     let onToggle: () -> Void
 
     var body: some View {
+        NavigationLink {
+            ArticleDetailView(article: article, sourceName: sourceName)
+        } label: {
+            cardContent
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var cardContent: some View {
         ZStack(alignment: .bottomLeading) {
             ArticleImageView(url: article.imageURL)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -61,6 +70,7 @@ struct ArticleHeroCard: View {
                             )
                             .scaleEffect(isSaved ? 1.2 : 1.0)
                     }
+                    .buttonStyle(.plain)
                 }
 
                 Spacer(minLength: 60)
