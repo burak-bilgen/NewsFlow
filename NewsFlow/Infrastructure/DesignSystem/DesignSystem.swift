@@ -78,10 +78,16 @@ enum AppPalette {
     )
 
     // Legacy aliases
-    static let primaryRed = primaryInk
-    static let primaryRedDark = primaryInkDark
-    static let primaryRedLight = primaryInkLight
-    static let primaryRedMuted = primaryInkMuted
+    static let primaryRed = accentRed
+    static let primaryRedDark = accentRedDark
+    static let primaryRedLight = accentRedLight
+    static let primaryRedMuted = accentRedMuted
+
+    // Accent Colors (true red - consistent across themes)
+    static let accentRed = Color(red: 0.85, green: 0.22, blue: 0.21)
+    static let accentRedDark = Color(red: 0.95, green: 0.45, blue: 0.44)
+    static let accentRedLight = Color(red: 0.75, green: 0.12, blue: 0.11)
+    static let accentRedMuted = Color(red: 0.85, green: 0.22, blue: 0.21).opacity(0.15)
 
     static let goldAccent = Color(red: 0.85, green: 0.65, blue: 0.13)
 
