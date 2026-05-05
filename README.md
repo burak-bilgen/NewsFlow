@@ -116,28 +116,17 @@ This isn't another "follow a tutorial" app. It's a **production-grade codebase**
 
 ```
 NewsFlow/
-├── App/                          # @main, DI, navigation
-│   ├── AppContainer.swift          # Composition root (Factory pattern)
-│   ├── NewsFlowApp.swift         # Entry point
-│   └── RootNavigationView.swift    # Type-safe navigation
-├── Domain/                       # Business logic
-│   ├── Models/                  # Article, Source, etc.
-│   ├── Protocols/               # Repository interfaces
-│   └── UseCases/               # FetchArticles, ToggleReadingList
-├── Data/                       # Data access
-│   ├── Network/                # NewsAPIClient, DTOs, decorators
-│   ├── Persistence/           # Core Data, FilePersistentStore
-│   └── Repositories/          # Remote + cache layers
-├── Infrastructure/             # Cross-cutting
-│   ├── DesignSystem/          # Colors, spacing, components
-│   ├── Networking/           # Retry policy, logging
-│   ├── L10n/               # Localization
-│   └── PreviewSupport/        # Mock data for previews
-└── Presentation/              # UI
-    ├── Sources/              # Sources list screen
-    ├── Articles/            # Articles feed screen
-    ├── Settings/            # Settings screen
-    └── ...other screens
+ NewsFlow.xcodeproj
+ ├── NewsFlow/                     # Main app target
+ │   ├── App/                      # @main, DI, navigation
+ │   ├── Domain/                   # Models, Protocols, Use Cases
+ │   ├── Data/                    # Network, Persistence, Repositories
+ │   ├── Infrastructure/          # Design system, L10n, utilities
+ │   ├── Presentation/            # SwiftUI screens + ViewModels
+ │   ├── Assets.xcassets/
+ │   └── LaunchScreen.storyboard
+ ├── Config/                       # Secrets configuration
+ └── Makefile                      # Build commands
 ```
 
 ---
