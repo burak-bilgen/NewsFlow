@@ -5,6 +5,7 @@ struct ArticleCardView: View {
     let sourceName: String
     let isSaved: Bool
     let onToggle: () -> Void
+    @State private var isPressed = false
 
     var body: some View {
         NavigationLink {
@@ -21,7 +22,7 @@ struct ArticleCardView: View {
 
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(article.title)
-                        .font(.system(size: 16, weight: .bold, design: .default))
+                        .font(.system(size: 16, weight: .bold, design: .serif))
                         .lineLimit(3)
                         .foregroundColor(AppPalette.textPrimary)
                         .accessibilityAddTraits(.isHeader)
@@ -62,10 +63,15 @@ struct ArticleCardView: View {
             .background(AppPalette.elevatedBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
             .shadow(color: AppPalette.shadowColor, radius: 12, x: 0, y: 5)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(article.title), \(article.displayDate)")
         }
         .buttonStyle(.plain)
+        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 }
 

@@ -7,6 +7,7 @@ struct ArticleDetailView: View {
     let sourceName: String
     @Environment(\.dismiss) private var dismiss
     @State private var showSafari = false
+    @State private var appearAnimation = false
 
     var body: some View {
         ScrollView {
@@ -29,6 +30,9 @@ struct ArticleDetailView: View {
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.md)
                     .shadow(color: AppPalette.shadowColor.opacity(0.4), radius: 24, x: 0, y: 12)
+                    .opacity(appearAnimation ? 1 : 0)
+                    .offset(y: appearAnimation ? 0 : 20)
+                    .animation(.easeOut(duration: 0.5), value: appearAnimation)
 
                 VStack(alignment: .leading, spacing: AppSpacing.lg) {
 
@@ -36,7 +40,6 @@ struct ArticleDetailView: View {
                     HStack(spacing: AppSpacing.sm) {
                         Text(sourceName.uppercased())
                             .font(.system(size: 11, weight: .black))
-                            .tracking(1.2)
                             .foregroundColor(.white)
                             .padding(.horizontal, AppSpacing.sm)
                             .padding(.vertical, AppSpacing.xxs)
@@ -53,11 +56,22 @@ struct ArticleDetailView: View {
                             .foregroundColor(AppPalette.textSecondary)
                     }
 
-                    // Title
+                    // Title with newspaper style
                     Text(article.title)
                         .font(.system(size: 28, weight: .black, design: .serif))
                         .foregroundColor(AppPalette.textPrimary)
                         .lineSpacing(6)
+
+
+                    // Decorative divider
+                    HStack(spacing: 0) {
+                        Rectangle()
+                            .fill(AppPalette.primaryRed)
+                            .frame(width: 60, height: 3)
+                        Rectangle()
+                            .fill(AppPalette.textPrimary.opacity(0.15))
+                            .frame(height: 1)
+                    }
 
                     // Read more button
                     if let url = article.url {
@@ -102,6 +116,9 @@ struct ArticleDetailView: View {
                 .padding(.horizontal, AppSpacing.md)
                 .padding(.top, AppSpacing.lg)
                 .shadow(color: AppPalette.shadowColor.opacity(0.5), radius: 20, x: 0, y: 10)
+                .opacity(appearAnimation ? 1 : 0)
+                .offset(y: appearAnimation ? 0 : 30)
+                .animation(.easeOut(duration: 0.6).delay(0.15), value: appearAnimation)
             }
             .padding(.bottom, AppSpacing.xl)
         }
@@ -116,6 +133,9 @@ struct ArticleDetailView: View {
                         .foregroundColor(AppPalette.textSecondary)
                 }
             }
+        }
+        .onAppear {
+            appearAnimation = true
         }
     }
 }

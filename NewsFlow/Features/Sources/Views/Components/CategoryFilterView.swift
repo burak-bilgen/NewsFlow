@@ -18,17 +18,19 @@ struct CategoryFilterView: View {
                     } label: {
                         Text(viewModel.localizedCategory(category))
                             .font(.system(size: 13, weight: .bold))
-                            .tracking(0.5)
+
                             .lineLimit(1)
                             .padding(.horizontal, AppSpacing.md)
                             .padding(.vertical, AppSpacing.xs)
                             .foregroundColor(isSelected ? .white : AppPalette.primaryRed)
-                            .background(isSelected ? AppPalette.primaryRed : Color.clear)
+                            .background(
+                                Capsule()
+                                    .fill(isSelected ? AppPalette.primaryRed : Color.clear)
+                            )
                             .overlay(
                                 Capsule()
                                     .stroke(AppPalette.primaryRed, lineWidth: 1.5)
                             )
-                            .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .scaleEffect(isSelected ? 1.05 : 1.0)
@@ -41,3 +43,10 @@ struct CategoryFilterView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    CategoryFilterView(viewModel: SourcesViewModel(repository: MockSourcesRepository(sources: NewsFixture.sources)))
+        .padding()
+}
+#endif

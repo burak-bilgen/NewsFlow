@@ -29,10 +29,10 @@ struct LoadMoreButton: View {
             .padding(.vertical, AppSpacing.md)
             .background(
                 RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
-                    .stroke(AppPalette.primaryRed.opacity(0.3), lineWidth: 1.5)
-                    .background(
+                    .fill(AppPalette.elevatedBackground)
+                    .overlay(
                         RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous)
-                            .fill(AppPalette.elevatedBackground)
+                            .stroke(AppPalette.primaryRed.opacity(0.3), lineWidth: 1.5)
                     )
             )
         }

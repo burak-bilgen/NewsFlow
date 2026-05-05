@@ -33,9 +33,12 @@ struct SourcesView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(AppPalette.primaryRed)
                         .frame(width: 36, height: 36)
-                        .background(AppPalette.primaryRedMuted)
-                        .clipShape(Circle())
+                        .background(
+                            Circle()
+                                .fill(AppPalette.primaryRedMuted)
+                        )
                 }
+                .buttonStyle(.plain)
             }
         }
         .task {
@@ -101,6 +104,11 @@ struct SourcesView: View {
                         value: viewModel.state
                     )
                 }
+
+                // Newspaper footer decoration
+                newspaperFooter
+                    .padding(.top, AppSpacing.xl)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
             .padding(.bottom, AppSpacing.xl)
         }
@@ -110,35 +118,72 @@ struct SourcesView: View {
         .accessibilityIdentifier("sources.list")
     }
 
+    private var newspaperFooter: some View {
+        VStack(spacing: AppSpacing.sm) {
+            newspaperDivider
+            HStack(spacing: AppSpacing.sm) {
+                Text("Edition 1")
+                    .font(.system(size: 10, weight: .semibold, design: .serif))
+                    .foregroundColor(AppPalette.textSecondary)
+                Spacer()
+                Text("All Rights Reserved")
+                    .font(.system(size: 10, weight: .semibold, design: .serif))
+                    .foregroundColor(AppPalette.textSecondary)
+            }
+            newspaperDivider
+        }
+        .padding(.horizontal, AppSpacing.md)
+    }
+
     // MARK: - Masthead Header (Newspaper Style)
 
+    @ViewBuilder
     private var mastheadHeader: some View {
-        VStack(spacing: AppSpacing.xs) {
-            Text("News Flow")
+        VStack(spacing: 0) {
+            // Top decorative line
+            newspaperDivider
+                .padding(.bottom, AppSpacing.sm)
+
+            // Main masthead title with newspaper effect
+            Text("NEWS FLOW")
                 .font(.system(size: 40, weight: .black, design: .serif))
-                .tracking(2)
-                .foregroundColor(AppPalette.primaryRed)
+                .foregroundColor(AppPalette.textPrimary)
+                .shadow(color: Color.black.opacity(0.15), radius: 2, x: 1, y: 1)
+                .scaleEffect(1.0)
+                .animation(.easeOut(duration: 0.6).delay(0.1), value: true)
 
-            Rectangle()
-                .fill(AppPalette.primaryRed)
-                .frame(height: 3)
+            // Double-rule separator (classic newspaper)
+            VStack(spacing: 2) {
+                newspaperDivider
+                newspaperDivider
+            }
+            .padding(.vertical, AppSpacing.sm)
 
+            // Date and subtitle row
             HStack {
                 Text(Date(), style: .date)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .semibold, design: .serif))
                     .foregroundColor(AppPalette.textSecondary)
                     .textCase(.uppercase)
 
                 Spacer()
 
                 Text(L10n.text("sources.mastheadSubtitle"))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .semibold, design: .serif))
                     .foregroundColor(AppPalette.textSecondary)
             }
-            .padding(.top, AppSpacing.xxs)
+
+            // Bottom thin rule
+            newspaperDivider
+                .padding(.top, AppSpacing.sm)
         }
     }
 
+    private var newspaperDivider: some View {
+        Rectangle()
+            .fill(AppPalette.textPrimary.opacity(0.85))
+            .frame(height: 1)
+    }
 }
 
 // MARK: - Previews

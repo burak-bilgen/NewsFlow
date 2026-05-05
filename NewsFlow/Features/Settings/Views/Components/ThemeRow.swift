@@ -29,6 +29,7 @@ struct ThemeRow: View {
                 }
             }
         }
+        .buttonStyle(.plain)
         .accessibilityIdentifier("theme.row.\(theme.rawValue)")
     }
 

@@ -7,6 +7,7 @@ struct ArticleHeroCard: View {
     var heroNamespace: Namespace.ID?
     var sourceID: String?
     let onToggle: () -> Void
+    @State private var isPressed = false
 
     var body: some View {
         NavigationLink {
@@ -15,6 +16,11 @@ struct ArticleHeroCard: View {
             cardContent
         }
         .buttonStyle(.plain)
+        .scaleEffect(isPressed ? 0.97 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 
     private var cardContent: some View {
@@ -38,7 +44,7 @@ struct ArticleHeroCard: View {
                 HStack {
                     Text(sourceName.uppercased())
                         .font(.system(size: 11, weight: .black))
-                        .tracking(1.2)
+
                         .foregroundColor(.white)
                         .padding(.horizontal, AppSpacing.sm)
                         .padding(.vertical, AppSpacing.xxs)

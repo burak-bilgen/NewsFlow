@@ -5,7 +5,7 @@ enum L10n {
     private static var cachedLanguage: String?
 
     static func text(_ key: String, _ arguments: CVarArg...) -> String {
-        let language = UserDefaults.standard.string(forKey: "app.language.preference") ?? "tr"
+        let language = UserDefaults.standard.string(forKey: "app.language.preference") ?? "en"
 
         let bundle: Bundle
         if let cachedBundle, cachedLanguage == language {

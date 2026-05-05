@@ -29,7 +29,7 @@ final class LanguageManager: ObservableObject {
 
     init() {
         let stored = UserDefaults.standard.string(forKey: key) ?? ""
-        self.currentLanguage = AppLanguage(rawValue: stored) ?? .turkish
+        self.currentLanguage = AppLanguage(rawValue: stored) ?? .english
     }
 
     func setLanguage(_ language: AppLanguage) {

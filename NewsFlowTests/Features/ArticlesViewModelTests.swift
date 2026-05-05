@@ -274,16 +274,20 @@ final class ArticlesViewModelTests: XCTestCase {
         )
 
         await viewModel.loadIfNeeded()
-        guard case .error = viewModel.state else { return }
+        guard case .error = viewModel.state else {
+            XCTFail("Expected error state after initial load")
+            return
+        }
 
         await viewModel.retry()
         XCTAssertEqual(viewModel.state, .loaded)
     }
 
     func testRetryFromEmptyState() async {
+        let repository = ArticlesRepositorySpy(result: .success([]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([])),
+            articlesRepository: repository,
             readingListRepository: InMemoryReadingListRepositorySpy(),
             errorSimulator: FixedErrorSimulator(results: [false])
         )
@@ -291,14 +295,9 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state, .empty)
 
         let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
-        let newViewModel = ArticlesViewModel(
-            source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: InMemoryReadingListRepositorySpy(),
-            errorSimulator: FixedErrorSimulator(results: [false])
-        )
-        await newViewModel.retry()
-        XCTAssertEqual(newViewModel.state, .loaded)
+        repository.result = .success([article])
+        await viewModel.retry()
+        XCTAssertEqual(viewModel.state, .loaded)
     }
 
     // MARK: - Pagination
@@ -485,9 +484,11 @@ final class ArticlesViewModelTests: XCTestCase {
 
         await viewModel.prefetchNextPageIfNeeded()
         XCTAssertEqual(repository.requestCount, 2)
-        XCTAssertEqual(viewModel.articles.count, 12) // 6 + 6 (spy returns all items each time)
+        // Spy returns the same 6 items; deduplication keeps count at 6
+        XCTAssertEqual(viewModel.articles.count, 6)
         XCTAssertEqual(viewModel.state, .loaded)
         XCTAssertFalse(viewModel.isLoadingMore)
+        XCTAssertFalse(viewModel.isPrefetching)
     }
 
     func testPrefetchDoesNotChangeStateWhenAlreadyLoaded() async {

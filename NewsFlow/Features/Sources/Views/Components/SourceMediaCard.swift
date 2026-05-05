@@ -8,6 +8,7 @@ import SwiftUI
 struct SourceMediaCard: View {
     let source: NewsSource
     var heroNamespace: Namespace.ID?
+    @State private var isPressed = false
 
     var body: some View {
         VStack(spacing: AppSpacing.sm) {
@@ -15,7 +16,7 @@ struct SourceMediaCard: View {
                 .frame(width: 100, height: 100)
 
             Text(source.name)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 12, weight: .bold, design: .serif))
                 .foregroundColor(AppPalette.textPrimary)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
@@ -23,6 +24,11 @@ struct SourceMediaCard: View {
         }
         .frame(width: 108, height: 148)
         .contentShape(Rectangle())
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
+        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 
     private var logoContainer: some View {

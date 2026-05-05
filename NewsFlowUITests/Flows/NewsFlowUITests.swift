@@ -31,6 +31,9 @@ final class NewsFlowUITests: XCTestCase {
     }
 
     /// Verifies category chips are present and tappable.
+    /// Note: This test may be flaky due to SwiftUI navigation stack accessibility
+    /// timing. The category filtering logic is thoroughly covered by unit tests
+    /// (`SourceFilteringTests` and `SourcesViewModelTests`).
     @MainActor
     func testCategorySelectionFiltersSources() {
         let technologyChip = app.buttons["category.chip.technology"]
@@ -137,6 +140,9 @@ final class NewsFlowUITests: XCTestCase {
     // MARK: - Settings
 
     /// Verifies the settings screen opens.
+    /// Note: This test may be flaky due to SwiftUI navigation stack accessibility
+    /// timing. The settings navigation logic is thoroughly covered by unit tests
+    /// (`AppRouterTests`).
     @MainActor
     func testSettingsNavigation() {
         // Tap the settings gear icon in the top-right toolbar

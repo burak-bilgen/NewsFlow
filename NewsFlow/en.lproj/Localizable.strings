@@ -15,17 +15,17 @@
 "articles.latest" = "Latest News";
 "articles.loadMore" = "Load More Articles";
 
-"readingList.add" = "Okuma listeme ekle";
-"readingList.remove" = "Okuma listemden çıkar";
+"readingList.add" = "Add to Reading List";
+"readingList.remove" = "Remove from Reading List";
 
-"retry.button" = "Tekrar Dene";
+"retry.button" = "Retry";
 "ok.button" = "OK";
-"warning.title" = "Uyarı";
+"warning.title" = "Warning";
 "error.title" = "Something went wrong";
-"error.generic" = "Bilgiler alınamadı!";
+"error.generic" = "Could not retrieve information.";
 "error.network" = "Check your connection and try again.";
 "error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
-"error.simulatedFetch" = "Bilgiler alınamadı!";
+"error.simulatedFetch" = "Could not retrieve information.";
 
 "settings.title" = "Settings";
 "settings.appearance" = "Appearance";

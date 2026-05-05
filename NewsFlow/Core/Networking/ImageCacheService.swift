@@ -22,9 +22,9 @@ protocol ImageCacheServicing: AnyObject {
 /// - countLimit = 100: prevents unbounded growth with high-res news images.
 final class ImageCacheService: ImageCacheServicing {
     private let cache = NSCache<NSString, CacheEntry>()
-    private let session: URLSession
+    private let session: URLSessionProtocol
 
-    init(session: URLSession = .shared) {
+    init(session: URLSessionProtocol = URLSession.shared) {
         self.session = session
         cache.countLimit = 100
     }
@@ -39,7 +39,8 @@ final class ImageCacheService: ImageCacheServicing {
         }
 
         do {
-            let (data, response) = try await session.data(from: url)
+            let request = URLRequest(url: url)
+            let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
                 return nil

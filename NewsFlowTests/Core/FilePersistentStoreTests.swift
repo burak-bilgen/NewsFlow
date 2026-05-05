@@ -46,9 +46,9 @@ final class FilePersistentStoreTests: XCTestCase {
         let sources = [
             NewsSource(id: "bbc", name: "BBC", description: "News", category: "general", language: "en", url: nil)
         ]
-        let before = Date()
+        let before = Date().addingTimeInterval(-1)
         try await store.save(sources, forKey: "sources")
-        let after = Date()
+        let after = Date().addingTimeInterval(1)
 
         let lastUpdated = await store.lastUpdated(forKey: "sources")
         XCTAssertNotNil(lastUpdated)
