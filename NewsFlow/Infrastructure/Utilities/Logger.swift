@@ -53,31 +53,82 @@ struct LogEntry {
 // MARK: - Logger Protocol
 
 protocol Logging {
-    func log(_ level: LogLevel, _ message: String, category: String, file: String, function: String, line: Int, metadata: [String: Any]?)
+    // swiftlint:disable:next function_parameter_count
+    func log(
+        _ level: LogLevel,
+        _ message: String,
+        category: String,
+        file: String,
+        function: String,
+        line: Int,
+        metadata: [String: Any]?
+    )
 }
 
 extension Logging {
-    func verbose(_ message: String, category: String = "App", file: String = #file, function: String = #function, line: Int = #line, metadata: [String: Any]? = nil) {
+    func verbose(
+        _ message: String,
+        category: String = "App",
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        metadata: [String: Any]? = nil
+    ) {
         log(.verbose, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 
-    func debug(_ message: String, category: String = "App", file: String = #file, function: String = #function, line: Int = #line, metadata: [String: Any]? = nil) {
+    func debug(
+        _ message: String,
+        category: String = "App",
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        metadata: [String: Any]? = nil
+    ) {
         log(.debug, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 
-    func info(_ message: String, category: String = "App", file: String = #file, function: String = #function, line: Int = #line, metadata: [String: Any]? = nil) {
+    func info(
+        _ message: String,
+        category: String = "App",
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        metadata: [String: Any]? = nil
+    ) {
         log(.info, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 
-    func warning(_ message: String, category: String = "App", file: String = #file, function: String = #function, line: Int = #line, metadata: [String: Any]? = nil) {
+    func warning(
+        _ message: String,
+        category: String = "App",
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        metadata: [String: Any]? = nil
+    ) {
         log(.warning, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 
-    func error(_ message: String, category: String = "App", file: String = #file, function: String = #function, line: Int = #line, metadata: [String: Any]? = nil) {
+    func error(
+        _ message: String,
+        category: String = "App",
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        metadata: [String: Any]? = nil
+    ) {
         log(.error, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 
-    func critical(_ message: String, category: String = "App", file: String = #file, function: String = #function, line: Int = #line, metadata: [String: Any]? = nil) {
+    func critical(
+        _ message: String,
+        category: String = "App",
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        metadata: [String: Any]? = nil
+    ) {
         log(.critical, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 }
@@ -87,12 +138,21 @@ extension Logging {
 final class ConsoleLogger: Logging {
     var minimumLevel: LogLevel = .debug
 
-    func log(_ level: LogLevel, _ message: String, category: String, file: String, function: String, line: Int, metadata: [String: Any]?) {
+    // swiftlint:disable:next function_parameter_count
+    func log(
+        _ level: LogLevel,
+        _ message: String,
+        category: String,
+        file: String,
+        function: String,
+        line: Int,
+        metadata: [String: Any]?
+    ) {
         guard level >= minimumLevel else { return }
 
         let filename = (file as NSString).lastPathComponent
         let timestamp = ISO8601DateFormatter().string(from: Date())
-        var output = "\(level.emoji) [\(timestamp)] [\(category)] [\(filename):\(line)] \(function) — \(message)"
+        var output = "\(level.emoji) [\(timestamp)] [\(category)] [\(filename):\(line)] \(function) - \(message)"
 
         if let metadata = metadata, !metadata.isEmpty {
             let metaString = metadata.map { "\($0.key): \($0.value)" }.joined(separator: ", ")
@@ -125,7 +185,16 @@ final class NewsFlowLogger: Logging, @unchecked Sendable {
         self.logger = logger
     }
 
-    func log(_ level: LogLevel, _ message: String, category: String, file: String, function: String, line: Int, metadata: [String: Any]?) {
+    // swiftlint:disable:next function_parameter_count
+    func log(
+        _ level: LogLevel,
+        _ message: String,
+        category: String,
+        file: String,
+        function: String,
+        line: Int,
+        metadata: [String: Any]?
+    ) {
         logger.log(level, message, category: category, file: file, function: function, line: line, metadata: metadata)
     }
 }

@@ -62,7 +62,6 @@ struct ArticleDetailView: View {
                         .foregroundColor(AppPalette.textPrimary)
                         .lineSpacing(6)
 
-
                     // Decorative divider
                     HStack(spacing: 0) {
                         Rectangle()

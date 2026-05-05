@@ -5,7 +5,11 @@ import Foundation
 protocol FilterSourcesUseCaseProtocol {
     func execute(sources: [NewsSource], selectedCategories: Set<String>) -> [NewsSource]
     func extractCategories(from sources: [NewsSource]) -> [String]
-    func groupByCategory(_ sources: [NewsSource], categories: [String], selectedCategories: Set<String>) -> [(category: String, sources: [NewsSource])]
+    func groupByCategory(
+        _ sources: [NewsSource],
+        categories: [String],
+        selectedCategories: Set<String>
+    ) -> [(category: String, sources: [NewsSource])]
 }
 
 final class FilterSourcesUseCase: FilterSourcesUseCaseProtocol {

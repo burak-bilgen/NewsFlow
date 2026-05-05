@@ -3,7 +3,7 @@ import Foundation
 /// Represents a news source (e.g. BBC News, TechCrunch).
 /// The `url` field holds the source's website URL, used to fetch
 /// the logo via Clearbit's free Logo API.
-struct NewsSource: Identifiable, Hashable, Codable {
+struct NewsSource: Identifiable, Hashable, Codable, Sendable {
     let id: String
     let name: String
     let description: String

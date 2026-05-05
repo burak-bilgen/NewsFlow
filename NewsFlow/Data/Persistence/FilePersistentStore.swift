@@ -1,8 +1,8 @@
 import Foundation
 
 protocol PersistentStore {
-    func save<T: Encodable>(_ value: T, forKey key: String) async throws
-    func load<T: Decodable>(_ type: T.Type, forKey key: String) async -> T?
+    func save<T: Encodable & Sendable>(_ value: T, forKey key: String) async throws
+    func load<T: Decodable & Sendable>(_ type: T.Type, forKey key: String) async -> T?
     func remove(forKey key: String) async
     func lastUpdated(forKey key: String) async -> Date?
 }
@@ -22,7 +22,7 @@ actor FilePersistentStore: PersistentStore {
         try fileManager.createDirectory(at: self.baseURL, withIntermediateDirectories: true)
     }
 
-    func save<T: Encodable>(_ value: T, forKey key: String) async throws {
+    func save<T: Encodable & Sendable>(_ value: T, forKey key: String) async throws {
         let url = baseURL.appendingPathComponent("\(key).json")
         let data = try JSONEncoder().encode(value)
         try data.write(to: url)
@@ -33,7 +33,7 @@ actor FilePersistentStore: PersistentStore {
         try metaData.write(to: metaURL)
     }
 
-    func load<T: Decodable>(_ type: T.Type, forKey key: String) async -> T? {
+    func load<T: Decodable & Sendable>(_ type: T.Type, forKey key: String) async -> T? {
         let url = baseURL.appendingPathComponent("\(key).json")
         guard let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(type, from: data)

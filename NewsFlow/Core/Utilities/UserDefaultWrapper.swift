@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 /// A thread-safe property wrapper that persists values to `UserDefaults`.
 ///

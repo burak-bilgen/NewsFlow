@@ -1,6 +1,6 @@
 import Foundation
 
-struct Article: Identifiable, Codable, Equatable, Hashable {
+struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
     let id: String
     let sourceID: String
     let title: String

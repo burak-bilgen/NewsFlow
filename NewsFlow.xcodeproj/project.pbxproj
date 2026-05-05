@@ -31,9 +31,22 @@
 		675761012FA8EF00003F06BE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		675761062FA8F021003F06BE /* Exceptions for "NewsFlow" folder in "NewsFlow" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6757606A2FA8DE1B003F06BE /* NewsFlow */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6757606D2FA8DE1B003F06BE /* NewsFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				675761062FA8F021003F06BE /* Exceptions for "NewsFlow" folder in "NewsFlow" target */,
+			);
 			path = NewsFlow;
 			sourceTree = "<group>";
 		};

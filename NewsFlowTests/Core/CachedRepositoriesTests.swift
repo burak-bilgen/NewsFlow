@@ -7,13 +7,13 @@ actor MockPersistentStore: PersistentStore {
     var storage: [String: Data] = [:]
     var meta: [String: Date] = [:]
 
-    func save<T: Encodable>(_ value: T, forKey key: String) async throws {
+    func save<T: Encodable & Sendable>(_ value: T, forKey key: String) async throws {
         let data = try JSONEncoder().encode(value)
         storage[key] = data
         meta[key] = Date()
     }
 
-    func load<T: Decodable>(_ type: T.Type, forKey key: String) async -> T? {
+    func load<T: Decodable & Sendable>(_ type: T.Type, forKey key: String) async -> T? {
         guard let data = storage[key] else { return nil }
         return try? JSONDecoder().decode(type, from: data)
     }

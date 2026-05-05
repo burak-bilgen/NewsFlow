@@ -1,5 +1,5 @@
-import UIKit
 import Foundation
+import UIKit
 
 // MARK: - Image Cache Protocol
 
@@ -28,7 +28,7 @@ actor ImageCache: ImageCacheProtocol {
         var memoryCostLimitMB: Int = 50
         var diskSizeLimitMB: Int = 200
         var maxDiskAgeDays: Int = 7
-        var defaultTargetSize: CGSize = CGSize(width: 400, height: 400)
+        var defaultTargetSize = CGSize(width: 400, height: 400)
     }
 
     // MARK: - Properties
