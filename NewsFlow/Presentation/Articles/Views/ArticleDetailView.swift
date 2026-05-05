@@ -7,7 +7,6 @@ struct ArticleDetailView: View {
     let sourceName: String
     var isSaved: Bool = false
     var onToggleReadingList: (() -> Void)?
-    @Environment(\.dismiss) private var dismiss
     @State private var showSafari = false
     @State private var appearAnimation = false
 
@@ -16,7 +15,7 @@ struct ArticleDetailView: View {
             VStack(alignment: .leading, spacing: 0) {
 
                 // Hero image
-                ZStack(alignment: .topTrailing) {
+                ZStack(alignment: .topLeading) {
                     ArticleImageView(url: article.imageURL)
                         .frame(maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: 320)
                         .clipShape(
@@ -43,7 +42,9 @@ struct ArticleDetailView: View {
                             displayStyle: .hero,
                             action: onToggle
                         )
-                        .padding(AppSpacing.lg)
+                        .padding(AppSpacing.xl)
+                        .padding(.top, AppSpacing.lg)
+                        .offset(x: 20)
                     }
                 }
 
@@ -135,17 +136,6 @@ struct ArticleDetailView: View {
             .padding(.bottom, AppSpacing.xl)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 26))
-                        .foregroundColor(AppPalette.textSecondary)
-                }
-            }
-        }
         .onAppear {
             appearAnimation = true
         }

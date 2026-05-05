@@ -56,16 +56,40 @@ struct OfflineBannerView: View {
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
             Image(systemName: "wifi.slash")
-                .font(.system(size: 14, weight: .semibold))
-            Text(L10n.text("offline.banner"))
-                .font(.caption.weight(.semibold))
+                .font(.system(size: 16, weight: .semibold))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(L10n.text("offline.banner"))
+                    .font(.subheadline.weight(.semibold))
+                
+                Text("Check your connection")
+                    .font(.caption2)
+                    .opacity(0.8)
+            }
+            
             Spacer()
+            
+            Button {
+                // Try to refresh or dismiss
+            } label: {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 32, height: 32)
+                    .background(Color.white.opacity(0.2))
+                    .clipShape(Circle())
+            }
         }
         .foregroundColor(.white)
-        .padding(.horizontal, AppSpacing.md)
-        .padding(.vertical, AppSpacing.xs)
-        .background(AppPalette.primaryInk)
-        .transition(.move(edge: .top).combined(with: .opacity))
+        .padding(AppSpacing.md)
+        .background(
+            LinearGradient(
+                colors: [Color(red: 0.9, green: 0.3, blue: 0.3), Color(red: 0.8, green: 0.2, blue: 0.2)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
+        .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
     }
 }
 

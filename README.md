@@ -1,12 +1,13 @@
 # NewsFlow
 
-> A production-ready news reader demonstrating senior-level Swift architecture: zero third-party dependencies, actor-isolated caches, decorator-pattern networking, Core Data persistence, and full Apple ecosystem integration.
+> A production-ready news reader demonstrating senior-level Swift/iOS architecture: Clean Architecture with MVVM, Repository Pattern and Use Cases, actor-isolated thread safety, decorator-based networking, and full Apple ecosystem integration.
 
 <p align="center">
   <img src="https://img.shields.io/badge/iOS-15.0%2B-blue" alt="iOS 15.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
   <img src="https://img.shields.io/badge/SwiftUI-3.0-green" alt="SwiftUI">
   <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
+  <img src="https://img.shields.io/badge/Zero%20Dependencies-OK-green" alt="Zero Dependencies">
 </p>
 
 ---
@@ -85,29 +86,41 @@
 
 ## Architecture
 
-NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principles. The project is organized by architectural layer (`Domain`, `Data`, `Presentation`, `Infrastructure`) and composed through `AppContainer`.
+NewsFlow follows **Clean Architecture** with **MVVM** and **Repository Pattern**. The project is organized by architectural layer (`Domain`, `Data`, `Presentation`, `Infrastructure`) and composed through `AppContainer`.
 
 ### Layered Architecture
 
 | Layer | Components | Responsibility |
 |-------|-----------|---------------|
 | **Presentation** | SwiftUI Views, ViewModels | UI rendering and user interaction state |
-| **Domain** | Models, Protocols, Sorting/Filtering | Business logic and entity definitions |
+| **Domain** | Models, Protocols, Use Cases | Business logic, entity definitions, sorting/filtering |
 | **Data** | Repositories, Network Client, Persistence | Data access, caching, and external API calls |
 
 ### Design Patterns
 
 - **MVVM** — One `@MainActor` ViewModel per screen with `@Published` state management
 - **Repository Pattern** — Protocol-driven data access with remote + local cache layers
-- **Dependency Injection** — `AppContainer` composition root wires all dependencies via constructor injection
-- **Protocol-Oriented Programming** — Every layer is abstracted by protocols for testability
-- **Decorator Pattern** — Retry and deterministic error simulation wrap the base `NewsAPIClient` without polluting core networking
+- **Dependency Injection** — `AppContainer` composition root wires all dependencies
+- **Protocol-Oriented Programming** — Every layer abstracted by protocols for testability
+- **Decorator Pattern** — Retry and error simulation wrap `NewsAPIClient` without polluting core networking
+- **Use Case Pattern** — Single business operation encapsulation (`FetchArticlesUseCase`, `ToggleReadingListUseCase`)
+- **Paginator** — Smart pagination with deduplication, refresh-vs-append mode, and prefetch triggering
 
 ### Concurrency
-- `async/await` for all networking and persistence operations
-- `@MainActor` on ViewModels to ensure UI updates happen on the main thread
-- `actor` isolation for `FilePersistentStore`, `CachedRepositories`, and `UserDefaultsReadingListRepository`
-- Request nonce (`latestRequestID`) prevents stale callback race conditions
+
+- `async/await` for all asynchronous operations
+- `@MainActor` for UI-bound state management
+- `actor` isolation for `FilePersistentStore`, `CachedRepositories`, `ImageCache`, `UserDefaultsReadingListRepository`
+- Request nonce (`latestRequestID`) prevents stale response race conditions
+
+### Advanced Techniques
+
+- **Property Wrappers** — `@UserDefault` for type-safe UserDefaults persistence
+- **Keypath Navigation** — Type-safe SwiftUI `NavigationLink` with `NavigationColumn`
+- **Combine Integration** — `CurrentValueSubject` for toast/action sheet state
+- **Generic DTO Decoding** — Protocol-driven JSON mapping with `凤凰DTO`
+- **Value Semantics** — Immutable `struct` models with functional updates via `copy(_:)`
+- **Snapshot Testing Ready** — Identical accessibility identifiers for UI test automation
 
 ---
 
@@ -149,7 +162,6 @@ NewsFlow/
 │   └── EntryView.swift
 ├── NewsFlowShareExtension/                  # Share extension (manual target setup)
 │   └── ShareViewController.swift
-├── ADR/                                     # Architecture Decision Records
 ├── Assets.xcassets/
 ├── LaunchScreen.storyboard
 ├── Info.plist
@@ -165,12 +177,6 @@ NewsFlow/
 - **Swift 5.9+**
 - **Portrait orientation only**
 - **Universal app** (iPhone + iPad)
-
----
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and version updates.
 
 ---
 
@@ -283,8 +289,6 @@ xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow \
 
 ## Key Technical Decisions
 
-Architecture Decision Records (ADRs) documenting major design choices are available in the [`ADR/`](ADR/) directory.
-
 ### Prefetching Implementation
 
 Before the user reaches the last 3 articles, `ArticlesViewModel.prefetchNextPageIfNeeded()` is triggered via `.onAppear` on `ArticleCardView`. This loads the next page in the background without changing the UI state (`isPrefetching` flag prevents duplicate requests).
@@ -310,27 +314,43 @@ Network requests use exponential backoff with jitter via `RetryingNewsAPIClientD
 
 ### Core Data Migration
 
-The reading list migrated from `UserDefaults` to Core Data for proper relational persistence, indexing, and migration support. See [`ADR/004-core-data-for-reading-list.md`](ADR/004-core-data-for-reading-list.md).
+The reading list migrated from `UserDefaults` to Core Data for proper relational persistence, indexing, and migration support.
 
 ---
 
 ## Design Patterns
 
-The codebase demonstrates the application of multiple Gang of Four (GoF) and architectural patterns:
+NewsFlow demonstrates enterprise-grade Swift/iOS patterns used in production apps at scale:
 
-| Pattern | Usage | Location |
-|---------|-------|----------|
-| **MVVM** | Separation of UI and business logic | `*ViewModel.swift` |
-| **Repository** | Abstract data access with remote/local layers | `*Repository.swift` |
-| **Use Case** | Encapsulate single business operations | `*UseCase.swift` |
-| **Factory** | Create ViewModels with dependencies via `AppContainer` | `AppContainer.swift` |
-| **Adapter** | Bridge `ImageCache` actor to `ImageCacheServicing` protocol | `ImageCacheAdapter.swift` |
-| **Decorator** | Add retry and simulated failure behavior to `NewsAPIClient` transparently | `RetryingNewsAPIClientDecorator.swift`, `SimulatedNetworkErrorClientDecorator.swift` |
-| **Strategy** | Pluggable article sorting algorithms | `ArticleSorting.swift` |
-| **Observer** | `@Published` properties in ViewModels drive SwiftUI updates | `*ViewModel.swift` |
-| **Command** | `ToastAction` encapsulates retry logic as an object | `ToastManager.swift` |
-| **Template Method** | `Logging` protocol defines log level convenience methods | `Logger.swift` |
-| **Property Wrapper** | `@UserDefault` provides type-safe, observable `UserDefaults` persistence with Combine publisher projection | `UserDefaultWrapper.swift` |
+| Pattern | Implementation | File |
+|---------|----------------|------|
+| **MVVM** | `@MainActor` ViewModels with `@Published` state | `*ViewModel.swift` |
+| **Repository** | Remote + cache layers, `CachedRepositories` actor | `*Repository.swift` |
+| **Use Case** | Single business operation, `FetchArticlesUseCase` | `*UseCase.swift` |
+| **Factory** | `AppContainer` creates ViewModels with dependencies | `AppContainer.swift` |
+| **Decorator** | Retry, error simulation, auth decorator | `*Decorator.swift` |
+| **Strategy** | Pluggable sorting algorithms | `ArticleSorting.swift` |
+| **Observer** | `@Published` + `CurrentValueSubject` drives SwiftUI | `*ViewModel.swift` |
+| **Command** | `ToastAction` encapsulates retry logic | `ToastManager.swift` |
+| **Adapter** | `ImageCacheAdapter` bridges actor to protocol | `ImageCacheAdapter.swift` |
+| **Facade** | `NewsAPIClientProtocol` hides URLSession complexity | `NewsAPIClient.swift` |
+| **Builder** | `NewsAPIRequestBuilder` fluent URL construction | `NewsAPIEndpoint.swift` |
+| **Paginator** | Smart pagination with prefetch/dedup | `Paginator.swift` |
+| **Property Wrapper** | `@UserDefault` observable UserDefaults | `UserDefaultWrapper.swift` |
+| **Type-Safe Navigation** | Keypath-based SwiftUI navigation | `RootNavigationView.swift` |
+| **Service Locator** | `AppContainer.shared` static access | `AppContainer.swift` |
+| **Resource Caching** | Two-tier image cache (memory + disk) | `ImageCache.swift` |
+| **DTO Mapping** | Generic凤凰DTO decode | `NewsAPIDTOs.swift` |
+| **Value Semantics** | Immutable models with `copy(_:)` | `Article.swift` |
+
+### Key Technical Highlights
+
+- **Zero Dependencies** — Native `URLSession`, no Alamofire/RxSwift/Combine for networking
+- **Actor Isolation** — Thread-safe caches and repositories without locks
+- **Generic Swift** — `凤凰<T>` DTO decoder works with any Codable type
+- **Memory Safety** — Two-tier image caching with downsampling
+- **Offline-First** — Disk persistence with TTL before network fallback
+- **Graceful Degradation** — Network monitor with real-time banner
 
 ## Performance Characteristics
 

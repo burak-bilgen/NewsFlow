@@ -25,7 +25,6 @@ struct NewsFlowApp: App {
                 .environmentObject(languageManager)
                 .environment(\.imageCache, imageCache)
                 .preferredColorScheme(themeManager.currentTheme.colorScheme)
-                .offlineAware()
         }
     }
 }
