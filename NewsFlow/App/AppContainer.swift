@@ -62,6 +62,12 @@ final class AppContainer: ObservableObject {
         )
         let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
 
+        CrashReporter.shared.recordBreadcrumb(
+            "AppContainer initialized",
+            category: "Lifecycle",
+            metadata: ["store": String(describing: type(of: store))]
+        )
+
         return AppContainer(
             fetchSourcesUseCase: FetchSourcesUseCase(repository: sourcesRepo),
             fetchArticlesUseCaseFactory: { _ in

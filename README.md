@@ -153,6 +153,12 @@ NewsFlow/
 
 ---
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and version updates.
+
+---
+
 ## Setup
 
 ### 1. Clone the repository
