@@ -133,8 +133,8 @@ final class Paginator<T: Identifiable> {
             // Stale request check
             guard latestRequestID == requestID else { return state }
 
-            // Deduplicate
-            let newItems = deduplicate(result.items)
+            // Deduplicate only for loadMore/prefetch; initial/refresh/retry replace all items
+            let newItems = (mode == .loadMore || mode == .prefetch) ? deduplicate(result.items) : result.items
 
             // Update items based on mode
             switch mode {

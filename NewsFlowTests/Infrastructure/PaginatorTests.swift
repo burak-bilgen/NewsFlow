@@ -6,11 +6,10 @@ import XCTest
 @MainActor
 final class PaginatorTests: XCTestCase {
     private func makePaginator(items: [[Article]] = [[]]) -> Paginator<Article> {
-        var pageIndex = 0
         return Paginator<Article>(pageSize: 2) { page, pageSize in
-            let currentItems = items[safe: pageIndex] ?? []
-            let hasMore = pageIndex < items.count - 1
-            pageIndex += 1
+            let index = page - 1
+            let currentItems = items[safe: index] ?? []
+            let hasMore = index < items.count - 1
             return PaginatedResult(
                 items: currentItems,
                 currentPage: page,
@@ -27,15 +26,30 @@ final class PaginatorTests: XCTestCase {
 
     func testLoadFirstReturnsLoadedWithItems() async {
         let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let paginator = makePaginator(items: [[article, article], [article]])
+
+        let state = await paginator.loadFirst()
+
+        // With 2+ pages, first load returns .loaded
+        guard case .loaded(let items, let hasMore) = state else {
+            return XCTFail("Expected loaded state, got \(state)")
+        }
+        XCTAssertEqual(items.count, 2)
+        XCTAssertTrue(hasMore)
+    }
+
+    func testLoadFirstReturnsAllLoadedWhenSinglePage() async {
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
         let paginator = makePaginator(items: [[article, article]])
 
         let state = await paginator.loadFirst()
 
-        guard case .loaded(let items, let hasMore) = state else {
-            return XCTFail("Expected loaded state")
+        // Single page returns .allLoaded
+        guard case .allLoaded(let items) = state else {
+            return XCTFail("Expected allLoaded state, got \(state)")
         }
         XCTAssertEqual(items.count, 2)
-        XCTAssertFalse(hasMore)
+        XCTAssertFalse(paginator.hasMore)
     }
 
     func testLoadFirstReturnsEmpty() async {
@@ -59,8 +73,9 @@ final class PaginatorTests: XCTestCase {
         _ = await paginator.loadFirst()
         let state = await paginator.loadNext()
 
-        guard case .loaded(let items, _) = state else {
-            return XCTFail("Expected loaded state")
+        // After loading last page, state is .allLoaded
+        guard case .allLoaded(let items) = state else {
+            return XCTFail("Expected allLoaded state, got \(state)")
         }
         XCTAssertEqual(items.count, 3)
     }
@@ -72,8 +87,8 @@ final class PaginatorTests: XCTestCase {
         _ = await paginator.loadFirst()
         let state = await paginator.loadNext()
 
-        guard case .loaded(let items, _) = state else {
-            return XCTFail("Expected loaded state")
+        guard case .allLoaded(let items) = state else {
+            return XCTFail("Expected allLoaded state, got \(state)")
         }
         XCTAssertEqual(items.count, 1)
     }
@@ -87,10 +102,11 @@ final class PaginatorTests: XCTestCase {
         _ = await paginator.loadNext()
         let state = await paginator.refresh()
 
+        // Refresh resets to page 1
         guard case .loaded(let items, _) = state else {
-            return XCTFail("Expected loaded state")
+            return XCTFail("Expected loaded state, got \(state)")
         }
-        XCTAssertEqual(items.count, 1) // resets to page 1
+        XCTAssertEqual(items.count, 1)
     }
 
     func testAllLoadedStateWhenNoMorePages() async {
@@ -100,7 +116,7 @@ final class PaginatorTests: XCTestCase {
         let state = await paginator.loadFirst()
 
         guard case .allLoaded = state else {
-            return XCTFail("Expected allLoaded state")
+            return XCTFail("Expected allLoaded state, got \(state)")
         }
         XCTAssertFalse(paginator.hasMore)
     }
@@ -113,8 +129,9 @@ final class PaginatorTests: XCTestCase {
         _ = await paginator.loadFirst()
         let state = await paginator.prefetch()
 
-        guard case .loaded(let items, _) = state else {
-            return XCTFail("Expected loaded state")
+        // After prefetching last page, state is .allLoaded
+        guard case .allLoaded(let items) = state else {
+            return XCTFail("Expected allLoaded state, got \(state)")
         }
         XCTAssertEqual(items.count, 2)
     }
