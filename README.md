@@ -247,9 +247,3 @@ Enterprise patterns used in real production apps:
 ## License
 
 MIT — See [LICENSE](LICENSE).
-
----
-
-<p align="center">
-  Crafted with precision & SwiftUI
-</p>
