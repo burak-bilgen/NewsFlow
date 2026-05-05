@@ -10,11 +10,17 @@ struct ArticleCardView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             NavigationLink {
-                ArticleDetailView(article: article, sourceName: sourceName)
+                ArticleDetailView(
+                        article: article,
+                        sourceName: sourceName,
+                        isSaved: isSaved,
+                        onToggleReadingList: onToggle
+                    )
             } label: {
                 HStack(alignment: .top, spacing: AppSpacing.md) {
                     articlePreview
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -24,7 +30,8 @@ struct ArticleCardView: View {
                 displayStyle: .card,
                 action: onToggle
             )
-            .padding(6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            .offset(x: 4, y: 8)
         }
         .padding(AppSpacing.md)
         .background(AppPalette.elevatedBackground)

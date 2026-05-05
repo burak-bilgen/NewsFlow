@@ -5,6 +5,8 @@ import SwiftUI
 struct ArticleDetailView: View {
     let article: Article
     let sourceName: String
+    var isSaved: Bool = false
+    var onToggleReadingList: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @State private var showSafari = false
     @State private var appearAnimation = false
@@ -14,25 +16,36 @@ struct ArticleDetailView: View {
             VStack(alignment: .leading, spacing: 0) {
 
                 // Hero image
-                ArticleImageView(url: article.imageURL)
-                    .frame(maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: 320)
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
-                    )
-                    .overlay(
-                        LinearGradient(
-                            colors: [AppPalette.gradientStart, AppPalette.gradientMid, AppPalette.gradientEnd],
-                            startPoint: .bottom,
-                            endPoint: .top
+                ZStack(alignment: .topTrailing) {
+                    ArticleImageView(url: article.imageURL)
+                        .frame(maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: 320)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
-                    )
-                    .padding(.horizontal, AppSpacing.md)
-                    .padding(.top, AppSpacing.md)
-                    .shadow(color: AppPalette.shadowColor.opacity(0.4), radius: 24, x: 0, y: 12)
-                    .opacity(appearAnimation ? 1 : 0)
-                    .offset(y: appearAnimation ? 0 : 20)
-                    .animation(.easeOut(duration: 0.5), value: appearAnimation)
+                        .overlay(
+                            LinearGradient(
+                                colors: [AppPalette.gradientStart, AppPalette.gradientMid, AppPalette.gradientEnd],
+                                startPoint: .bottom,
+                                endPoint: .top
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+                        )
+                        .padding(.horizontal, AppSpacing.md)
+                        .padding(.top, AppSpacing.md)
+                        .shadow(color: AppPalette.shadowColor.opacity(0.4), radius: 24, x: 0, y: 12)
+                        .opacity(appearAnimation ? 1 : 0)
+                        .offset(y: appearAnimation ? 0 : 20)
+                        .animation(.easeOut(duration: 0.5), value: appearAnimation)
+                    
+                    if let onToggle = onToggleReadingList {
+                        ReadingListToggleButton(
+                            isSaved: isSaved,
+                            displayStyle: .hero,
+                            action: onToggle
+                        )
+                        .padding(AppSpacing.lg)
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: AppSpacing.lg) {
 

@@ -5,7 +5,10 @@ struct LoadMoreButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            Haptic.light()
+            action()
+        } label: {
             HStack {
                 Spacer()
 

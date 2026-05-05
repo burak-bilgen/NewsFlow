@@ -5,13 +5,31 @@ struct ArticleHeroCard: View {
     let sourceName: String
     var heroNamespace: Namespace.ID?
     var sourceID: String?
+    var isSaved: Bool = false
+    var onToggle: (() -> Void)?
     @State private var isPressed = false
 
     var body: some View {
         NavigationLink {
-            ArticleDetailView(article: article, sourceName: sourceName)
+            ArticleDetailView(
+                article: article,
+                sourceName: sourceName,
+                isSaved: isSaved,
+                onToggleReadingList: onToggle
+            )
         } label: {
-            cardContent
+            ZStack(alignment: .topTrailing) {
+                cardContent
+                
+                if let onToggle = onToggle {
+                    ReadingListToggleButton(
+                        isSaved: isSaved,
+                        displayStyle: .hero,
+                        action: onToggle
+                    )
+                    .padding(AppSpacing.md)
+                }
+            }
         }
         .buttonStyle(.plain)
         .scaleEffect(isPressed ? 0.97 : 1.0)
@@ -40,21 +58,6 @@ struct ArticleHeroCard: View {
 
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
-                    Text(sourceName.uppercased())
-                        .font(.system(size: 11, weight: .black))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, AppSpacing.sm)
-                        .padding(.vertical, AppSpacing.xxs)
-                        .background(
-                            Capsule()
-                                .fill(Color.black.opacity(0.55))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(Color.white.opacity(0.25), lineWidth: 0.8)
-                                )
-                        )
-                        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 1)
-
                     Spacer()
                 }
 

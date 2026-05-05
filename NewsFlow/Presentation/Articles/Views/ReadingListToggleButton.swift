@@ -26,7 +26,6 @@ struct ReadingListToggleButton: View {
         var background: Color {
             switch self {
             case .card:
-                return AppPalette.primaryRedMuted
                 return AppPalette.elevatedBackground
             case .hero:
                 return Color.black.opacity(0.35)
@@ -48,6 +47,8 @@ struct ReadingListToggleButton: View {
     let displayStyle: DisplayStyle
     let action: () -> Void
 
+    @State private var isAnimating = false
+
     private var title: String {
         L10n.text(isSaved ? "readingList.remove" : "readingList.add")
     }
@@ -57,29 +58,44 @@ struct ReadingListToggleButton: View {
     }
 
     private var foregroundColor: Color {
-        isSaved ? displayStyle.savedForegroundColor : displayStyle.foregroundColor
+        isAnimating
+            ? displayStyle.savedForegroundColor
+            : (isSaved ? displayStyle.savedForegroundColor : displayStyle.foregroundColor)
     }
 
     var body: some View {
         Button {
+            let wasSaved = isSaved
             withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
-                action()
+                isAnimating = true
             }
             Haptic.light()
+            action()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isAnimating = false
+            }
+            if !wasSaved {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    var generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.success)
+                }
+            }
         } label: {
             Image(systemName: iconName)
                 .font(.system(size: displayStyle.iconSize, weight: .semibold))
                 .frame(width: 18, height: 18)
-            .foregroundColor(foregroundColor)
-            .padding(displayStyle == .hero ? 10 : 9)
-            .background(
-                Circle()
-                    .fill(displayStyle.background)
-            )
-            .overlay(
-                Circle()
-                    .stroke(AppPalette.border, lineWidth: displayStyle == .card ? 1 : 0)
-            )
+                .foregroundColor(foregroundColor)
+                .scaleEffect(isAnimating ? 1.3 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isAnimating)
+                .padding(displayStyle == .hero ? 10 : 9)
+                .background(
+                    Circle()
+                        .fill(displayStyle.background)
+                )
+                .overlay(
+                    Circle()
+                        .stroke(AppPalette.border, lineWidth: displayStyle == .card ? 1 : 0)
+                )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title)
