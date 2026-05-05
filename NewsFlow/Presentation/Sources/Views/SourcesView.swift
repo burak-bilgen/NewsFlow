@@ -45,6 +45,7 @@ struct SourcesView: View {
             await viewModel.load()
         }
         .toastOverlay()
+        .offlineAware()
         .accessibilityIdentifier("sources.screen")
     }
 

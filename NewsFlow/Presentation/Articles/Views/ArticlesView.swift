@@ -45,6 +45,7 @@ struct ArticlesView: View {
             stopCarouselAutoScrollAfterManualSelection()
         }
         .toastOverlay()
+        .offlineAware()
         .accessibilityIdentifier("articles.screen")
     }
 

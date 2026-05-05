@@ -27,6 +27,7 @@
 "error.missingApiKey" = "NewsAPI anahtarı eksik. Kurulum adımlarını kontrol edin.";
 "error.simulatedFetch" = "Bilgiler alınamadı!";
 "error.cancelled" = "İstek iptal edildi";
+"offline.banner" = "İnternet bağlantısı yok";
 
 "settings.title" = "Ayarlar";
 "settings.appearance" = "Görünüm";

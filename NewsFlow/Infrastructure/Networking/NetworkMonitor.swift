@@ -57,7 +57,7 @@ struct OfflineBannerView: View {
         HStack(spacing: AppSpacing.sm) {
             Image(systemName: "wifi.slash")
                 .font(.system(size: 14, weight: .semibold))
-            Text("No internet connection")
+            Text(L10n.text("offline.banner"))
                 .font(.caption.weight(.semibold))
             Spacer()
         }

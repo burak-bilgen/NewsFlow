@@ -27,6 +27,7 @@
 "error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
 "error.simulatedFetch" = "Could not retrieve information.";
 "error.cancelled" = "Request cancelled";
+"offline.banner" = "No internet connection";
 
 "settings.title" = "Settings";
 "settings.appearance" = "Appearance";
