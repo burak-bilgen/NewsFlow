@@ -1,6 +1,6 @@
-import UIKit
 import Combine
 import os.log
+import UIKit
 
 /// Observes system memory pressure notifications and proactively clears
 /// non-essential caches to prevent the OS from terminating the app.
@@ -45,7 +45,7 @@ final class MemoryWarningHandler {
 
         // Log remaining memory footprint (approximate)
         var info = mach_task_basic_info()
-        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
         let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
             $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
                 task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)

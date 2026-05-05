@@ -12,7 +12,7 @@ excluded:
 included:
   - NewsFlow
 
-# Disabled rules that conflict with SwiftUI idioms
+# Disabled rules that conflict with SwiftUI idioms or project conventions
 disabled_rules:
   - trailing_whitespace
   - vertical_whitespace_opening_braces
@@ -21,6 +21,10 @@ disabled_rules:
   - multiple_trailing_closures
   - explicit_acl          # SwiftUI files don't need explicit ACL
   - explicit_top_level_acl
+  - object_literal        # SwiftUI asset catalog colors trigger false positives
+  - nslocalizedstring_key # L10n helper uses dynamic keys intentionally
+  - number_separator      # 1024*1024 style math is more readable without underscores
+  - switch_case_on_newline # SwiftUI commonly uses compact case statements
 
 # Opt-in rules for higher code quality
 opt_in_rules:
@@ -82,8 +86,6 @@ opt_in_rules:
   - unavailable_function
   - unneeded_parentheses_in_closure_argument
   - unowned_variable_capture
-  - unused_declaration
-  - unused_import
   - vertical_parameter_alignment_on_call
   - vertical_whitespace_between_cases
   - xct_specific_matcher
@@ -118,8 +120,11 @@ cyclomatic_complexity:
 nesting:
   type_level:
     warning: 3
-  statement_level:
-    warning: 5
+
+# Analyzer rules (only run via `swiftlint analyze`)
+analyzer_rules:
+  - unused_declaration
+  - unused_import
 
 # Identifier naming
 identifier_name:

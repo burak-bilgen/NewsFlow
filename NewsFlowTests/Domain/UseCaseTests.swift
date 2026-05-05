@@ -11,7 +11,7 @@ final class FetchArticlesUseCaseTests: XCTestCase {
         let repo = ArticlesRepositorySpy(result: .success([old, new]))
         let useCase = FetchArticlesUseCase(repository: repo)
 
-        let result = try await useCase.execute(sourceID: "bbc", page: 1, pageSize: 20)
+        let result = try await useCase.execute(sourceID: "bbc", page: 1, pageSize: 1)
 
         XCTAssertEqual(result.items.count, 2)
         XCTAssertEqual(result.items.first?.id, "2") // newest first

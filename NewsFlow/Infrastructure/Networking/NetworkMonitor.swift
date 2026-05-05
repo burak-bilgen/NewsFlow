@@ -1,5 +1,5 @@
-import Network
 import Combine
+import Network
 import SwiftUI
 
 // MARK: - Network Monitor

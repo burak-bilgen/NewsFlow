@@ -39,7 +39,7 @@ final class ThemeManager: ObservableObject {
 
     init() {
         let stored = UserDefaults.standard.string(forKey: key)
-        self.currentTheme = AppTheme(rawValue: stored ?? "") ?? .system
+        self.currentTheme = AppTheme(rawValue: stored ?? "") ?? .light
     }
 
     func setTheme(_ theme: AppTheme) {

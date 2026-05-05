@@ -61,8 +61,10 @@ final class RetryingNewsAPIClientDecorator: NewsAPIClientProtocol {
                     throw error
                 }
                 let delay = retryPolicy.delay(forAttempt: attempt)
+                let delayStr = String(format: "%.1f", delay)
+                let attemptStr = "\(attempt + 1)/\(retryPolicy.maxRetries)"
                 NewsFlowLogger.shared.warning(
-                    "Request failed with \(error). Retrying in \(String(format: "%.1f", delay))s (attempt \(attempt + 1)/\(retryPolicy.maxRetries))",
+                    "Request failed with \(error). Retrying in \(delayStr)s (attempt \(attemptStr))",
                     category: "Network"
                 )
                 try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))

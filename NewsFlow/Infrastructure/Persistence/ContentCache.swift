@@ -1,5 +1,13 @@
 import Foundation
 
+// MARK: - File Info (for cache eviction)
+
+private struct FileInfo {
+    let url: URL
+    let size: Int64
+    let date: Date
+}
+
 // MARK: - Content Cache Entry
 
 struct CacheEntry<T: Codable>: Codable {
@@ -165,7 +173,7 @@ actor ContentCache<T: Codable> {
         guard let files = try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil) else { return }
 
         var totalSize: Int64 = 0
-        var fileInfos: [(url: URL, size: Int64, date: Date)] = []
+        var fileInfos: [FileInfo] = []
 
         for file in files {
             guard file.pathExtension == "json" else { continue }
@@ -173,7 +181,7 @@ actor ContentCache<T: Codable> {
             let size = (attributes?[FileAttributeKey.size] as? Int64) ?? 0
             let date = (attributes?[FileAttributeKey.modificationDate] as? Date) ?? Date.distantPast
             totalSize += size
-            fileInfos.append((url: file, size: size, date: date))
+            fileInfos.append(FileInfo(url: file, size: size, date: date))
         }
 
         let limitBytes = Int64(configuration.maxDiskSizeMB * 1024 * 1024)
