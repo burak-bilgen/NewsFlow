@@ -8,6 +8,7 @@ import UIKit
 protocol ImageCacheServicing: AnyObject {
     func image(for url: URL) -> UIImage?
     func loadImage(from url: URL) async -> UIImage?
+    func preloadImages(from urls: [URL], targetSize: CGSize?) async
     func clearMemory() async
 }
 
@@ -29,6 +30,10 @@ final class ImageCacheAdapter: ImageCacheServicing {
 
     func loadImage(from url: URL) async -> UIImage? {
         await cache.loadImage(from: url, targetSize: nil)
+    }
+
+    func preloadImages(from urls: [URL], targetSize: CGSize?) async {
+        await cache.preloadImages(from: urls, targetSize: targetSize)
     }
 
     func clearMemory() async {

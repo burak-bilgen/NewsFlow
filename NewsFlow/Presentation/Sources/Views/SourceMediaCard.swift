@@ -69,6 +69,8 @@ private struct CachedAsyncImage: View {
     @Environment(\.imageCache) private var imageCache
     @State private var uiImage: UIImage?
     @State private var didFail = false
+    @State private var isLoading = true
+    @State private var imageLoaded = false
 
     var body: some View {
         ZStack {
@@ -76,9 +78,17 @@ private struct CachedAsyncImage: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
+                    .opacity(imageLoaded ? 1 : 0)
+                    .onAppear {
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            imageLoaded = true
+                        }
+                    }
                     .padding(AppSpacing.sm)
             } else if didFail {
                 placeholder
+            } else if isLoading {
+                loadingPlaceholder
             } else {
                 placeholder
                     .opacity(0.5)
@@ -90,15 +100,37 @@ private struct CachedAsyncImage: View {
     }
 
     private func load() async {
+        isLoading = true
         didFail = false
         if let cached = imageCache.image(for: url) {
             uiImage = cached
+            isLoading = false
             return
         }
         if let loaded = await imageCache.loadImage(from: url) {
+            isLoading = false
             uiImage = loaded
         } else {
+            isLoading = false
             didFail = true
+        }
+    }
+
+    private var loadingPlaceholder: some View {
+        ZStack {
+            Rectangle()
+                .fill(Color(.systemGray5))
+                .overlay(
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.clear, Color.white.opacity(0.3), .clear],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .modifier(ShimmerEffect())
+                )
         }
     }
 

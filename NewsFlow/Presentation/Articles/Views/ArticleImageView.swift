@@ -15,6 +15,7 @@ struct ArticleImageView: View {
     @State private var didFail = false
     @State private var loadTask: Task<Void, Never>?
     @State private var isLoaded = false
+    @State private var isLoading = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -25,12 +26,14 @@ struct ArticleImageView: View {
                         .scaledToFill()
                         .opacity(isLoaded ? 1 : 0)
                         .onAppear {
-                            withAnimation(.easeInOut(duration: 0.35)) {
+                            withAnimation(.easeOut(duration: 0.3)) {
                                 isLoaded = true
                             }
                         }
                 } else if didFail || url == nil {
                     placeholder
+                } else if isLoading {
+                    loadingPlaceholder
                 } else {
                     placeholder
                         .opacity(0.6)
@@ -47,9 +50,11 @@ struct ArticleImageView: View {
     private func loadImage(into size: CGSize) async {
         guard let url else { return }
         didFail = false
+        isLoading = true
 
         if let cached = imageCache.image(for: url) {
             uiImage = cached
+            isLoading = false
             return
         }
 
@@ -57,11 +62,31 @@ struct ArticleImageView: View {
         loadTask = Task {
             if let loaded = await imageCache.loadImage(from: url) {
                 guard !Task.isCancelled else { return }
+                isLoading = false
                 uiImage = loaded
             } else {
                 guard !Task.isCancelled else { return }
+                isLoading = false
                 didFail = true
             }
+        }
+    }
+
+    private var loadingPlaceholder: some View {
+        ZStack {
+            Rectangle()
+                .fill(Color(.systemGray5))
+                .overlay(
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.clear, Color.white.opacity(0.4), .clear],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .modifier(ShimmerEffect())
+                )
         }
     }
 

@@ -23,6 +23,7 @@ struct LanguageRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
+            .padding(.vertical, AppSpacing.sm)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("language.row.\(language.rawValue)")

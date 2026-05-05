@@ -128,6 +128,7 @@ struct ArticlesView: View {
                         if index >= threshold {
                             Task { await viewModel.prefetchNextPageIfNeeded() }
                         }
+                        viewModel.prefetchImages(for: viewModel.listArticles)
                     }
                 }
 

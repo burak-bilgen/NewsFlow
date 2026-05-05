@@ -39,6 +39,9 @@ struct CategoryRowView: View {
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("source.card.\(source.id)")
                     }
+                    .onTapGesture {
+                        Haptic.light()
+                    }
                 }
                 .padding(.horizontal, AppSpacing.md)
                 .padding(.vertical, AppSpacing.xs)

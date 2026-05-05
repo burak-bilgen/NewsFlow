@@ -30,6 +30,7 @@ struct ThemeRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
+            .padding(.vertical, AppSpacing.sm)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("theme.row.\(theme.rawValue)")
