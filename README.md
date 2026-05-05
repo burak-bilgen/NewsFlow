@@ -108,7 +108,7 @@ This isn't another "follow a tutorial" app. It's a **production-grade codebase**
 | **Image Caching** | Custom `NSCache` (50MB) + Disk (200MB) |
 | **Persistence** | Core Data (reading list) + `FilePersistentStore` (disk cache) + UserDefaults |
 | **Testing** | XCTest + UITests |
-| **CI/CD** | Makefile (`make test`, `make lint`) |
+| **Automation** | Makefile (`make test`, `make lint`) |
 
 ---
 
@@ -226,7 +226,7 @@ Enterprise patterns used in real production apps:
 1. **`URLSession` + `async/await`** — Already complete. Alamofire adds nothing.
 2. **Image Caching** — Custom implementation gives full control over memory pressure
 3. **Smaller Binary** — No SPM packages, ultra-fast builds
-4. **No CI Headaches** — No macro trust prompts, no broken plugins
+4. **No Build Surprises** — No macro trust prompts, no broken plugins
 5. **Your Code, Your Control** — No black-box dependencies hiding bugs
 
 ---
