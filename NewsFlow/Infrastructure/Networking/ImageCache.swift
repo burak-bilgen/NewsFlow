@@ -92,7 +92,7 @@ actor ImageCache: ImageCacheProtocol {
         }
 
         let task = Task<UIImage?, Never> {
-            defer { Task { await removeActiveTask(key: key) } }
+            defer { Task { removeActiveTask(key: key) } }
 
             do {
                 let (data, response) = try await URLSession.shared.data(from: url)

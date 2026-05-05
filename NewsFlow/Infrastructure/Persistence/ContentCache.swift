@@ -103,7 +103,6 @@ actor ContentCache<T: Codable> {
         guard let files = try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil) else { return }
 
         for file in files where file.pathExtension == "json" {
-            let key = file.deletingPathExtension().lastPathComponent
             let metaURL = file.appendingPathExtension("meta")
 
             var isExpired = false

@@ -113,8 +113,10 @@ final class ConsoleLogger: Logging {
 
 /// Centralized logger for the entire app.
 /// Injects into ViewModels, Use Cases, and Services for consistent logging.
-@MainActor
-final class NewsFlowLogger: Logging {
+/// Centralized logger for the entire app.
+/// Injects into ViewModels, Use Cases, and Services for consistent logging.
+/// Not isolated to MainActor since os_log and print are thread-safe.
+final class NewsFlowLogger: Logging, @unchecked Sendable {
     static let shared = NewsFlowLogger()
 
     private let logger: Logging

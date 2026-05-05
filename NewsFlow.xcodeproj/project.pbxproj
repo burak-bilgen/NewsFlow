@@ -82,6 +82,7 @@
 				6757608A2FA8DE1C003F06BE /* NewsFlowUITests */,
 				675761022FA8EF00003F06BE /* Config */,
 				6757606C2FA8DE1B003F06BE /* Products */,
+				67637C222FAA277500E58D5A /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -102,6 +103,14 @@
 				675761012FA8EF00003F06BE /* Secrets.xcconfig.example */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		67637C222FAA277500E58D5A /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				675761032FA8F010003F06BE /* NewsFlowModel.xcdatamodeld */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

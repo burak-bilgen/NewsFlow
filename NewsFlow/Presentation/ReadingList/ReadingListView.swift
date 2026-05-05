@@ -148,9 +148,9 @@ final class ReadingListViewModel: ObservableObject {
 
     func load() async {
         do {
-            let ids = await useCase.savedArticleIDs()
-            // For demo: we'll show empty or load from a dedicated reading list repo
-            // In full implementation, we'd store full Article objects
+            _ = await useCase.savedArticleIDs()
+            // In a full implementation, we'd map saved IDs to full Article objects.
+            // For now, ReadingListView is toggled inline within ArticlesView.
             state = .loaded([])
         }
     }
