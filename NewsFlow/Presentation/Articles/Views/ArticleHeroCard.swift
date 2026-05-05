@@ -10,12 +10,21 @@ struct ArticleHeroCard: View {
     @State private var isPressed = false
 
     var body: some View {
-        NavigationLink {
-            ArticleDetailView(article: article, sourceName: sourceName)
-        } label: {
-            cardContent
+        ZStack(alignment: .topTrailing) {
+            NavigationLink {
+                ArticleDetailView(article: article, sourceName: sourceName)
+            } label: {
+                cardContent
+            }
+            .buttonStyle(.plain)
+
+            ReadingListToggleButton(
+                isSaved: isSaved,
+                displayStyle: .hero,
+                action: onToggle
+            )
+            .padding(AppSpacing.lg)
         }
-        .buttonStyle(.plain)
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
         .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
@@ -54,29 +63,6 @@ struct ArticleHeroCard: View {
                         )
 
                     Spacer()
-
-                    Button {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.5)) {
-                            onToggle()
-                        }
-                        Haptic.light()
-                    } label: {
-                        Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(isSaved ? AppPalette.goldAccent : .white)
-                            .frame(width: 40, height: 40)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.35))
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                            .scaleEffect(isSaved ? 1.2 : 1.0)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("article.bookmark")
                 }
 
                 Spacer(minLength: 60)

@@ -3,6 +3,7 @@ import SwiftUI
 struct FeaturedCarouselView: View {
     @ObservedObject var viewModel: ArticlesViewModel
     var heroNamespace: Namespace.ID?
+    var onManualInteraction: () -> Void = {}
 
     var body: some View {
         GeometryReader { geometry in
@@ -23,6 +24,10 @@ struct FeaturedCarouselView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .tabViewStyle(.page(indexDisplayMode: .always))
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 10)
+                    .onChanged { _ in onManualInteraction() }
+            )
         }
         .frame(height: 400)
         .clipped()

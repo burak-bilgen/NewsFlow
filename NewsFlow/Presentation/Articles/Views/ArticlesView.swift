@@ -10,6 +10,8 @@ struct ArticlesView: View {
     @StateObject private var viewModel: ArticlesViewModel
     @State private var carouselTimer = Timer.publish(every: 5, on: .main, in: .common)
     @State private var timerConnection: Cancellable?
+    @State private var isCarouselAutoScrollEnabled = true
+    @State private var isProgrammaticCarouselAdvance = false
     var heroNamespace: Namespace.ID?
 
     init(viewModel: ArticlesViewModel, heroNamespace: Namespace.ID? = nil) {
@@ -29,14 +31,18 @@ struct ArticlesView: View {
             viewModel.startAutomaticRefresh()
         }
         .onAppear {
-            timerConnection = carouselTimer.connect()
+            startCarouselAutoScroll()
         }
         .onDisappear {
             viewModel.stopAutomaticRefresh()
-            timerConnection?.cancel()
+            stopCarouselAutoScroll()
         }
         .onReceive(carouselTimer) { _ in
+            guard isCarouselAutoScrollEnabled else { return }
             advanceCarousel()
+        }
+        .onChange(of: viewModel.carouselSelection) { _ in
+            stopCarouselAutoScrollAfterManualSelection()
         }
         .toastOverlay()
         .accessibilityIdentifier("articles.screen")
@@ -86,7 +92,11 @@ struct ArticlesView: View {
 
             LazyVStack(spacing: AppSpacing.lg) {
                 if !viewModel.featuredArticles.isEmpty {
-                    FeaturedCarouselView(viewModel: viewModel, heroNamespace: heroNamespace)
+                    FeaturedCarouselView(
+                        viewModel: viewModel,
+                        heroNamespace: heroNamespace,
+                        onManualInteraction: stopCarouselAutoScroll
+                    )
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -141,9 +151,31 @@ struct ArticlesView: View {
     private func advanceCarousel() {
         let count = viewModel.featuredArticles.count
         guard count > 1 else { return }
+        isProgrammaticCarouselAdvance = true
         withAnimation(Accessibility.isReduceMotionEnabled ? nil : .easeInOut(duration: 0.4)) {
             viewModel.carouselSelection = (viewModel.carouselSelection + 1) % count
         }
+        Task { @MainActor in
+            await Task.yield()
+            isProgrammaticCarouselAdvance = false
+        }
+    }
+
+    private func startCarouselAutoScroll() {
+        guard timerConnection == nil else { return }
+        isCarouselAutoScrollEnabled = true
+        timerConnection = carouselTimer.connect()
+    }
+
+    private func stopCarouselAutoScroll() {
+        isCarouselAutoScrollEnabled = false
+        timerConnection?.cancel()
+        timerConnection = nil
+    }
+
+    private func stopCarouselAutoScrollAfterManualSelection() {
+        guard !isProgrammaticCarouselAdvance else { return }
+        stopCarouselAutoScroll()
     }
 }
 

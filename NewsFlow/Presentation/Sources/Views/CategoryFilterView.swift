@@ -41,12 +41,17 @@ struct CategoryFilterView: View {
             }
             .padding(.horizontal, AppSpacing.md)
         }
+        .accessibilityIdentifier("category.filter")
     }
 }
 
 #if DEBUG
 #Preview {
-    CategoryFilterView(viewModel: SourcesViewModel(fetchUseCase: FetchSourcesUseCase(repository: MockSourcesRepository(sources: NewsFixture.sources))))
+    CategoryFilterView(
+        viewModel: SourcesViewModel(
+            fetchUseCase: FetchSourcesUseCase(repository: MockSourcesRepository(sources: NewsFixture.sources))
+        )
+    )
         .padding()
 }
 #endif
