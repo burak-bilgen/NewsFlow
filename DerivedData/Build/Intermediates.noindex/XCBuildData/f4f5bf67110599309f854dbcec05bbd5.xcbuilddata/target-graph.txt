@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'NewsFlowTests' in project 'NewsFlow'
+➜ Explicit dependency on target 'NewsFlow' in project 'NewsFlow'
+Target 'NewsFlowUITests' in project 'NewsFlow'
+➜ Explicit dependency on target 'NewsFlow' in project 'NewsFlow'
+Target 'NewsFlow' in project 'NewsFlow' (no dependencies)

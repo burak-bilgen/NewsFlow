@@ -1,0 +1,58 @@
+{
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Network/NewsAPIClient.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIClient.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIClient.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIClient.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIClient.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIClient.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Network/NewsAPIEndpoint.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIEndpoint.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIEndpoint.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIEndpoint.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIEndpoint.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIEndpoint.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Network/NewsAPIError.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIError.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIError.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIError.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIError.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIError.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Network/NewsAPIRequestBuilder.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIRequestBuilder.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIRequestBuilder.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIRequestBuilder.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIRequestBuilder.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/NewsAPIRequestBuilder.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Persistence/CachedRepositories.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CachedRepositories.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CachedRepositories.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CachedRepositories.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CachedRepositories.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CachedRepositories.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Persistence/CoreDataStack.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CoreDataStack.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CoreDataStack.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CoreDataStack.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CoreDataStack.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/CoreDataStack.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Persistence/FilePersistentStore.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FilePersistentStore.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FilePersistentStore.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FilePersistentStore.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FilePersistentStore.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FilePersistentStore.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Data/Persistence/InMemoryPersistentStore.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/InMemoryPersistentStore.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/InMemoryPersistentStore.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/InMemoryPersistentStore.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/InMemoryPersistentStore.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/InMemoryPersistentStore.swiftdeps"
+  }
+}

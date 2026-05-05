@@ -1,0 +1,58 @@
+{
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/ArticleDetailView.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleDetailView.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleDetailView.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleDetailView.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleDetailView.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleDetailView.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/ArticleHeroCard.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleHeroCard.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleHeroCard.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleHeroCard.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleHeroCard.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleHeroCard.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/ArticleImageView.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleImageView.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleImageView.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleImageView.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleImageView.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticleImageView.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/ArticlesSkeletonView.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesSkeletonView.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesSkeletonView.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesSkeletonView.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesSkeletonView.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesSkeletonView.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/ArticlesView.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesView.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesView.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesView.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesView.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/ArticlesView.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/FeaturedCarouselView.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FeaturedCarouselView.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FeaturedCarouselView.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FeaturedCarouselView.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FeaturedCarouselView.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/FeaturedCarouselView.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/LoadMoreButton.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/LoadMoreButton.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/LoadMoreButton.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/LoadMoreButton.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/LoadMoreButton.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/LoadMoreButton.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/PullToRefreshIndicator.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/PullToRefreshIndicator.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/PullToRefreshIndicator.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/PullToRefreshIndicator.dia",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/PullToRefreshIndicator.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlow.build/Objects-normal/arm64/PullToRefreshIndicator.swiftdeps"
+  }
+}
