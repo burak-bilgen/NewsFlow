@@ -251,5 +251,5 @@ MIT — See [LICENSE](LICENSE).
 ---
 
 <p align="center">
-  Built with SwiftUI
+  Crafted with precision & SwiftUI
 </p>
