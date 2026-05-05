@@ -8,7 +8,7 @@ struct ArticleCardView: View {
     @State private var isPressed = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: AppSpacing.md) {
+        ZStack(alignment: .topLeading) {
             NavigationLink {
                 ArticleDetailView(article: article, sourceName: sourceName)
             } label: {
@@ -24,7 +24,7 @@ struct ArticleCardView: View {
                 displayStyle: .card,
                 action: onToggle
             )
-            .padding(.top, AppSpacing.xs)
+            .padding(6)
         }
         .padding(AppSpacing.md)
         .background(AppPalette.elevatedBackground)

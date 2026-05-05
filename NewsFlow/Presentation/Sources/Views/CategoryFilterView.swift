@@ -18,19 +18,19 @@ struct CategoryFilterView: View {
                     } label: {
                         Text(viewModel.localizedCategory(category))
                             .font(.system(size: 13, weight: .bold))
-
                             .lineLimit(1)
                             .padding(.horizontal, AppSpacing.md)
                             .padding(.vertical, AppSpacing.xs)
                             .foregroundColor(isSelected ? .white : AppPalette.primaryRed)
                             .background(
                                 Capsule()
-                                    .fill(isSelected ? AppPalette.primaryRed : Color.clear)
+                                    .fill(isSelected ? AppPalette.primaryRed : AppPalette.elevatedBackground)
                             )
                             .overlay(
                                 Capsule()
-                                    .stroke(AppPalette.primaryRed, lineWidth: 1.5)
+                                    .strokeBorder(AppPalette.primaryRed.opacity(isSelected ? 0.9 : 0.7), lineWidth: 1)
                             )
+                            .compositingGroup()
                     }
                     .buttonStyle(.plain)
                     .scaleEffect(isSelected ? 1.05 : 1.0)

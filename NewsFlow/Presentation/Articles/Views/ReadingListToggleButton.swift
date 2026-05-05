@@ -27,10 +27,21 @@ struct ReadingListToggleButton: View {
             switch self {
             case .card:
                 return AppPalette.primaryRedMuted
+                return AppPalette.elevatedBackground
             case .hero:
                 return Color.black.opacity(0.35)
             }
         }
+
+        var iconSize: CGFloat {
+            switch self {
+            case .card:
+                return 14
+            case .hero:
+                return 13
+            }
+        }
+
     }
 
     let isSaved: Bool
@@ -56,21 +67,18 @@ struct ReadingListToggleButton: View {
             }
             Haptic.light()
         } label: {
-            Label {
-                Text(title)
-                    .font(.caption.weight(.bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.78)
-            } icon: {
-                Image(systemName: iconName)
-                    .font(.system(size: 13, weight: .semibold))
-            }
+            Image(systemName: iconName)
+                .font(.system(size: displayStyle.iconSize, weight: .semibold))
+                .frame(width: 18, height: 18)
             .foregroundColor(foregroundColor)
-            .padding(.horizontal, AppSpacing.sm)
-            .padding(.vertical, AppSpacing.xs)
+            .padding(displayStyle == .hero ? 10 : 9)
             .background(
-                Capsule()
+                Circle()
                     .fill(displayStyle.background)
+            )
+            .overlay(
+                Circle()
+                    .stroke(AppPalette.border, lineWidth: displayStyle == .card ? 1 : 0)
             )
         }
         .buttonStyle(.plain)

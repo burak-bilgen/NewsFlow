@@ -21,6 +21,8 @@ struct LanguageRow: View {
                         .transition(.scale.combined(with: .opacity))
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("language.row.\(language.rawValue)")

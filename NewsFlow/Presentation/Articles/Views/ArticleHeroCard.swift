@@ -3,28 +3,17 @@ import SwiftUI
 struct ArticleHeroCard: View {
     let article: Article
     let sourceName: String
-    let isSaved: Bool
     var heroNamespace: Namespace.ID?
     var sourceID: String?
-    let onToggle: () -> Void
     @State private var isPressed = false
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            NavigationLink {
-                ArticleDetailView(article: article, sourceName: sourceName)
-            } label: {
-                cardContent
-            }
-            .buttonStyle(.plain)
-
-            ReadingListToggleButton(
-                isSaved: isSaved,
-                displayStyle: .hero,
-                action: onToggle
-            )
-            .padding(AppSpacing.lg)
+        NavigationLink {
+            ArticleDetailView(article: article, sourceName: sourceName)
+        } label: {
+            cardContent
         }
+        .buttonStyle(.plain)
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
         .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
@@ -53,14 +42,18 @@ struct ArticleHeroCard: View {
                 HStack {
                     Text(sourceName.uppercased())
                         .font(.system(size: 11, weight: .black))
-
                         .foregroundColor(.white)
                         .padding(.horizontal, AppSpacing.sm)
                         .padding(.vertical, AppSpacing.xxs)
                         .background(
                             Capsule()
-                                .fill(AppPalette.primaryRed)
+                                .fill(Color.black.opacity(0.55))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.white.opacity(0.25), lineWidth: 0.8)
+                                )
                         )
+                        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 1)
 
                     Spacer()
                 }
@@ -91,8 +84,8 @@ struct ArticleHeroCard: View {
     ArticleHeroCard(
         article: NewsFixture.articlesBySource["bbc-news"]![0],
         sourceName: "BBC News",
-        isSaved: false,
-        onToggle: {}
+        heroNamespace: nil,
+        sourceID: nil
     )
     .frame(height: 400)
     .padding()

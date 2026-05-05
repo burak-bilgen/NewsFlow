@@ -12,12 +12,9 @@ struct FeaturedCarouselView: View {
                     ArticleHeroCard(
                         article: article,
                         sourceName: viewModel.source.name,
-                        isSaved: viewModel.isSaved(article),
                         heroNamespace: index == 0 ? heroNamespace : nil,
                         sourceID: viewModel.source.id
-                    ) {
-                        Task { await viewModel.toggleReadingList(for: article) }
-                    }
+                    )
                     .padding(.horizontal, AppSpacing.md)
                     .tag(index)
                 }
