@@ -18,15 +18,21 @@ enum AppRadius {
 }
 
 enum AppPalette {
-    static let screenBackground = Color(.systemGroupedBackground)
-    static let cardBackground = Color(.secondarySystemGroupedBackground)
-    static let elevatedBackground = Color(.systemBackground)
-    static let border = Color.primary.opacity(0.1)
+    static let screenBackground = Color(red: 0.97, green: 0.95, blue: 0.92)
+    static let cardBackground = Color(red: 0.94, green: 0.92, blue: 0.89)
+    static let elevatedBackground = Color(red: 1.0, green: 0.98, blue: 0.96)
+    static let border = Color.primary.opacity(0.15)
 
-    static let primaryRed = Color(red: 0.72, green: 0.05, blue: 0.15)
-    static let primaryRedDark = Color(red: 0.50, green: 0.02, blue: 0.08)
-    static let primaryRedLight = Color(red: 0.90, green: 0.20, blue: 0.30)
-    static let primaryRedMuted = Color(red: 0.72, green: 0.05, blue: 0.15).opacity(0.12)
+    static let primaryInk = Color(red: 0.12, green: 0.12, blue: 0.12)
+    static let primaryInkDark = Color(red: 0.06, green: 0.06, blue: 0.06)
+    static let primaryInkLight = Color(red: 0.28, green: 0.28, blue: 0.28)
+    static let primaryInkMuted = Color(red: 0.12, green: 0.12, blue: 0.12).opacity(0.08)
+
+    // Legacy aliases for backward compatibility during migration
+    static let primaryRed = primaryInk
+    static let primaryRedDark = primaryInkDark
+    static let primaryRedLight = primaryInkLight
+    static let primaryRedMuted = primaryInkMuted
 
     static let goldAccent = Color(red: 0.85, green: 0.65, blue: 0.13)
 

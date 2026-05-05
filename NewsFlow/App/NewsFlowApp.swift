@@ -5,7 +5,7 @@ struct NewsFlowApp: App {
     @StateObject private var container = AppContainer.make()
     @StateObject private var themeManager = ThemeManager()
     @StateObject private var languageManager = LanguageManager()
-    private let imageCache: ImageCacheServicing = ImageCacheService()
+    private let imageCache: ImageCacheServicing = ImageCacheAdapter()
 
     var body: some Scene {
         WindowGroup {

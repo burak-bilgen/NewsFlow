@@ -1,12 +1,40 @@
 import SwiftUI
+import UIKit
+
+// MARK: - Legacy Image Cache Servicing Protocol
+
+/// Protocol for image caching used in SwiftUI environment.
+/// Kept for backward compatibility with existing views.
+protocol ImageCacheServicing: AnyObject {
+    func image(for url: URL) -> UIImage?
+    func loadImage(from url: URL) async -> UIImage?
+}
+
+// MARK: - Adapter
+
+/// Adapter that bridges the new two-tier ImageCache actor to the legacy protocol.
+final class ImageCacheAdapter: ImageCacheServicing {
+    private let cache: ImageCache
+
+    init(cache: ImageCache = ImageCache()) {
+        self.cache = cache
+    }
+
+    func image(for url: URL) -> UIImage? {
+        // Legacy sync API — cannot access actor-isolated state synchronously
+        // Return nil; callers should use async loadImage instead
+        nil
+    }
+
+    func loadImage(from url: URL) async -> UIImage? {
+        await cache.loadImage(from: url, targetSize: nil)
+    }
+}
 
 // MARK: - ImageCache Environment Key
 
-/// Allows ImageCacheService to be injected via the SwiftUI environment
-/// rather than using a singleton. This makes views testable and
-/// follows dependency injection best practices.
 private struct ImageCacheKey: EnvironmentKey {
-    static let defaultValue: ImageCacheServicing = ImageCacheService()
+    static let defaultValue: ImageCacheServicing = ImageCacheAdapter()
 }
 
 extension EnvironmentValues {

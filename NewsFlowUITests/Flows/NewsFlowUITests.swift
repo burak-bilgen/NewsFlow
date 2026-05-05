@@ -1,17 +1,15 @@
 import XCTest
 
-// MARK: - NewsFlow UI Tests
+// MARK: - NewsFlow UI Tests (POM-based)
 
-/// End-to-end UI automation for the NewsFlow app.
-/// Tests cover the full user journey: browsing sources, reading articles,
-/// managing bookmarks, and navigating settings.
+/// Professional UI tests using Page Object Model pattern.
+/// Tests cover the full user journey with stable wait helpers.
 final class NewsFlowUITests: XCTestCase {
     private var app = XCUIApplication()
 
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        // Launch with mock data so tests are deterministic and fast
         app.launchArguments = ["UITest.ResetState", "UITest.MockNews"]
         app.launch()
     }
@@ -22,140 +20,104 @@ final class NewsFlowUITests: XCTestCase {
 
     // MARK: - Source Browsing
 
-    /// Verifies the app launches and shows the source browser with expected sources.
     @MainActor
     func testAppLaunchShowsSourcesList() {
-        // With the Netflix-style layout, sources appear as large cards in horizontal rows
-        XCTAssertTrue(app.staticTexts["BBC News"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["TechCrunch"].exists)
+        let sources = SourcesScreen(app: app)
+        XCTAssertTrue(sources.isDisplayed, "Sources screen should be visible")
+        XCTAssertTrue(sources.waitForExistence(sources.sourceCard(named: "BBC News")))
     }
 
-    /// Verifies category chips are present and tappable.
-    /// Note: This test may be flaky due to SwiftUI navigation stack accessibility
-    /// timing. The category filtering logic is thoroughly covered by unit tests
-    /// (`SourceFilteringTests` and `SourcesViewModelTests`).
     @MainActor
     func testCategorySelectionFiltersSources() {
-        let technologyChip = app.buttons["category.chip.technology"]
-        XCTAssertTrue(technologyChip.waitForExistence(timeout: 5))
-        XCTAssertTrue(technologyChip.isHittable)
-        technologyChip.tap()
+        let sources = SourcesScreen(app: app)
+        XCTAssertTrue(sources.isDisplayed)
 
-        // Allow the view to animate and settle
-        sleep(1)
+        let chip = sources.categoryChip(named: "technology")
+        XCTAssertTrue(sources.waitForExistence(chip))
+        sources.tapCategory(named: "technology")
 
-        // After tapping, the app should still be responsive
-        XCTAssertTrue(app.staticTexts["TechCrunch"].waitForExistence(timeout: 3))
+        // Allow animation to settle
+        let expectation = expectation(description: "Filter animation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { expectation.fulfill() }
+        wait(for: [expectation], timeout: 2)
+
+        XCTAssertTrue(sources.sourceCard(named: "TechCrunch").exists)
     }
 
-    // MARK: - Article Reading
-
-    /// Verifies tapping a source opens its articles screen.
     @MainActor
     func testSelectingSourceOpensArticles() {
-        let source = app.staticTexts["BBC News"]
-        XCTAssertTrue(source.waitForExistence(timeout: 5))
-        source.tap()
+        let sources = SourcesScreen(app: app)
+        let articles = sources.tapSource(named: "BBC News")
 
-        // Article screen should load with the source name in the nav bar
-        XCTAssertTrue(app.navigationBars["BBC News"].waitForExistence(timeout: 5))
-
-        // Verify article content (scroll view) is visible
-        XCTAssertTrue(app.scrollViews.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(articles.isDisplayed, "Articles screen should be visible")
+        XCTAssertTrue(articles.waitForExistence(app.navigationBars["BBC News"]))
     }
 
-    /// Verifies pull-to-refresh on the articles screen triggers a reload.
     @MainActor
     func testPullToRefreshArticles() {
-        let source = app.staticTexts["BBC News"]
-        XCTAssertTrue(source.waitForExistence(timeout: 5))
-        source.tap()
+        let sources = SourcesScreen(app: app)
+        let articles = sources.tapSource(named: "BBC News")
+        XCTAssertTrue(articles.isDisplayed)
 
-        XCTAssertTrue(app.navigationBars["BBC News"].waitForExistence(timeout: 5))
+        articles.pullToRefresh()
 
-        // Find the scroll view and perform a pull-to-refresh gesture
-        let scrollView = app.scrollViews.firstMatch
-        XCTAssertTrue(scrollView.waitForExistence(timeout: 5))
+        XCTAssertTrue(articles.waitForExistence(articles.scrollView))
+    }
 
-        // Pull down enough to trigger the refresh control
-        let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
-        let finish = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6))
-        start.press(forDuration: 0.1, thenDragTo: finish)
+    // MARK: - Settings
 
-        // After refresh, the list should still be visible
-        XCTAssertTrue(app.scrollViews.firstMatch.waitForExistence(timeout: 5))
+    @MainActor
+    func testSettingsNavigation() {
+        let sources = SourcesScreen(app: app)
+        let settings = sources.tapSettings()
+
+        XCTAssertTrue(settings.isDisplayed, "Settings screen should be visible")
+
+        let _ = settings.goBack()
+        XCTAssertTrue(sources.isDisplayed, "Should return to sources screen")
+    }
+
+    @MainActor
+    func testThemeSelection() {
+        let sources = SourcesScreen(app: app)
+        let settings = sources.tapSettings()
+
+        settings.selectTheme("dark")
+
+        // Verify theme was selected (checkmark appears)
+        XCTAssertTrue(settings.themeRow("dark").images["checkmark.circle.fill"].exists)
+
+        let _ = settings.goBack()
     }
 
     // MARK: - Error Handling
 
-    /// Verifies the error simulator shows a warning every 3rd request and retry recovers.
     @MainActor
     func testErrorSimulationAndRetry() {
-        let source = app.staticTexts["BBC News"]
-        XCTAssertTrue(source.waitForExistence(timeout: 5))
-        source.tap()
+        let sources = SourcesScreen(app: app)
+        let articles = sources.tapSource(named: "BBC News")
+        XCTAssertTrue(articles.isDisplayed)
 
-        // Wait for the article screen to appear
-        XCTAssertTrue(app.navigationBars["BBC News"].waitForExistence(timeout: 5))
+        articles.pullToRefresh()
 
-        // Pull to refresh (this may trigger the simulated error on the 3rd request)
-        let scrollView = app.scrollViews.firstMatch
-        let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
-        let finish = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6))
-        start.press(forDuration: 0.1, thenDragTo: finish)
-
-        // If an alert appears (simulated error), dismiss it by tapping retry
+        // If alert appears, dismiss by tapping retry
         let alert = app.alerts.firstMatch
         if alert.waitForExistence(timeout: 5) {
             let retryButton = alert.buttons.element(boundBy: 0)
             retryButton.tap()
-            // After retry, content should load
-            XCTAssertTrue(app.scrollViews.firstMatch.waitForExistence(timeout: 5))
+            XCTAssertTrue(articles.waitForExistence(articles.scrollView))
         }
     }
 
     // MARK: - Carousel
 
-    /// Verifies the hero carousel contains multiple pages and auto-advances.
     @MainActor
-    func testCarouselAutoAdvances() {
-        let source = app.staticTexts["BBC News"]
-        XCTAssertTrue(source.waitForExistence(timeout: 5))
-        source.tap()
+    func testCarouselPageIndicatorExists() {
+        let sources = SourcesScreen(app: app)
+        let articles = sources.tapSource(named: "BBC News")
+        XCTAssertTrue(articles.isDisplayed)
 
-        XCTAssertTrue(app.navigationBars["BBC News"].waitForExistence(timeout: 5))
-
-        // Verify the carousel page indicator exists (indicates multi-page carousel)
         let pageIndicator = app.pageIndicators.firstMatch
-        XCTAssertTrue(pageIndicator.waitForExistence(timeout: 5))
-
-        // Wait for auto-advance (carousel advances every 5 seconds)
-        sleep(6)
-
-        // After auto-advance, the page indicator should still exist,
-        // confirming the carousel remained visible after advancing.
-        XCTAssertTrue(pageIndicator.exists)
-    }
-
-    // MARK: - Settings
-
-    /// Verifies the settings screen opens.
-    /// Note: This test may be flaky due to SwiftUI navigation stack accessibility
-    /// timing. The settings navigation logic is thoroughly covered by unit tests
-    /// (`AppRouterTests`).
-    @MainActor
-    func testSettingsNavigation() {
-        // Tap the settings gear icon in the top-right toolbar
-        let settingsButton = app.buttons["gearshape"]
-        XCTAssertTrue(settingsButton.waitForExistence(timeout: 5))
-        XCTAssertTrue(settingsButton.isHittable)
-        settingsButton.tap()
-
-        // Allow navigation transition to complete
-        sleep(1)
-
-        // After navigating to settings, the nav bar back button should appear
-        let backButton = app.navigationBars.element(boundBy: 0).buttons.firstMatch
-        XCTAssertTrue(backButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(pageIndicator.waitForExistence(timeout: 5), "Carousel page indicator should exist")
     }
 }
