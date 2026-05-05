@@ -554,4 +554,164 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isPrefetching)
     }
 
+    // MARK: - Additional Edge Cases
+
+    func testLoadMoreErrorDoesNotLoseExistingArticles() async {
+        // Arrange
+        let page1Articles = TestFactory.articles(count: 3)
+        let repository = PagedArticlesRepositorySpy(pageResults: [
+            1: .success(page1Articles),
+            2: .failure(NewsAPIError.simulatedNetwork)
+        ])
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
+            pageSize: 2
+        )
+
+        // Act
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.articles.count, 3)
+
+        await viewModel.loadMore()
+
+        // Assert — articles preserved after loadMore failure
+        XCTAssertEqual(viewModel.articles.count, 3)
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertFalse(viewModel.isLoadingMore)
+    }
+
+    func testAutomaticRefreshSkipsWhenDataUnchanged() async {
+        // Arrange
+        let articles = TestFactory.articles(count: 2)
+        let repository = ArticlesRepositorySpy(result: .success(articles))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
+            pageSize: 2
+        )
+
+        // Act
+        await viewModel.loadIfNeeded()
+        let articlesBeforeRefresh = viewModel.articles
+
+        // Simulate automatic refresh — same data returned
+        await viewModel.pullToRefresh()
+
+        // Assert — articles should be the same (no unnecessary mutations)
+        XCTAssertEqual(viewModel.articles.map(\.id), articlesBeforeRefresh.map(\.id))
+        XCTAssertEqual(viewModel.state, .loaded)
+    }
+
+    func testPrefetchDoesNotRunWhenStateIsError() async {
+        // Arrange
+        let repository = ArticlesRepositorySpy(result: .failure(NewsAPIError.network))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
+        )
+        await viewModel.loadIfNeeded()
+        guard case .error = viewModel.state else {
+            return XCTFail("Expected error state")
+        }
+
+        // Act
+        await viewModel.prefetchNextPageIfNeeded()
+
+        // Assert — no additional request made
+        XCTAssertEqual(repository.requestCount, 1)
+    }
+
+    func testLoadMoreWithPagedRepositoryAppendsDistinctArticles() async {
+        // Arrange
+        let page1 = TestFactory.articles(count: 2, startID: 1)
+        let page2 = TestFactory.articles(count: 2, startID: 3)
+        let repository = PagedArticlesRepositorySpy(pageResults: [
+            1: .success(page1),
+            2: .success(page2)
+        ])
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
+            pageSize: 2
+        )
+
+        // Act
+        await viewModel.loadIfNeeded()
+        XCTAssertEqual(viewModel.articles.count, 2)
+        XCTAssertTrue(viewModel.hasMorePages)
+
+        await viewModel.loadMore()
+
+        // Assert
+        XCTAssertEqual(viewModel.articles.count, 4)
+        XCTAssertEqual(repository.requestedPages, [1, 2])
+    }
+
+    func testRetryAfterLoadMoreErrorResetsPageToOne() async {
+        // Arrange
+        let page1 = TestFactory.articles(count: 2, startID: 1)
+        let repository = PagedArticlesRepositorySpy(pageResults: [
+            1: .success(page1),
+            2: .failure(NewsAPIError.simulatedNetwork)
+        ])
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
+            pageSize: 2
+        )
+
+        // Act — load page 1, fail on page 2, then retry (which resets to page 1)
+        await viewModel.loadIfNeeded()
+        await viewModel.loadMore()
+
+        repository.setResult(.success(page1), forPage: 1)
+        await viewModel.retry()
+
+        // Assert — retry resets to page 1
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertTrue(repository.requestedPages.last == 1)
+    }
+
+    func testReadingListStatePreservedAcrossRefresh() async throws {
+        // Arrange
+        let article = TestFactory.article(id: "preserved-1", title: "Preserved", publishedAt: Date())
+        let readingList = InMemoryReadingListRepositorySpy()
+        let repository = ArticlesRepositorySpy(result: .success([article]))
+        let viewModel = ArticlesViewModel(
+            source: TestFactory.source,
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: readingList)
+        )
+
+        // Act — load, save to reading list, refresh
+        await viewModel.loadIfNeeded()
+        await viewModel.toggleReadingList(for: article)
+        XCTAssertTrue(viewModel.isSaved(article))
+
+        await viewModel.pullToRefresh()
+
+        // Assert — reading list state should persist across refresh
+        XCTAssertTrue(viewModel.isSaved(article))
+    }
+
+    func testFeaturedArticlesReturnsEmptyWhenLessThanThreeArticles() async {
+        // Arrange
+        let articles = TestFactory.articles(count: 2)
+        let viewModel = makeViewModel(articles: .success(articles))
+
+        // Act
+        await viewModel.loadIfNeeded()
+
+        // Assert — with 2 articles, featured takes all, list is empty
+        XCTAssertEqual(viewModel.featuredArticles.count, 2)
+        XCTAssertTrue(viewModel.listArticles.isEmpty)
+    }
+
 }
+

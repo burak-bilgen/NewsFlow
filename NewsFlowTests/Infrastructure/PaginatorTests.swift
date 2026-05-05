@@ -135,6 +135,141 @@ final class PaginatorTests: XCTestCase {
         }
         XCTAssertEqual(items.count, 2)
     }
+
+    // MARK: - Error Paths
+
+    func testLoadFirstErrorSetsErrorState() async {
+        // Arrange
+        let paginator = Paginator<Article>(pageSize: 2) { _, _ in
+            throw NewsAPIError.network
+        }
+
+        // Act
+        let state = await paginator.loadFirst()
+
+        // Assert
+        guard case .error(let message, let existingItems) = state else {
+            return XCTFail("Expected error state, got \(state)")
+        }
+        XCTAssertFalse(message.isEmpty)
+        XCTAssertNil(existingItems)
+        XCTAssertTrue(paginator.isEmpty)
+    }
+
+    func testLoadNextErrorRevertsPageAndKeepsExistingItems() async {
+        // Arrange
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        var shouldFail = false
+        let paginator = Paginator<Article>(pageSize: 1) { page, _ in
+            if shouldFail {
+                throw NewsAPIError.simulatedNetwork
+            }
+            return PaginatedResult(items: [article], currentPage: page, hasMorePages: true)
+        }
+
+        // Act — load first page successfully, then fail on page 2
+        _ = await paginator.loadFirst()
+        shouldFail = true
+        let state = await paginator.loadNext()
+
+        // Assert — items preserved, still shows loaded (with existing items)
+        guard case .loaded(let items, _) = state else {
+            return XCTFail("Expected loaded state with existing items, got \(state)")
+        }
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.id, "1")
+    }
+
+    func testRetryAfterErrorLoadsCorrectPage() async {
+        // Arrange
+        var callCount = 0
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let paginator = Paginator<Article>(pageSize: 2) { _, _ in
+            callCount += 1
+            if callCount == 1 {
+                throw NewsAPIError.network
+            }
+            return PaginatedResult(items: [article], currentPage: 1, hasMorePages: false)
+        }
+
+        // Act — first call fails, retry succeeds
+        _ = await paginator.loadFirst()
+        guard case .error = paginator.state else {
+            return XCTFail("Expected error state after first load")
+        }
+
+        let state = await paginator.retry()
+
+        // Assert
+        guard case .allLoaded(let items) = state else {
+            return XCTFail("Expected allLoaded state after retry, got \(state)")
+        }
+        XCTAssertEqual(items.count, 1)
+    }
+
+    func testConcurrentLoadsAreIgnored() async {
+        // Arrange
+        var callCount = 0
+        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let paginator = Paginator<Article>(pageSize: 2) { _, _ in
+            callCount += 1
+            try await Task.sleep(nanoseconds: 100_000_000)
+            return PaginatedResult(items: [article], currentPage: 1, hasMorePages: false)
+        }
+
+        // Act — start two loads concurrently
+        async let first = paginator.loadFirst()
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        async let second = paginator.loadFirst()
+
+        _ = await (first, second)
+
+        // Assert — only one load actually executed
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func testRetryFromErrorWithExistingItemsLoadsCurrentPage() async {
+        // Arrange
+        let page1 = [TestFactory.article(id: "1", title: "A", publishedAt: Date())]
+        var callCount = 0
+        let paginator = Paginator<Article>(pageSize: 1) { page, _ in
+            callCount += 1
+            if callCount == 2 {
+                throw NewsAPIError.network
+            }
+            return PaginatedResult(items: page1, currentPage: page, hasMorePages: true)
+        }
+
+        // Act — load page 1, fail on page 2, retry
+        _ = await paginator.loadFirst()
+        _ = await paginator.loadNext() // fails
+        let retryState = await paginator.retry()
+
+        // Assert — retry succeeds and items are repopulated
+        XCTAssertFalse(paginator.isEmpty)
+        switch retryState {
+        case .loaded, .allLoaded:
+            break // Success
+        default:
+            XCTFail("Expected loaded or allLoaded state after retry, got \(retryState)")
+        }
+    }
+
+    func testLoadFirstErrorWithSimulatedNetworkShowsCorrectMessage() async {
+        // Arrange
+        let paginator = Paginator<Article>(pageSize: 2) { _, _ in
+            throw NewsAPIError.simulatedNetwork
+        }
+
+        // Act
+        let state = await paginator.loadFirst()
+
+        // Assert
+        guard case .error(let message, _) = state else {
+            return XCTFail("Expected error state, got \(state)")
+        }
+        XCTAssertEqual(message, NewsAPIError.simulatedNetwork.userMessage)
+    }
 }
 
 // MARK: - Array Safe Access Helper
@@ -144,3 +279,4 @@ private extension Array {
         indices.contains(index) ? self[index] : nil
     }
 }
+

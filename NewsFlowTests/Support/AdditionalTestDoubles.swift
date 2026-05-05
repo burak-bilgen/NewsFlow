@@ -14,6 +14,36 @@ actor FailingReadingListRepository: ReadingListRepositoryProtocol {
     }
 }
 
+// MARK: - Configurable Failure Reading List Repository
+
+actor ConfigurableFailureReadingListRepository: ReadingListRepositoryProtocol {
+    private var articles: [String: Article] = [:]
+    var shouldFailOnAdd = false
+    var shouldFailOnRemove = false
+
+    func savedArticleIDs() async -> Set<String> {
+        Set(articles.keys)
+    }
+
+    func isSaved(articleID: String) async -> Bool {
+        articles[articleID] != nil
+    }
+
+    func add(_ article: Article) async throws {
+        if shouldFailOnAdd {
+            throw NSError(domain: "test.readingList", code: 100, userInfo: [NSLocalizedDescriptionKey: "Add failed"])
+        }
+        articles[article.id] = article
+    }
+
+    func remove(articleID: String) async throws {
+        if shouldFailOnRemove {
+            throw NSError(domain: "test.readingList", code: 101, userInfo: [NSLocalizedDescriptionKey: "Remove failed"])
+        }
+        articles[articleID] = nil
+    }
+}
+
 // MARK: - Delayed Articles Repository
 
 final class DelayedArticlesRepositorySpy: ArticlesRepositoryProtocol {
@@ -56,3 +86,53 @@ final class DelayedSourcesRepositorySpy: SourcesRepositoryProtocol {
         return try result.get()
     }
 }
+
+// MARK: - Throwing On Specific Page Repository
+
+final class ThrowingOnPageArticlesRepositorySpy: ArticlesRepositoryProtocol {
+    private let pageResults: [Int: Result<[Article], Error>]
+    private(set) var requestCount = 0
+    private(set) var requestedPages: [Int] = []
+
+    init(pageResults: [Int: Result<[Article], Error>]) {
+        self.pageResults = pageResults
+    }
+
+    func fetchArticles(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        requestCount += 1
+        requestedPages.append(page)
+
+        guard let result = pageResults[page] else {
+            return PaginatedResult(items: [], currentPage: page, hasMorePages: false)
+        }
+
+        let items = try result.get()
+        return PaginatedResult(
+            items: items,
+            currentPage: page,
+            hasMorePages: items.count >= pageSize
+        )
+    }
+}
+
+// MARK: - Stub NewsAPI Client (reusable across test files)
+
+final class StubNewsAPIClient: NewsAPIClientProtocol {
+    private(set) var requestCount = 0
+    var handler: ((NewsAPIEndpoint) async throws -> Any)?
+
+    func request<Response: NewsAPIResponseEnvelope>(
+        _ responseType: Response.Type,
+        endpoint: NewsAPIEndpoint
+    ) async throws -> Response {
+        requestCount += 1
+        if let handler {
+            guard let response = try await handler(endpoint) as? Response else {
+                throw NewsAPIError.decoding
+            }
+            return response
+        }
+        throw NewsAPIError.network
+    }
+}
+
