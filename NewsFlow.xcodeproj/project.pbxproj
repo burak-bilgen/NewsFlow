@@ -108,7 +108,6 @@
 		67637C222FAA277500E58D5A /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				675761032FA8F010003F06BE /* NewsFlowModel.xcdatamodeld */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -145,7 +144,6 @@
 			buildPhases = (
 				675760792FA8DE1C003F06BE /* Sources */,
 				6757607A2FA8DE1C003F06BE /* Frameworks */,
-				6757607B2FA8DE1C003F06BE /* Resources */,
 			);
 			buildRules = (
 			);
@@ -168,7 +166,6 @@
 			buildPhases = (
 				675760832FA8DE1C003F06BE /* Sources */,
 				675760842FA8DE1C003F06BE /* Frameworks */,
-				675760852FA8DE1C003F06BE /* Resources */,
 			);
 			buildRules = (
 			);
