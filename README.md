@@ -1,6 +1,6 @@
 # NewsFlow
 
-> A production-ready news reader demonstrating senior-level Swift architecture: zero third-party dependencies, actor-isolated caches, decorator-pattern retry policies, custom property wrappers, and full Apple ecosystem integration.
+> A production-ready news reader demonstrating senior-level Swift architecture: zero third-party dependencies, actor-isolated caches, decorator-pattern networking, Core Data persistence, and full Apple ecosystem integration.
 
 <p align="center">
   <img src="https://img.shields.io/badge/iOS-15.0%2B-blue" alt="iOS 15.0+">
@@ -16,13 +16,14 @@
 ### Core Features
 - **Source Browser** — Browse English news sources grouped by category in horizontally scrolling rows
 - **Category Multi-Selection** — Dynamically filter sources by multiple categories client-side
-- **Hero Carousel** — Top 3 articles displayed in a cinematic auto-advancing carousel (5s interval)
-- **Reading List** — Bookmark/unbookmark articles with persistent local storage and haptic feedback
+- **Hero Carousel** — Top 3 articles displayed in a cinematic auto-advancing carousel (5s interval) that pauses after manual interaction
+- **Reading List** — Add/remove articles inline with a dynamic text toggle and Core Data persistence
 - **Real-Time Updates** — Pull-to-refresh and automatic background refresh every 60 seconds
 - **Prefetching** — Next page of articles is silently prefetched before the user reaches the end of the list
 
 ### Quality & Reliability
-- **Error Simulation** — Every 3rd non-automatic request intentionally fails to demonstrate retry flows (debug builds only)
+- **NewsAPI Contract** — Uses `/v2/top-headlines/sources` and `/v2/top-headlines`; source requests always include `language=en`
+- **Error Simulation** — Every 3rd NewsAPI request intentionally fails through an isolated network-client decorator
 - **Image Caching** — Two-tier cache: in-memory NSCache (cost-based, 50MB) + disk cache (200MB, 7-day TTL)
 - **Memory Pressure Handling** — `MemoryWarningHandler` listens for `UIApplication.didReceiveMemoryWarningNotification` and proactively clears image caches and URLSession caches before the OS terminates the app
 - **Disk Caching** — Page 1 of articles and the sources list are cached to disk with TTL (60s/300s)
@@ -84,7 +85,7 @@
 
 ## Architecture
 
-NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principles.
+NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principles. The project is organized by architectural layer (`Domain`, `Data`, `Presentation`, `Infrastructure`) and composed through `AppContainer`.
 
 ### Layered Architecture
 
@@ -100,6 +101,7 @@ NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principle
 - **Repository Pattern** — Protocol-driven data access with remote + local cache layers
 - **Dependency Injection** — `AppContainer` composition root wires all dependencies via constructor injection
 - **Protocol-Oriented Programming** — Every layer is abstracted by protocols for testability
+- **Decorator Pattern** — Retry and deterministic error simulation wrap the base `NewsAPIClient` without polluting core networking
 
 ### Concurrency
 - `async/await` for all networking and persistence operations
@@ -132,39 +134,15 @@ NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principle
 ```
 NewsFlow/
 ├── App/
-│   ├── Composition/AppContainer.swift       # DI composition root
-│   ├── Routing/RootNavigationView.swift     # Navigation setup
+│   ├── AppContainer.swift                   # DI composition root
+│   ├── RootNavigationView.swift             # Navigation setup
 │   ├── BackgroundRefreshManager.swift       # BGAppRefreshTask handler
 │   ├── StateRestorationManager.swift        # NSUserActivity restoration
 │   └── NewsFlowApp.swift                    # @main entry point
-├── Core/
-│   ├── DesignSystem/                        # Colors, Spacing, Modifiers, Shimmer
-│   ├── Localization/                        # L10n helper + LanguageManager
-│   ├── Networking/                          # NewsAPI client, retry policy, image cache
-│   ├── Persistence/                         # File & in-memory stores, Core Data model
-│   ├── PreviewSupport/                      # MockRepositories, NewsFixture (DEBUG only)
-│   └── Utilities/                           # Formatters, Error Simulator (DEBUG only)
-├── Features/
-│   ├── Articles/
-│   │   ├── Models/                          # Article, ArticlesDTO
-│   │   ├── Repositories/                    # ArticlesRepositoryProtocol + implementations
-│   │   ├── Sorting/                         # ArticleSorting strategy
-│   │   ├── ViewModels/                      # ArticlesViewModel
-│   │   └── Views/                           # ArticlesView, ArticleDetailView, Components
-│   ├── Sources/
-│   │   ├── Models/                          # NewsSource, SourcesDTO
-│   │   ├── Services/                        # SourceFilterService
-│   │   ├── Repositories/                    # SourcesRepositoryProtocol + implementations
-│   │   ├── ViewModels/                      # SourcesViewModel
-│   │   └── Views/                           # SourcesView, Components
-│   ├── Settings/
-│   │   └── Views/                           # SettingsView, Components
-│   └── ReadingList/
-│       ├── Repositories/                    # ReadingListRepositoryProtocol + implementations
-│       └── (no separate screen; toggled inline)
-├── Domain/UseCases/
-│   ├── IndexArticlesInSpotlightUseCase.swift # Core Spotlight indexing
-│   └── ...                                  # Fetch, Filter, Manage use cases
+├── Domain/                                  # Entities, repository protocols, use cases
+├── Data/                                    # NewsAPI DTOs/client/repos + Core Data/cache stores
+├── Infrastructure/                          # Design system, localization, networking utilities, preview fixtures
+├── Presentation/                            # SwiftUI screens and ViewModels
 ├── NewsFlowWidget/                          # WidgetKit extension (manual target setup)
 │   ├── NewsFlowWidget.swift
 │   ├── Provider.swift
@@ -271,17 +249,18 @@ swiftlint --fix
 
 ## Testing
 
-### Unit Tests (117 tests)
+### Unit Tests
 
 ```bash
 xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow \
-  -destination 'platform=iOS Simulator,name=iPhone 17e'
+  -destination 'platform=iOS Simulator,name=iPhone 17e' \
+  -only-testing:NewsFlowTests
 ```
 
 **Coverage areas:**
 - **ViewModels** — State transitions, error handling, pagination, prefetch, auto-refresh, carousel clamping, stale request cancellation
 - **Repositories** — Caching (hit/miss/expiration), network fallbacks, deduplication
-- **Networking** — `NewsAPIClient` error mapping, `NewsAPIRequestBuilder` URL construction, DTO decoding
+- **Networking** — `NewsAPIClient` error mapping, `NewsAPIRequestBuilder` URL construction, DTO decoding, retry and simulated-error decorators
 - **Filtering & Sorting** — English source filtering, multi-category union filtering, newest-first sorting
 - **Persistence** — Reading list add/remove/toggle, `FilePersistentStore` save/load/remove, cache metadata
 
@@ -290,9 +269,8 @@ xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow \
 Automated end-to-end flows:
 1. Launch app → verify sources list loads
 2. Tap source → verify article screen appears
-3. Pull-to-refresh → verify reload completes
-4. Error simulation → verify alert + retry recovers
-5. Carousel auto-advance → verify page indicator updates
+3. Toggle an article in/out of the reading list from the article card
+4. Select multiple source categories and verify client-side filtering
 
 Run UI tests:
 ```bash
@@ -322,9 +300,9 @@ Before the user reaches the last 3 articles, `ArticlesViewModel.prefetchNextPage
 
 Network requests use exponential backoff with jitter via `RetryingNewsAPIClientDecorator`. It retries on network errors and 5xx server errors, but not on client errors (4xx) or cancellation.
 
-### Error Simulation (Debug Only)
+### Error Simulation Decorator
 
-`EveryThirdRequestErrorSimulator` is wrapped in `#if DEBUG` and only injected in debug/UITest builds. It deterministically fails every 3rd non-automatic request, allowing reliable testing of retry flows and error UI without relying on flaky network conditions.
+`SimulatedNetworkErrorClientDecorator` wraps `NewsAPIClientProtocol` and deterministically throws `NewsAPIError.simulatedNetwork` on every 3rd request. This keeps assessment-only failure cadence out of `NewsAPIClient`, repositories, and ViewModels while still exercising the production error UI (`Bilgiler alınamadı!` + `Tekrar Dene`).
 
 ### Localization Performance
 
@@ -347,7 +325,7 @@ The codebase demonstrates the application of multiple Gang of Four (GoF) and arc
 | **Use Case** | Encapsulate single business operations | `*UseCase.swift` |
 | **Factory** | Create ViewModels with dependencies via `AppContainer` | `AppContainer.swift` |
 | **Adapter** | Bridge `ImageCache` actor to `ImageCacheServicing` protocol | `ImageCacheAdapter.swift` |
-| **Decorator** | Add retry behavior to `NewsAPIClient` transparently | `RetryingNewsAPIClientDecorator.swift` |
+| **Decorator** | Add retry and simulated failure behavior to `NewsAPIClient` transparently | `RetryingNewsAPIClientDecorator.swift`, `SimulatedNetworkErrorClientDecorator.swift` |
 | **Strategy** | Pluggable article sorting algorithms | `ArticleSorting.swift` |
 | **Observer** | `@Published` properties in ViewModels drive SwiftUI updates | `*ViewModel.swift` |
 | **Command** | `ToastAction` encapsulates retry logic as an object | `ToastManager.swift` |
