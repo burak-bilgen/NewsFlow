@@ -43,7 +43,8 @@ final class AppContainer: ObservableObject {
         #endif
 
         let requestBuilder = NewsAPIRequestBuilder()
-        let client = NewsAPIClient(requestBuilder: requestBuilder)
+        let baseClient = NewsAPIClient(requestBuilder: requestBuilder)
+        let client = RetryingNewsAPIClientDecorator(client: baseClient)
         let store: PersistentStore
         do {
             store = try FilePersistentStore()
@@ -59,7 +60,7 @@ final class AppContainer: ObservableObject {
             remoteRepository: NewsAPIArticlesRepository(client: client),
             store: store
         )
-        let readingListRepo = UserDefaultsReadingListRepository()
+        let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
 
         return AppContainer(
             fetchSourcesUseCase: FetchSourcesUseCase(repository: sourcesRepo),

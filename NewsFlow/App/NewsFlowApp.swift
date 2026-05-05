@@ -7,6 +7,10 @@ struct NewsFlowApp: App {
     @StateObject private var languageManager = LanguageManager()
     private let imageCache: ImageCacheServicing = ImageCacheAdapter()
 
+    init() {
+        BackgroundRefreshManager.shared.register()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootNavigationView(container: container)
@@ -14,6 +18,7 @@ struct NewsFlowApp: App {
                 .environmentObject(languageManager)
                 .environment(\.imageCache, imageCache)
                 .preferredColorScheme(themeManager.currentTheme.colorScheme)
+                .offlineAware()
         }
     }
 }
