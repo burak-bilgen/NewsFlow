@@ -63,3 +63,6 @@ fastlane/test_output
 
 # Secrets
 Config/Secrets.xcconfig
+
+# Internal planning documents (not for public review)
+PROFESSIONALIZATION_PLAN.md
