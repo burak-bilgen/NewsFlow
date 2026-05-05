@@ -8,6 +8,7 @@ import UIKit
 protocol ImageCacheServicing: AnyObject {
     func image(for url: URL) -> UIImage?
     func loadImage(from url: URL) async -> UIImage?
+    func clearMemory() async
 }
 
 // MARK: - Adapter
@@ -28,6 +29,10 @@ final class ImageCacheAdapter: ImageCacheServicing {
 
     func loadImage(from url: URL) async -> UIImage? {
         await cache.loadImage(from: url, targetSize: nil)
+    }
+
+    func clearMemory() async {
+        await cache.clearMemoryCache()
     }
 }
 

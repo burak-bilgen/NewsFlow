@@ -10,6 +10,12 @@ struct NewsFlowApp: App {
     init() {
         AppLaunchMetrics.startTracking()
         BackgroundRefreshManager.shared.register()
+        MemoryWarningHandler.shared.startMonitoring()
+        MemoryWarningHandler.shared.onMemoryWarning = { [imageCache] in
+            Task {
+                await imageCache.clearMemory()
+            }
+        }
     }
 
     var body: some Scene {

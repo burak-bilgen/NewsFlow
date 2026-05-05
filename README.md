@@ -1,6 +1,6 @@
 # NewsFlow
 
-> A professional news reader app built with SwiftUI, featuring a horizontally-scrolling source browser, auto-refreshing article feeds, offline reading list support, and intelligent prefetching.
+> A production-ready news reader demonstrating senior-level Swift architecture: zero third-party dependencies, actor-isolated caches, decorator-pattern retry policies, custom property wrappers, and full Apple ecosystem integration.
 
 <p align="center">
   <img src="https://img.shields.io/badge/iOS-15.0%2B-blue" alt="iOS 15.0+">
@@ -24,6 +24,7 @@
 ### Quality & Reliability
 - **Error Simulation** — Every 3rd non-automatic request intentionally fails to demonstrate retry flows (debug builds only)
 - **Image Caching** — Two-tier cache: in-memory NSCache (cost-based, 50MB) + disk cache (200MB, 7-day TTL)
+- **Memory Pressure Handling** — `MemoryWarningHandler` listens for `UIApplication.didReceiveMemoryWarningNotification` and proactively clears image caches and URLSession caches before the OS terminates the app
 - **Disk Caching** — Page 1 of articles and the sources list are cached to disk with TTL (60s/300s)
 - **Retry Policy** — Exponential backoff with jitter for transient network failures
 - **Offline Mode** — Real-time connectivity monitoring with offline banner and graceful degradation
@@ -46,20 +47,38 @@
 
 ## Screenshots
 
-### Light Mode
+<!-- TODO: Replace placeholder links with actual screenshot URLs after pushing to GitHub -->
+<!-- Use raw GitHub URLs: https://raw.githubusercontent.com/{username}/{repo}/main/Screenshots/... -->
 
-<p align="center">
-  <img src="Screenshots/01-sources-light.png" width="250" alt="Sources Browser - Light">
-  <img src="Screenshots/04-sources-light-mock.png" width="250" alt="Sources with Mock Data - Light">
-</p>
+### Sources Browser
 
-### Dark Mode
+| Light Mode | Dark Mode |
+|------------|-----------|
+| ![Sources Browser - Light](Screenshots/01-sources-light.png) | ![Sources Browser - Dark](Screenshots/02-sources-dark.png) |
 
-<p align="center">
-  <img src="Screenshots/02-sources-dark.png" width="250" alt="Sources Browser - Dark">
-</p>
+### Articles Feed
 
-> More screenshots (Articles, Settings, Article Detail, Widget, Share Extension) can be captured by running the app in the iOS Simulator and navigating through different screens.
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <!-- TODO: Add articles feed light mode screenshot --> | <!-- TODO: Add articles feed dark mode screenshot --> |
+
+### Article Detail
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <!-- TODO: Add article detail light mode screenshot --> | <!-- TODO: Add article detail dark mode screenshot --> |
+
+### Settings & Theming
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <!-- TODO: Add settings light mode screenshot --> | <!-- TODO: Add settings dark mode screenshot --> |
+
+### Apple Ecosystem
+
+| Share Extension | Widget |
+|-----------------|--------|
+| <!-- TODO: Add share extension screenshot --> | <!-- TODO: Add widget screenshot --> |
 
 ---
 
@@ -333,31 +352,33 @@ The codebase demonstrates the application of multiple Gang of Four (GoF) and arc
 | **Observer** | `@Published` properties in ViewModels drive SwiftUI updates | `*ViewModel.swift` |
 | **Command** | `ToastAction` encapsulates retry logic as an object | `ToastManager.swift` |
 | **Template Method** | `Logging` protocol defines log level convenience methods | `Logger.swift` |
+| **Property Wrapper** | `@UserDefault` provides type-safe, observable `UserDefaults` persistence with Combine publisher projection | `UserDefaultWrapper.swift` |
 
-## Known Issues & Troubleshooting
+## Performance Characteristics
 
-### Build fails with "Macro must be enabled"
+| Metric | Implementation | Detail |
+|--------|---------------|--------|
+| **Cold Start** | `AppLaunchMetrics` tracks init-to-first-frame duration | Warns via OSLog if launch exceeds 2s |
+| **Image Memory** | Downsampling to target size before `NSCache` insertion | Prevents decoding full-resolution images into memory |
+| **Cache Eviction** | Cost-based `NSCache` (50MB) + 7-day TTL disk sweep | Automatic cleanup on memory pressure and app launch |
+| **Pagination** | Prefetch triggered at last 3 visible items | `isPrefetching` nonce prevents duplicate loads |
+| **Auto-Refresh** | 60s timer with request deduplication | Stale responses discarded via `latestRequestID` |
+| **Memory Pressure** | `MemoryWarningHandler` + `ImageCache.clearMemoryCache()` | Proactive NSCache + URLCache eviction before OS intervention |
+| **Spotlight Index** | Background batched indexing with cancellation | `IndexArticlesInSpotlightUseCase` runs off-main without blocking UI |
 
-**Cause:** SwiftLint was accidentally added as an SPM package with macro plugins.
+## Security
 
-**Fix:**
-1. Open Xcode → Project Navigator → `NewsFlow` project
-2. Select **Package Dependencies** tab
-3. Remove `SwiftLint` package
-4. Add SwiftLint as a **Run Script** build phase instead:
-   ```bash
-   if which swiftlint >/dev/null; then
-     swiftlint
-   else
-     echo "warning: SwiftLint not installed"
-   fi
-   ```
+- **API Key Storage** — NewsAPI.org key is injected at build time via `Config/Secrets.xcconfig`, which is `.gitignore`d and never committed
+- **Keychain Integration** — Runtime API key fallback is stored in the iOS Keychain (`kSecClassGenericPassword`) instead of `UserDefaults`
+- **No Secrets in Source** — No API keys, tokens, or credentials exist in Swift source files
 
-### "Invalid frame dimension (negative or non-finite)" runtime warning
+## Why Zero Dependencies?
 
-**Cause:** Using `.frame(width: .infinity)` instead of `.frame(maxWidth: .infinity)`.
-
-**Fix:** Always use `maxWidth:` / `maxHeight:` when passing `.infinity`.
+- **`URLSession` + `async/await`** — Native networking is sufficient; no need for Alamofire
+- **Custom `ImageCache`** — Full control over memory pressure, cost-based eviction, and downsampling
+- **Custom `Paginator`** — Handles deduplication, refresh-vs-append, and prefetch without Combine or RxSwift
+- **Smaller Binary** — Zero external SPM packages keeps the app lightweight and build times fast
+- **No Macro Trust Issues** — No third-party macro plugins that break CI or require sandbox exceptions
 
 ---
 
@@ -368,5 +389,5 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  Built with using SwiftUI
+  Built with SwiftUI
 </p>
