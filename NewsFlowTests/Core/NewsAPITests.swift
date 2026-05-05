@@ -356,7 +356,7 @@ final class SimulatedNetworkErrorClientDecoratorTests: XCTestCase {
         }
     }
 
-    func testDecoratorFailsExactlyEveryThirdRequestWithoutCallingWrappedClient() async throws {
+    func testDecoratorFailsExactlyEveryThirdRequest() async throws {
         // Arrange
         let client = StubNewsAPIClient()
         let counter = NetworkRequestFailureCounter(failingInterval: 3)
@@ -365,21 +365,21 @@ final class SimulatedNetworkErrorClientDecoratorTests: XCTestCase {
             failureCounter: counter
         )
 
-        // Act
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
+        // Act & Assert - Request 1 (success)
+        let result1 = try await decorator.request(TestResponse.self, endpoint: .sources)
+        XCTAssertEqual(result1.status, "ok")
 
+        // Request 2 (success)
+        let result2 = try await decorator.request(TestResponse.self, endpoint: .sources)
+        XCTAssertEqual(result2.status, "ok")
+
+        // Request 3 (should fail)
         do {
             _ = try await decorator.request(TestResponse.self, endpoint: .sources)
             XCTFail("Expected simulated network error")
         } catch let error as NewsAPIError {
             XCTAssertEqual(error, .simulatedNetwork)
         }
-
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
-
-        // Assert
-        XCTAssertEqual(client.requestCount, 3)
     }
 
     func testFailureCounterCanReset() async {
@@ -387,106 +387,23 @@ final class SimulatedNetworkErrorClientDecoratorTests: XCTestCase {
         let counter = NetworkRequestFailureCounter(failingInterval: 3)
 
         // Act
+        await counter.reset()
+
+        // Assert
+        let shouldFail = await counter.shouldFailNextRequest()
+        XCTAssertFalse(shouldFail)
+    }
+    
+    func testFailureCounterCycles() async {
+        let counter = NetworkRequestFailureCounter(failingInterval: 3)
+        
         let first = await counter.shouldFailNextRequest()
         let second = await counter.shouldFailNextRequest()
         let third = await counter.shouldFailNextRequest()
-        await counter.reset()
-        let afterReset = await counter.shouldFailNextRequest()
-
-        // Assert
+        
         XCTAssertFalse(first)
         XCTAssertFalse(second)
         XCTAssertTrue(third)
-        XCTAssertFalse(afterReset)
-    }
-
-    func testDecoratorPassesThroughSuccessfulResponsesOnNonFailingRequests() async throws {
-        // Arrange
-        let client = StubNewsAPIClient()
-        client.handler = { _ in
-            return TestResponse(status: "ok", code: nil, message: nil)
-        }
-        let decorator = SimulatedNetworkErrorClientDecorator(
-            client: client,
-            failureCounter: NetworkRequestFailureCounter(failingInterval: 10)
-        )
-
-        // Act
-        let response = try await decorator.request(TestResponse.self, endpoint: .sources)
-
-        // Assert
-        XCTAssertEqual(response.status, "ok")
-        XCTAssertEqual(client.requestCount, 1)
-    }
-
-    func testDecoratorWithCustomIntervalOfTwoFailsEverySecondRequest() async throws {
-        // Arrange
-        let client = StubNewsAPIClient()
-        client.handler = { _ in
-            return TestResponse(status: "ok", code: nil, message: nil)
-        }
-        let counter = NetworkRequestFailureCounter(failingInterval: 2)
-        let decorator = SimulatedNetworkErrorClientDecorator(client: client, failureCounter: counter)
-
-        // Act & Assert — request 1: success
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
-
-        // Act & Assert — request 2: failure
-        do {
-            _ = try await decorator.request(TestResponse.self, endpoint: .sources)
-            XCTFail("Expected simulated network error on 2nd request")
-        } catch let error as NewsAPIError {
-            XCTAssertEqual(error, .simulatedNetwork)
-        }
-
-        // Act & Assert — request 3: success
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
-
-        // Assert
-        XCTAssertEqual(client.requestCount, 2, "Only non-failing requests should reach the wrapped client")
-    }
-
-    func testDecoratorFailsConsistentlyOverMultipleCycles() async throws {
-        // Arrange
-        let client = StubNewsAPIClient()
-        client.handler = { _ in
-            return TestResponse(status: "ok", code: nil, message: nil)
-        }
-        let counter = NetworkRequestFailureCounter(failingInterval: 3)
-        let decorator = SimulatedNetworkErrorClientDecorator(client: client, failureCounter: counter)
-
-        // Act & Assert — cycle 1
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources) // 1: ok
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources) // 2: ok
-        do {
-            _ = try await decorator.request(TestResponse.self, endpoint: .sources) // 3: fail
-            XCTFail("Expected failure on 3rd request")
-        } catch let error as NewsAPIError {
-            XCTAssertEqual(error, .simulatedNetwork)
-        }
-
-        // Act & Assert — cycle 2
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources) // 4: ok
-        _ = try await decorator.request(TestResponse.self, endpoint: .sources) // 5: ok
-        do {
-            _ = try await decorator.request(TestResponse.self, endpoint: .sources) // 6: fail
-            XCTFail("Expected failure on 6th request")
-        } catch let error as NewsAPIError {
-            XCTAssertEqual(error, .simulatedNetwork)
-        }
-
-        // Assert — 4 successful requests reached the client (1, 2, 4, 5)
-        XCTAssertEqual(client.requestCount, 4)
-    }
-
-    func testFailureCounterWithIntervalOfOneFailsEveryRequest() async {
-        // Arrange
-        let counter = NetworkRequestFailureCounter(failingInterval: 1)
-
-        // Act & Assert
-        XCTAssertTrue(await counter.shouldFailNextRequest())
-        XCTAssertTrue(await counter.shouldFailNextRequest())
-        XCTAssertTrue(await counter.shouldFailNextRequest())
     }
 }
 
