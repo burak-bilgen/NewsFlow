@@ -8,6 +8,7 @@ struct NewsFlowApp: App {
     private let imageCache: ImageCacheServicing = ImageCacheAdapter()
 
     init() {
+        AppLaunchMetrics.startTracking()
         BackgroundRefreshManager.shared.register()
     }
 

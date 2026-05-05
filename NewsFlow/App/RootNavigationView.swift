@@ -35,5 +35,8 @@ struct RootNavigationView: View {
         }
         .navigationViewStyle(.stack)
         .environmentObject(router)
+        .onAppear {
+            AppLaunchMetrics.recordLaunchCompleted()
+        }
     }
 }

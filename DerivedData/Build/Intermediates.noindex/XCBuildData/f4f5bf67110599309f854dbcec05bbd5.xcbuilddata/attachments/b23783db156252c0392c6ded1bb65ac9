@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITests-primary.dia",
+    "emit-module-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITests-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITests-primary-emit-module.dia",
+    "pch" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITests-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITests-primary.swiftdeps"
+  },
+  "/Users/burak/Local/NewsFlow/NewsFlowUITests/NewsFlowUITestsLaunchTests.swift" : {
+    "const-values" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.swiftconstvalues",
+    "dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.d",
+    "diagnostics" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.dia",
+    "index-unit-output-path" : "/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.o",
+    "llvm-bc" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.bc",
+    "object" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.o",
+    "swift-dependencies" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests.swiftdeps",
+    "swiftmodule" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/NewsFlow.build/Debug-iphonesimulator/NewsFlowUITests.build/Objects-normal/arm64/NewsFlowUITestsLaunchTests~partial.swiftmodule"
+  }
+}

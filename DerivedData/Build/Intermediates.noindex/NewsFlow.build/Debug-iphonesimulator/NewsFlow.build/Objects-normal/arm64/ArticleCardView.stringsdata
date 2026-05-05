@@ -1,0 +1,16 @@
+{
+  "source": "/Users/burak/Local/NewsFlow/NewsFlow/Presentation/Articles/Views/ArticleCardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@, %@",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 69
+        }
+      }
+    ]
+  },
+  "version": 1
+}

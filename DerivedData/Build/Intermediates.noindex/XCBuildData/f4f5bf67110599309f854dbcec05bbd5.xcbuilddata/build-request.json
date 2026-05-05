@@ -1,0 +1,78 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "6e27caecd2fd9cf955fc11a312066aeab799686e54c4a4caf67750e9aedb1ae4"
+    },
+    {
+      "guid" : "6e27caecd2fd9cf955fc11a312066aea7fa7efa35dc8421a676633e99710440b"
+    },
+    {
+      "guid" : "6e27caecd2fd9cf955fc11a312066aea49a959207f7f053b2ec7be9b7c516e22"
+    }
+  ],
+  "containerPath" : "/Users/burak/Local/NewsFlow/NewsFlow.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "hostTargetedPlatform" : null,
+      "platform" : "iphonesimulator",
+      "sdk" : "iphonesimulator26.4",
+      "sdkVariant" : "iphonesimulator",
+      "supportedArchitectures" : [
+        "arm64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Products",
+      "derivedDataPath" : "/Users/burak/Local/NewsFlow/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/burak/Local/NewsFlow/DerivedData/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/burak/Local/NewsFlow/DerivedData/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/burak/Local/NewsFlow/DerivedData/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ASSETCATALOG_FILTER_FOR_DEVICE_MODEL" : "iPhone18,5",
+          "ASSETCATALOG_FILTER_FOR_DEVICE_OS_VERSION" : "26.4.1",
+          "ASSETCATALOG_FILTER_FOR_THINNING_DEVICE_CONFIGURATION" : "iPhone18,5",
+          "BUILD_ACTIVE_RESOURCES_ONLY" : "YES",
+          "CLANG_COVERAGE_MAPPING" : "YES",
+          "CLANG_PROFILE_DATA_DIRECTORY" : "/Users/burak/Local/NewsFlow/DerivedData/Build/ProfileData",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES",
+          "TARGET_DEVICE_IDENTIFIER" : "CE0B3217-3764-485B-91DC-B3DFA5803EE7",
+          "TARGET_DEVICE_MODEL" : "iPhone18,5",
+          "TARGET_DEVICE_OS_VERSION" : "26.4.1",
+          "TARGET_DEVICE_PLATFORM_NAME" : "iphonesimulator"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "test",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
