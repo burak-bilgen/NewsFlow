@@ -6,16 +6,18 @@ final class ArticlesViewModelTests: XCTestCase {
     private func makeViewModel(
         articles: Result<[Article], Error> = .success([]),
         readingList: ReadingListRepositoryProtocol? = nil,
-        errorSimulator: ArticleRequestErrorSimulating? = nil
+        errorSimulator: ArticleRequestErrorSimulating? = nil,
+        pageSize: Int = 20
     ) -> ArticlesViewModel {
         let repository = ArticlesRepositorySpy(result: articles)
         let listRepo = readingList ?? InMemoryReadingListRepositorySpy()
         let simulator = errorSimulator ?? FixedErrorSimulator(results: [false])
         return ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: listRepo,
-            errorSimulator: simulator
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: listRepo),
+            errorSimulator: simulator,
+            pageSize: pageSize
         )
     }
 
@@ -47,8 +49,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false])
         )
 
@@ -62,8 +64,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [true])
         )
         await viewModel.loadIfNeeded()
@@ -148,8 +150,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let article = TestFactory.article(id: "a1", title: "Test", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: FailingReadingListRepository(),
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: FailingReadingListRepository()),
             errorSimulator: FixedErrorSimulator(results: [false])
         )
         await viewModel.loadIfNeeded()
@@ -164,8 +166,8 @@ final class ArticlesViewModelTests: XCTestCase {
         try await readingList.add(article)
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: readingList,
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: readingList),
             errorSimulator: FixedErrorSimulator(results: [false])
         )
 
@@ -180,8 +182,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([article1]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false])
         )
 
@@ -197,8 +199,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 1
         )
@@ -216,8 +218,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let article = TestFactory.article(id: "1", title: "Existing", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, true])
         )
 
@@ -232,8 +234,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [true])
         )
 
@@ -248,8 +250,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, true]),
             pageSize: 1
         )
@@ -268,8 +270,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [true, false])
         )
 
@@ -287,8 +289,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false])
         )
         await viewModel.loadIfNeeded()
@@ -309,8 +311,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success(articles))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 2
         )
@@ -328,8 +330,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             pageSize: 10
         )
         await viewModel.loadIfNeeded()
@@ -344,8 +346,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             pageSize: 1
         )
         await viewModel.loadIfNeeded()
@@ -365,8 +367,8 @@ final class ArticlesViewModelTests: XCTestCase {
         )
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             pageSize: 2
         )
         await viewModel.loadIfNeeded()
@@ -391,8 +393,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: ArticlesRepositorySpy(result: .success([article])),
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [true, false])
         )
         await viewModel.loadIfNeeded()
@@ -432,8 +434,8 @@ final class ArticlesViewModelTests: XCTestCase {
         )
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false])
         )
 
@@ -472,8 +474,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success(page1 + page2))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 3
         )
@@ -498,8 +500,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success(articles))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 2
         )
@@ -518,8 +520,8 @@ final class ArticlesViewModelTests: XCTestCase {
         let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             pageSize: 10
         )
 
@@ -540,8 +542,8 @@ final class ArticlesViewModelTests: XCTestCase {
         )
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            articlesRepository: repository,
-            readingListRepository: InMemoryReadingListRepositorySpy(),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
             errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 2
         )

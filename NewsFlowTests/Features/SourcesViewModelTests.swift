@@ -7,7 +7,7 @@ final class SourcesViewModelTests: XCTestCase {
         sources: [NewsSource] = [],
         result: Result<[NewsSource], Error> = .success([])
     ) -> SourcesViewModel {
-        SourcesViewModel(repository: SourcesRepositorySpy(result: result))
+        SourcesViewModel(fetchUseCase: FetchSourcesUseCase(repository: SourcesRepositorySpy(result: result)))
     }
 
     // MARK: - Initial State
@@ -88,7 +88,7 @@ final class SourcesViewModelTests: XCTestCase {
             result: .success(sources),
             delayNanoseconds: 200_000_000
         )
-        let viewModel = SourcesViewModel(repository: repository)
+        let viewModel = SourcesViewModel(fetchUseCase: FetchSourcesUseCase(repository: repository))
 
         async let first: () = viewModel.load()
         async let second: () = viewModel.load()
@@ -127,7 +127,7 @@ final class SourcesViewModelTests: XCTestCase {
             result: .success(sources),
             delayNanoseconds: 50_000_000
         )
-        let viewModel = SourcesViewModel(repository: repository)
+        let viewModel = SourcesViewModel(fetchUseCase: FetchSourcesUseCase(repository: repository))
 
         let expectation = expectation(description: "refresh completes")
         Task {
@@ -153,7 +153,7 @@ final class SourcesViewModelTests: XCTestCase {
             result: .success(sources),
             delayNanoseconds: 300_000_000
         )
-        let viewModel = SourcesViewModel(repository: repository)
+        let viewModel = SourcesViewModel(fetchUseCase: FetchSourcesUseCase(repository: repository))
 
         Task {
             await viewModel.load()
@@ -300,7 +300,7 @@ final class SourcesViewModelTests: XCTestCase {
         let repository = SourcesRepositorySpy(result: .success([
             NewsSource(id: "bbc", name: "BBC", description: "A", category: "general", language: "en", url: nil)
         ]))
-        let freshViewModel = SourcesViewModel(repository: repository)
+        let freshViewModel = SourcesViewModel(fetchUseCase: FetchSourcesUseCase(repository: repository))
         await freshViewModel.load()
 
         XCTAssertEqual(freshViewModel.state, .loaded)
