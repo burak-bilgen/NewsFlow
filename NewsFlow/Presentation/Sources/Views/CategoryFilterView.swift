@@ -28,9 +28,8 @@ struct CategoryFilterView: View {
                             )
                             .overlay(
                                 Capsule()
-                                    .strokeBorder(AppPalette.primaryRed.opacity(isSelected ? 0.9 : 0.7), lineWidth: 1)
+                                    .stroke(AppPalette.primaryRed.opacity(isSelected ? 0.9 : 0.7), lineWidth: 1)
                             )
-                            .compositingGroup()
                     }
                     .buttonStyle(.plain)
                     .scaleEffect(isSelected ? 1.05 : 1.0)
