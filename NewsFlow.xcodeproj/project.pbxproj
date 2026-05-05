@@ -120,6 +120,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 675760912FA8DE1C003F06BE /* Build configuration list for PBXNativeTarget "NewsFlow" */;
 			buildPhases = (
+				675761052FA8F020003F06BE /* SwiftLint */,
 				675760672FA8DE1B003F06BE /* Sources */,
 				675760682FA8DE1B003F06BE /* Frameworks */,
 				675760692FA8DE1B003F06BE /* Resources */,
@@ -239,21 +240,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6757607B2FA8DE1C003F06BE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		675760852FA8DE1C003F06BE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		675761052FA8F020003F06BE /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		675760672FA8DE1B003F06BE /* Sources */ = {
@@ -332,7 +341,7 @@
 				DEVELOPMENT_TEAM = Z8P38BHKU6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -397,7 +406,7 @@
 				DEVELOPMENT_TEAM = Z8P38BHKU6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

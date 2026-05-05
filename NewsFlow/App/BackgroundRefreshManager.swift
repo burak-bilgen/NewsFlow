@@ -18,7 +18,8 @@ final class BackgroundRefreshManager {
             forTaskWithIdentifier: Self.taskIdentifier,
             using: nil
         ) { [weak self] task in
-            self?.handleRefresh(task: task as! BGAppRefreshTask)
+            guard let refreshTask = task as? BGAppRefreshTask else { return }
+            self?.handleRefresh(task: refreshTask)
         }
     }
 
