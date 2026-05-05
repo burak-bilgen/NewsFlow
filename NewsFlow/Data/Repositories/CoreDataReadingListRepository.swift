@@ -18,13 +18,11 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
     func savedArticleIDs() async -> Set<String> {
         let context = coreDataStack.newBackgroundContext()
         return await context.perform {
-            let request = NSFetchRequest<NSDictionary>(entityName: "ReadingListItem")
-            request.resultType = .dictionaryResultType
+            let request = NSFetchRequest<ReadingListItem>(entityName: "ReadingListItem")
             request.propertiesToFetch = ["id"]
             do {
                 let results = try context.fetch(request)
-                let ids = results.compactMap { $0["id"] as? String }
-                return Set(ids)
+                return Set(results.map(\.id))
             } catch {
                 NewsFlowLogger.shared.error(
                     "Failed to fetch saved article IDs: \(error.localizedDescription)",
@@ -90,6 +88,15 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
                 throw error
             }
         }
+    }
+
+    func toggle(_ article: Article) async throws -> Bool {
+        if await isSaved(articleID: article.id) {
+            try await remove(articleID: article.id)
+            return false
+        }
+        try await add(article)
+        return true
     }
 
     // MARK: - Private

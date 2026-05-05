@@ -1,5 +1,16 @@
 import SwiftUI
 
+// MARK: - Dynamic Colors
+
+/// Dynamic color provider that adapts to light/dark mode.
+private func dynamicColor(light: UIColor, dark: UIColor) -> Color {
+    Color(UIColor { traitCollection in
+        traitCollection.userInterfaceStyle == .dark ? dark : light
+    })
+}
+
+// MARK: - Spacing
+
 enum AppSpacing {
     static let xxs: CGFloat = 4
     static let xs: CGFloat = 8
@@ -10,6 +21,8 @@ enum AppSpacing {
     static let xxl: CGFloat = 32
 }
 
+// MARK: - Radius
+
 enum AppRadius {
     static let sm: CGFloat = 8
     static let md: CGFloat = 12
@@ -17,18 +30,54 @@ enum AppRadius {
     static let xl: CGFloat = 20
 }
 
+// MARK: - Palette
+
 enum AppPalette {
-    static let screenBackground = Color(red: 0.97, green: 0.95, blue: 0.92)
-    static let cardBackground = Color(red: 0.94, green: 0.92, blue: 0.89)
-    static let elevatedBackground = Color(red: 1.0, green: 0.98, blue: 0.96)
+    // Backgrounds
+    static let screenBackground = dynamicColor(
+        light: UIColor(red: 0.97, green: 0.95, blue: 0.92, alpha: 1),
+        dark: UIColor(red: 0.06, green: 0.06, blue: 0.06, alpha: 1)
+    )
+
+    static let cardBackground = dynamicColor(
+        light: UIColor(red: 0.94, green: 0.92, blue: 0.89, alpha: 1),
+        dark: UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1)
+    )
+
+    static let elevatedBackground = dynamicColor(
+        light: UIColor(red: 1.0, green: 0.98, blue: 0.96, alpha: 1),
+        dark: UIColor(red: 0.18, green: 0.18, blue: 0.18, alpha: 1)
+    )
+
     static let border = Color.primary.opacity(0.15)
 
-    static let primaryInk = Color(red: 0.12, green: 0.12, blue: 0.12)
-    static let primaryInkDark = Color(red: 0.06, green: 0.06, blue: 0.06)
-    static let primaryInkLight = Color(red: 0.28, green: 0.28, blue: 0.28)
-    static let primaryInkMuted = Color(red: 0.12, green: 0.12, blue: 0.12).opacity(0.08)
+    // Text (use SwiftUI .primary/.secondary for auto adaptation)
+    static let textPrimary = Color.primary
+    static let textSecondary = Color.secondary
+    static let textOnImage = Color.white
 
-    // Legacy aliases for backward compatibility during migration
+    // Accents
+    static let primaryInk = dynamicColor(
+        light: UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1),
+        dark: UIColor(red: 0.92, green: 0.92, blue: 0.92, alpha: 1)
+    )
+
+    static let primaryInkDark = dynamicColor(
+        light: UIColor(red: 0.06, green: 0.06, blue: 0.06, alpha: 1),
+        dark: UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1)
+    )
+
+    static let primaryInkLight = dynamicColor(
+        light: UIColor(red: 0.28, green: 0.28, blue: 0.28, alpha: 1),
+        dark: UIColor(red: 0.72, green: 0.72, blue: 0.72, alpha: 1)
+    )
+
+    static let primaryInkMuted = dynamicColor(
+        light: UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 0.08),
+        dark: UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.08)
+    )
+
+    // Legacy aliases
     static let primaryRed = primaryInk
     static let primaryRedDark = primaryInkDark
     static let primaryRedLight = primaryInkLight
@@ -36,16 +85,19 @@ enum AppPalette {
 
     static let goldAccent = Color(red: 0.85, green: 0.65, blue: 0.13)
 
-    static let textPrimary = Color.primary
-    static let textSecondary = Color.secondary
-    static let textOnImage = Color.white
-
+    // Gradients
     static let gradientStart = Color.black.opacity(0.85)
     static let gradientMid = Color.black.opacity(0.45)
     static let gradientEnd = Color.black.opacity(0.0)
 
-    static let shadowColor = Color.black.opacity(0.18)
+    // Shadows
+    static let shadowColor = dynamicColor(
+        light: UIColor.black.withAlphaComponent(0.18),
+        dark: UIColor.black.withAlphaComponent(0.50)
+    )
 }
+
+// MARK: - Haptic
 
 enum Haptic {
     @MainActor static func light() {
@@ -60,6 +112,8 @@ enum Haptic {
         UINotificationFeedbackGenerator().notificationOccurred(.error)
     }
 }
+
+// MARK: - View Modifiers
 
 struct CardSurface: ViewModifier {
     func body(content: Content) -> some View {

@@ -8,7 +8,7 @@ import Foundation
 final class CoreDataStack {
     static let shared = CoreDataStack()
 
-    private init() {}
+    init() {}
 
     lazy var persistentContainer: NSPersistentContainer = {
         guard let modelURL = Bundle.main.url(
