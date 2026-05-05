@@ -23,10 +23,19 @@
 
 ### Quality & Reliability
 - **Error Simulation** — Every 3rd non-automatic request intentionally fails to demonstrate retry flows (debug builds only)
-- **Image Caching** — In-memory NSCache with a count limit of 100; images do not re-download when scrolling back
+- **Image Caching** — Two-tier cache: in-memory NSCache (cost-based, 50MB) + disk cache (200MB, 7-day TTL)
 - **Disk Caching** — Page 1 of articles and the sources list are cached to disk with TTL (60s/300s)
+- **Retry Policy** — Exponential backoff with jitter for transient network failures
+- **Offline Mode** — Real-time connectivity monitoring with offline banner and graceful degradation
 - **Localization** — Full Turkish (TR) and English (EN) support with in-app language switching
 - **Theming** — Three theme modes: Light, Dark, System
+
+### Apple Ecosystem
+- **Home Screen & Lock Screen Widget** — Top headlines refreshed every 15 minutes
+- **Share Extension** — Save articles directly from Safari and other apps
+- **Core Spotlight** — Search articles from iOS system search
+- **Background App Refresh** — Periodic background updates for fresh content
+- **State Restoration** — Returns to the last viewed screen across app launches
 
 ### Accessibility
 - Full VoiceOver support with accessibility identifiers
@@ -69,9 +78,10 @@ NewsFlow follows **MVVM + Repository Pattern** with Clean Architecture principle
 - **UI Framework:** SwiftUI (iOS 15+)
 - **Networking:** `URLSession` with `async/await` (no third-party libraries)
 - **Image Caching:** Custom `NSCache`-based `ImageCacheService`
-- **Persistence:** `FilePersistentStore` (disk JSON cache) + `UserDefaults` (reading list)
+- **Persistence:** `FilePersistentStore` (disk JSON cache) + `Core Data` (reading list) + `UserDefaults` (settings)
 - **Testing:** XCTest (unit + UI tests)
 - **Build Tool:** Xcode 15+
+- **Automation:** Makefile (`make test`, `make lint`, `make build`)
 
 ### Why No Third-Party Dependencies?
 - `URLSession` + `async/await` provides everything needed for networking
@@ -87,12 +97,14 @@ NewsFlow/
 ├── App/
 │   ├── Composition/AppContainer.swift       # DI composition root
 │   ├── Routing/RootNavigationView.swift     # Navigation setup
+│   ├── BackgroundRefreshManager.swift       # BGAppRefreshTask handler
+│   ├── StateRestorationManager.swift        # NSUserActivity restoration
 │   └── NewsFlowApp.swift                    # @main entry point
 ├── Core/
 │   ├── DesignSystem/                        # Colors, Spacing, Modifiers, Shimmer
 │   ├── Localization/                        # L10n helper + LanguageManager
-│   ├── Networking/                          # NewsAPI client, request builder, errors
-│   ├── Persistence/                         # File & in-memory stores, cached repositories
+│   ├── Networking/                          # NewsAPI client, retry policy, image cache
+│   ├── Persistence/                         # File & in-memory stores, Core Data model
 │   ├── PreviewSupport/                      # MockRepositories, NewsFixture (DEBUG only)
 │   └── Utilities/                           # Formatters, Error Simulator (DEBUG only)
 ├── Features/
@@ -113,6 +125,16 @@ NewsFlow/
 │   └── ReadingList/
 │       ├── Repositories/                    # ReadingListRepositoryProtocol + implementations
 │       └── (no separate screen; toggled inline)
+├── Domain/UseCases/
+│   ├── IndexArticlesInSpotlightUseCase.swift # Core Spotlight indexing
+│   └── ...                                  # Fetch, Filter, Manage use cases
+├── NewsFlowWidget/                          # WidgetKit extension (manual target setup)
+│   ├── NewsFlowWidget.swift
+│   ├── Provider.swift
+│   └── EntryView.swift
+├── NewsFlowShareExtension/                  # Share extension (manual target setup)
+│   └── ShareViewController.swift
+├── ADR/                                     # Architecture Decision Records
 ├── Assets.xcassets/
 ├── LaunchScreen.storyboard
 ├── Info.plist
@@ -140,21 +162,38 @@ git clone https://github.com/yourusername/NewsFlow.git
 cd NewsFlow
 ```
 
-### 2. Open in Xcode
+### 2. Configure Secrets
+
+```bash
+cp Config/Secrets.xcconfig.example Config/Secrets.xcconfig
+# Edit Config/Secrets.xcconfig and add your NewsAPI.org key
+```
+
+> The app uses [NewsAPI.org](https://newsapi.org) for live data. The API key is injected via `Config/Secrets.xcconfig`, which is gitignored and never committed.
+>
+> For previews and UI testing, the app includes bundled mock data and does not require a valid API key.
+
+### 3. Open in Xcode
 
 ```bash
 open NewsFlow.xcodeproj
 ```
 
-### 3. Configure API Key
-
-The app uses [NewsAPI.org](https://newsapi.org) for live data. Add your API key to the build settings or `Info.plist` under the key `NewsAPIKey`.
-
-For previews and UI testing, the app includes bundled mock data and does not require a valid API key.
-
 ### 4. Build & Run
 
 Select the `NewsFlow` scheme and run on iPhone 15+ Simulator (or any iOS 15+ device).
+
+### Makefile Commands
+
+```bash
+make setup    # Install SwiftLint
+make lint     # Run SwiftLint
+make lint-fix # Auto-fix SwiftLint violations
+make test     # Run unit tests
+make build    # Build the project
+make clean    # Clean build artifacts
+make pre-commit # Run lint + tests before committing
+```
 
 ---
 
@@ -223,13 +262,22 @@ xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow \
 
 ## Key Technical Decisions
 
+Architecture Decision Records (ADRs) documenting major design choices are available in the [`ADR/`](ADR/) directory.
+
 ### Prefetching Implementation
 
 Before the user reaches the last 3 articles, `ArticlesViewModel.prefetchNextPageIfNeeded()` is triggered via `.onAppear` on `ArticleCardView`. This loads the next page in the background without changing the UI state (`isPrefetching` flag prevents duplicate requests).
 
 ### Image Caching Strategy
 
-`ImageCacheService` uses `NSCache<NSString, CacheEntry>` with a `countLimit` of 100. Images are loaded via `URLSession` and stored in memory. There is no disk caching for images (only for article/source JSON data), keeping the implementation simple while avoiding re-downloads during scrolling.
+`ImageCache` is a professional two-tier cache:
+- **Memory tier**: `NSCache` with cost-based eviction (50MB limit) and LRU tracking
+- **Disk tier**: File-based cache in the Caches directory (200MB limit, 7-day TTL) with automatic cleanup
+- Images are downsampled to target size before storage to reduce memory footprint
+
+### Retry Policy
+
+Network requests use exponential backoff with jitter via `RetryingNewsAPIClientDecorator`. It retries on network errors and 5xx server errors, but not on client errors (4xx) or cancellation.
 
 ### Error Simulation (Debug Only)
 
@@ -239,7 +287,27 @@ Before the user reaches the last 3 articles, `ArticlesViewModel.prefetchNextPage
 
 `L10n.text()` caches the resolved `Bundle` to avoid repeated `UserDefaults` lookups and file system access on every localized string fetch. The cache is invalidated when `LanguageManager.setLanguage()` is called.
 
+### Core Data Migration
+
+The reading list migrated from `UserDefaults` to Core Data for proper relational persistence, indexing, and migration support. See [`ADR/004-core-data-for-reading-list.md`](ADR/004-core-data-for-reading-list.md).
+
 ---
+
+## Widget & Extensions Setup
+
+The project includes source code for Widget and Share Extension, but you must manually add the targets in Xcode:
+
+### Widget Extension
+1. File → New → Target → Widget Extension → Name it `NewsFlowWidget`
+2. Add files from `NewsFlowWidget/` to the new target
+3. Add `NewsAPIKey` to the Widget's `Info.plist` (or share via App Group)
+4. Build and add the widget to your Home Screen
+
+### Share Extension
+1. File → New → Target → Share Extension → Name it `NewsFlowShareExtension`
+2. Add files from `NewsFlowShareExtension/` to the new target
+3. Enable App Groups (`group.burakbilgen.NewsFlow`) for both main app and extension
+4. Add `newsflow` URL scheme to main app Info.plist for deep linking
 
 ## Known Issues & Troubleshooting
 
