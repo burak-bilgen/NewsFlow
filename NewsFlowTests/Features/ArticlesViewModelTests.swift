@@ -28,7 +28,6 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state, .idle)
         XCTAssertTrue(viewModel.articles.isEmpty)
         XCTAssertTrue(viewModel.savedArticleIDs.isEmpty)
-        XCTAssertNil(viewModel.warningMessage)
         XCTAssertTrue(viewModel.hasMorePages)
     }
 
@@ -157,7 +156,8 @@ final class ArticlesViewModelTests: XCTestCase {
         await viewModel.loadIfNeeded()
 
         await viewModel.toggleReadingList(for: article)
-        XCTAssertEqual(viewModel.warningMessage, L10n.text("error.generic"))
+        // Toast is shown but state remains loaded
+        XCTAssertEqual(viewModel.state, .loaded)
     }
 
     func testLoadingSuccessLoadsSavedArticleIDs() async throws {
@@ -226,7 +226,7 @@ final class ArticlesViewModelTests: XCTestCase {
         await viewModel.loadIfNeeded()
         await viewModel.pullToRefresh()
 
-        XCTAssertNotNil(viewModel.warningMessage)
+        // Toast is shown but state remains loaded
         XCTAssertEqual(viewModel.state, .loaded)
     }
 
@@ -261,7 +261,7 @@ final class ArticlesViewModelTests: XCTestCase {
 
         await viewModel.loadMore()
         XCTAssertEqual(viewModel.state, .loaded)
-        XCTAssertNotNil(viewModel.warningMessage)
+        // Toast is shown but state remains loaded
     }
 
     // MARK: - Retry
@@ -398,10 +398,10 @@ final class ArticlesViewModelTests: XCTestCase {
             errorSimulator: FixedErrorSimulator(results: [true, false])
         )
         await viewModel.loadIfNeeded()
-        XCTAssertNotNil(viewModel.warningMessage)
+        XCTAssertEqual(viewModel.state, .error(L10n.text("error.simulatedFetch")))
 
         await viewModel.retry()
-        XCTAssertNil(viewModel.warningMessage)
+        XCTAssertEqual(viewModel.state, .loaded)
     }
 
     // MARK: - Carousel

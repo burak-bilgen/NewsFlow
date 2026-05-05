@@ -38,20 +38,7 @@ struct ArticlesView: View {
         .onReceive(carouselTimer) { _ in
             advanceCarousel()
         }
-        .alert(
-            L10n.text("warning.title"),
-            isPresented: Binding(
-                get: { viewModel.warningMessage != nil },
-                set: { if !$0 { viewModel.warningMessage = nil } }
-            )
-        ) {
-            Button(L10n.text("retry.button")) {
-                Task { await viewModel.retry() }
-            }
-            Button(L10n.text("ok.button"), role: .cancel) { }
-        } message: {
-            Text(viewModel.warningMessage ?? "")
-        }
+        .toastOverlay()
         .accessibilityIdentifier("articles.screen")
     }
 

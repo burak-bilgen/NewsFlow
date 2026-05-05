@@ -100,13 +100,24 @@ final class SourcesViewModel: ObservableObject {
             if !showLoading {
                 isRefreshing = false
             }
-            state = .error(error.userMessage)
+            let message = error.userMessage
+            state = .error(message)
+            ToastManager.shared.show(message, style: .error, duration: 5.0)
         } catch {
             guard latestRequestID == requestID else { return }
             if !showLoading {
                 isRefreshing = false
             }
-            state = .error(L10n.text("error.generic"))
+            let message = L10n.text("error.generic")
+            state = .error(message)
+            ToastManager.shared.show(
+                message,
+                style: .error,
+                duration: 5.0,
+                action: ToastAction(title: L10n.text("retry.button")) { [weak self] in
+                    Task { await self?.retry() }
+                }
+            )
         }
     }
 

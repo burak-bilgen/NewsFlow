@@ -44,6 +44,7 @@ struct SourcesView: View {
         .task {
             await viewModel.load()
         }
+        .toastOverlay()
         .accessibilityIdentifier("sources.screen")
     }
 

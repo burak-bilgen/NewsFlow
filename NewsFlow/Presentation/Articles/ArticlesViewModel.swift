@@ -32,8 +32,6 @@ final class ArticlesViewModel: ObservableObject {
     @Published private(set) var isPrefetching = false
     @Published private(set) var hasMorePages = true
     @Published var carouselSelection = 0
-    @Published var warningMessage: String?
-
     let source: NewsSource
 
     private let fetchUseCase: FetchArticlesUseCaseProtocol
@@ -137,7 +135,13 @@ final class ArticlesViewModel: ObservableObject {
                 savedArticleIDs.remove(article.id)
             }
         } catch {
-            warningMessage = L10n.text("error.generic")
+            ToastManager.shared.show(
+                L10n.text("error.generic"),
+                style: .error,
+                action: ToastAction(title: L10n.text("retry.button")) { [weak self] in
+                    Task { await self?.toggleReadingList(for: article) }
+                }
+            )
         }
     }
 
@@ -195,7 +199,7 @@ final class ArticlesViewModel: ObservableObject {
 
     private func applySimulatedError() {
         let message = L10n.text("error.simulatedFetch")
-        warningMessage = message
+        ToastManager.shared.show(message, style: .warning, duration: 4.0)
         if articles.isEmpty {
             state = .error(message)
         }
@@ -219,7 +223,6 @@ final class ArticlesViewModel: ObservableObject {
         hasMorePages = result.hasMorePages
         savedArticleIDs = savedIDs
         carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
-        warningMessage = nil
         resetLoadingState(mode: mode)
         state = articles.isEmpty ? .empty : .loaded
     }
@@ -236,7 +239,14 @@ final class ArticlesViewModel: ObservableObject {
         if articles.isEmpty {
             state = .error(message)
         }
-        warningMessage = message
+        ToastManager.shared.show(
+            message,
+            style: .error,
+            duration: 5.0,
+            action: ToastAction(title: L10n.text("retry.button")) { [weak self] in
+                Task { await self?.retry() }
+            }
+        )
     }
 
     private func resetLoadingState(mode: FetchMode) {
