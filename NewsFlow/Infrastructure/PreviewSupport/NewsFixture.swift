@@ -111,8 +111,7 @@ enum NewsFixture {
         return ArticlesViewModel(
             source: source,
             fetchUseCase: FetchArticlesUseCase(repository: repo),
-            readingListUseCase: ManageReadingListUseCase(repository: readingList),
-            errorSimulator: nil
+            readingListUseCase: ManageReadingListUseCase(repository: readingList)
         )
     }
 }

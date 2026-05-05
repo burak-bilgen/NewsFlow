@@ -36,7 +36,6 @@ final class ArticlesViewModel: ObservableObject {
 
     private let fetchUseCase: FetchArticlesUseCaseProtocol
     private let readingListUseCase: ManageReadingListUseCaseProtocol
-    private let errorSimulator: ArticleRequestErrorSimulating?
     private let pageSize: Int
 
     private var latestRequestID = UUID()
@@ -47,13 +46,11 @@ final class ArticlesViewModel: ObservableObject {
         source: NewsSource,
         fetchUseCase: FetchArticlesUseCaseProtocol,
         readingListUseCase: ManageReadingListUseCaseProtocol,
-        errorSimulator: ArticleRequestErrorSimulating? = nil,
         pageSize: Int = 20
     ) {
         self.source = source
         self.fetchUseCase = fetchUseCase
         self.readingListUseCase = readingListUseCase
-        self.errorSimulator = errorSimulator
         self.pageSize = pageSize
     }
 
@@ -153,13 +150,6 @@ final class ArticlesViewModel: ObservableObject {
 
         applyLoadingState(for: mode)
 
-        if await shouldSimulateError(mode: mode) {
-            guard latestRequestID == requestID else { return }
-            resetLoadingState(mode: mode)
-            applySimulatedError()
-            return
-        }
-
         do {
             async let fetchedResult = fetchUseCase.execute(
                 sourceID: source.id,
@@ -189,19 +179,6 @@ final class ArticlesViewModel: ObservableObject {
             isRefreshing = true
         case .automatic, .prefetch:
             break
-        }
-    }
-
-    private func shouldSimulateError(mode: FetchMode) async -> Bool {
-        guard let errorSimulator, mode != .automatic else { return false }
-        return await errorSimulator.shouldSimulateError()
-    }
-
-    private func applySimulatedError() {
-        let message = L10n.text("error.simulatedFetch")
-        ToastManager.shared.show(message, style: .warning, duration: 4.0)
-        if articles.isEmpty {
-            state = .error(message)
         }
     }
 

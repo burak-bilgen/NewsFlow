@@ -6,18 +6,15 @@ final class AppContainer: ObservableObject {
     private let fetchSourcesUseCase: FetchSourcesUseCaseProtocol
     private let fetchArticlesUseCaseFactory: (NewsSource) -> FetchArticlesUseCaseProtocol
     private let readingListUseCase: ManageReadingListUseCaseProtocol
-    private let errorSimulator: ArticleRequestErrorSimulating?
 
     init(
         fetchSourcesUseCase: FetchSourcesUseCaseProtocol,
         fetchArticlesUseCaseFactory: @escaping (NewsSource) -> FetchArticlesUseCaseProtocol,
-        readingListUseCase: ManageReadingListUseCaseProtocol,
-        errorSimulator: ArticleRequestErrorSimulating? = nil
+        readingListUseCase: ManageReadingListUseCaseProtocol
     ) {
         self.fetchSourcesUseCase = fetchSourcesUseCase
         self.fetchArticlesUseCaseFactory = fetchArticlesUseCaseFactory
         self.readingListUseCase = readingListUseCase
-        self.errorSimulator = errorSimulator
     }
 
     static func make() -> AppContainer {
@@ -33,18 +30,18 @@ final class AppContainer: ObservableObject {
             let articlesRepo = MockArticlesRepository(articlesBySource: NewsFixture.articlesBySource)
             return AppContainer(
                 fetchSourcesUseCase: FetchSourcesUseCase(repository: sourcesRepo),
-                fetchArticlesUseCaseFactory: { source in
+                fetchArticlesUseCaseFactory: { _ in
                     FetchArticlesUseCase(repository: articlesRepo)
                 },
-                readingListUseCase: readingListUseCase,
-                errorSimulator: EveryThirdRequestErrorSimulator()
+                readingListUseCase: readingListUseCase
             )
         }
         #endif
 
         let requestBuilder = NewsAPIRequestBuilder()
         let baseClient = NewsAPIClient(requestBuilder: requestBuilder)
-        let client = RetryingNewsAPIClientDecorator(client: baseClient)
+        let retryingClient = RetryingNewsAPIClientDecorator(client: baseClient)
+        let client = SimulatedNetworkErrorClientDecorator(client: retryingClient)
         let store: PersistentStore
         do {
             store = try FilePersistentStore()
@@ -73,14 +70,7 @@ final class AppContainer: ObservableObject {
             fetchArticlesUseCaseFactory: { _ in
                 FetchArticlesUseCase(repository: articlesRepo)
             },
-            readingListUseCase: ManageReadingListUseCase(repository: readingListRepo),
-            errorSimulator: {
-                #if DEBUG
-                return EveryThirdRequestErrorSimulator()
-                #else
-                return nil
-                #endif
-            }()
+            readingListUseCase: ManageReadingListUseCase(repository: readingListRepo)
         )
     }
 
@@ -92,8 +82,7 @@ final class AppContainer: ObservableObject {
         ArticlesViewModel(
             source: source,
             fetchUseCase: fetchArticlesUseCaseFactory(source),
-            readingListUseCase: readingListUseCase,
-            errorSimulator: errorSimulator
+            readingListUseCase: readingListUseCase
         )
     }
 }

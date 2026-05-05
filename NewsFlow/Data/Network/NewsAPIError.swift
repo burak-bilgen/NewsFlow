@@ -8,6 +8,7 @@ enum NewsAPIError: Error, Equatable {
     case emptyResponse
     case decoding
     case apiStatus(code: String?, message: String?)
+    case simulatedNetwork
     case cancelled
 
     var userMessage: String {
@@ -17,6 +18,9 @@ enum NewsAPIError: Error, Equatable {
 
         case .network:
             return L10n.text("error.network")
+
+        case .simulatedNetwork:
+            return L10n.text("error.simulatedFetch")
 
         case .invalidURL, .invalidResponse, .emptyResponse, .decoding, .apiStatus:
             return L10n.text("error.generic")
@@ -48,6 +52,9 @@ enum NewsAPIError: Error, Equatable {
 
         case let .apiStatus(code, message):
             return "NewsAPI status error: \(code ?? "unknown") \(message ?? "")"
+
+        case .simulatedNetwork:
+            return "Simulated network failure."
 
         case .cancelled:
             return "Request cancelled."

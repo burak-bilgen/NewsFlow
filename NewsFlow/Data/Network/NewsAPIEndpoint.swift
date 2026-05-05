@@ -7,7 +7,7 @@ enum NewsAPIEndpoint: Equatable {
     var path: String {
         switch self {
         case .sources:
-            return "/v2/sources"
+            return "/v2/top-headlines/sources"
 
         case .topHeadlines:
             return "/v2/top-headlines"
@@ -17,7 +17,9 @@ enum NewsAPIEndpoint: Equatable {
     var queryItems: [URLQueryItem] {
         switch self {
         case .sources:
-            return []
+            return [
+                URLQueryItem(name: "language", value: "en")
+            ]
 
         case let .topHeadlines(sourceID, page, pageSize):
             return [
