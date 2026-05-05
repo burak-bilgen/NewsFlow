@@ -201,12 +201,12 @@ Enterprise patterns used in real production apps:
 | **Strategy** | Sorting algorithms | `ArticleSorting.swift` |
 | **Observer** | `@Published` | `*.swift` |
 | **Command** | `ToastAction` | `ToastManager.swift` |
-| **Adapter** | `ImageCacheAdapter` | `ImageCacheAdapter.swift` |
+| **Adapter** | `ImageCacheAdapter` | `ImageCacheEnvironment.swift` |
 | **Facade** | `NewsAPIClientProtocol` | `NewsAPIClient.swift` |
 | **Builder** | Request builder | `NewsAPIEndpoint.swift` |
 | **Paginator** | Smart pagination | `Paginator.swift` |
 | **Property Wrapper** | `@UserDefault` | `UserDefaultWrapper.swift` |
-| **Service Locator** | `AppContainer.shared` | `AppContainer.swift` |
+| **Service Locator** | `AppContainer.make()` | `AppContainer.swift` |
 
 ---
 

@@ -101,4 +101,3 @@ actor CachedArticlesRepository: ArticlesRepositoryProtocol, CacheBypassing {
         return try await remoteRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
     }
 }
-
