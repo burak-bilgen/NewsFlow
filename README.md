@@ -31,16 +31,19 @@ This isn't another "follow a tutorial" app. It's a **production-grade codebase**
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                  Presentation Layer                 │
-│         SwiftUI Views + @MainActor ViewModels         │
-├─────────────────────────────────────────────────────────────┤
-│                    Domain Layer                  │
-│        Use Cases, Protocols, Entities          │
-├─────────────────────────────────────────────────────────────┤
-│                     Data Layer                 │
-│   Repositories (Remote + Cache), NetworkClient   │
-└─────────────────────────────────────────────────────────────┘
++------------------+
+| Presentation     |  <-- SwiftUI + @MainActor ViewModels
++------------------+
+        |
+        v
++------------------+
+| Domain          |  <-- Use Cases, Protocols, Entities
++------------------+
+        |
+        v
++------------------+
+| Data            |  <-- Repositories, NetworkClient, Cache
++------------------+
 ```
 
 ### Core Patterns in Action
