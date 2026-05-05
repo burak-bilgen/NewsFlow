@@ -15,9 +15,7 @@ final class NewsAPIArticlesRepository: ArticlesRepositoryProtocol {
             endpoint: .topHeadlines(sourceID: sourceID, page: page, pageSize: pageSize)
         )
 
-        let articles = ArticleSorter().newestFirst(
-            response.articles.compactMap { $0.domainModel(fallbackSourceID: sourceID) }
-        )
+        let articles = response.articles.compactMap { $0.domainModel(fallbackSourceID: sourceID) }
 
         // NewsAPI returns max 100 results; if we got a full page, assume more exist
         let hasMore = articles.count >= pageSize
