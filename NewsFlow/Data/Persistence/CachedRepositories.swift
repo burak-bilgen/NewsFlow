@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Cached Sources Repository
 
-actor CachedSourcesRepository: SourcesRepositoryProtocol {
+actor CachedSourcesRepository: SourcesRepositoryProtocol, SourcesCacheBypassing {
     private let remoteRepository: SourcesRepositoryProtocol
     private let store: PersistentStore
     private let cacheDuration: TimeInterval
@@ -33,11 +33,17 @@ actor CachedSourcesRepository: SourcesRepositoryProtocol {
     func invalidateCache() async {
         await store.remove(forKey: "sources")
     }
+
+    /// Bypasses cache and fetches directly from the network.
+    func fetchSourcesBypassingCache() async throws -> [NewsSource] {
+        await store.remove(forKey: "sources")
+        return try await remoteRepository.fetchSources()
+    }
 }
 
 // MARK: - Cached Articles Repository
 
-actor CachedArticlesRepository: ArticlesRepositoryProtocol {
+actor CachedArticlesRepository: ArticlesRepositoryProtocol, CacheBypassing {
     private let remoteRepository: ArticlesRepositoryProtocol
     private let store: PersistentStore
     private let cacheDuration: TimeInterval
@@ -83,6 +89,16 @@ actor CachedArticlesRepository: ArticlesRepositoryProtocol {
     func invalidateAllCaches() async {
         // Note: PersistentStore doesn't expose enumerate — invalidate known keys
         // This is a limitation; a production system would track cached keys
+    }
+
+    /// Bypasses cache and fetches directly from the network.
+    func fetchArticlesBypassingCache(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        // Remove cached data to force network fetch
+        if page == 1 {
+            let cacheKey = "articles.\(sourceID)"
+            await store.remove(forKey: cacheKey)
+        }
+        return try await remoteRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
     }
 }
 

@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Fetch Articles Use Case
 
 protocol FetchArticlesUseCaseProtocol {
-    func execute(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
+    func execute(sourceID: String, page: Int, pageSize: Int, bypassCache: Bool) async throws -> PaginatedResult<Article>
 }
 
 final class FetchArticlesUseCase: FetchArticlesUseCaseProtocol {
@@ -18,7 +18,17 @@ final class FetchArticlesUseCase: FetchArticlesUseCaseProtocol {
         self.sortingStrategy = sortingStrategy
     }
 
-    func execute(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+    func execute(sourceID: String, page: Int, pageSize: Int, bypassCache: Bool = false) async throws -> PaginatedResult<Article> {
+        if bypassCache, let cacheBypassingRepo = repository as? CacheBypassing {
+            let result = try await cacheBypassingRepo.fetchArticlesBypassingCache(sourceID: sourceID, page: page, pageSize: pageSize)
+            let sorted = sortingStrategy.newestFirst(result.items)
+            return PaginatedResult(
+                items: sorted,
+                currentPage: result.currentPage,
+                hasMorePages: result.hasMorePages
+            )
+        }
+        
         let result = try await repository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
         let sorted = sortingStrategy.newestFirst(result.items)
         return PaginatedResult(

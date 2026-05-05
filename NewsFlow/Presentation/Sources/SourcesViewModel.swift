@@ -84,7 +84,8 @@ final class SourcesViewModel: ObservableObject {
         }
 
         do {
-            let fetchedSources = try await fetchUseCase.execute()
+            let bypassCache = !showLoading
+            let fetchedSources = try await fetchUseCase.execute(bypassCache: bypassCache)
             guard latestRequestID == requestID else { return }
 
             sources = fetchedSources

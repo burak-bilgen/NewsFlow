@@ -78,6 +78,7 @@ final class ArticlesViewModel: ObservableObject {
     }
 
     func retry() async {
+        ToastManager.shared.dismiss()
         currentPage = 1
         await fetch(mode: .retry)
     }
@@ -94,6 +95,13 @@ final class ArticlesViewModel: ObservableObject {
         currentPage += 1
         await fetch(mode: .prefetch)
         isPrefetching = false
+    }
+
+    func prefetchImages(for visibleArticles: [Article]) {
+        let urls = visibleArticles.compactMap { $0.imageURL }
+        Task { @MainActor in
+            await ImageCacheAdapter().preloadImages(from: urls, targetSize: CGSize(width: 200, height: 200))
+        }
     }
 
     func startAutomaticRefresh() {
@@ -151,10 +159,12 @@ final class ArticlesViewModel: ObservableObject {
         applyLoadingState(for: mode)
 
         do {
+            let bypassCache = mode == .pullToRefresh || mode == .retry
             async let fetchedResult = fetchUseCase.execute(
                 sourceID: source.id,
                 page: currentPage,
-                pageSize: pageSize
+                pageSize: pageSize,
+                bypassCache: bypassCache
             )
             async let savedIDs = readingListUseCase.savedArticleIDs()
             let result = try await (fetchedResult, savedIDs)
