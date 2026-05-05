@@ -1,6 +1,6 @@
 # NewsFlow
 
-> A professional news reader app built with SwiftUI, featuring a Netflix-style source browser, auto-refreshing article feeds, offline reading list support, and intelligent prefetching.
+> A professional news reader app built with SwiftUI, featuring a horizontally-scrolling source browser, auto-refreshing article feeds, offline reading list support, and intelligent prefetching.
 
 <p align="center">
   <img src="https://img.shields.io/badge/iOS-15.0%2B-blue" alt="iOS 15.0+">
@@ -14,7 +14,7 @@
 ## Features
 
 ### Core Features
-- **Netflix-Style Source Browser** — Browse English news sources grouped by category in horizontally scrolling rows
+- **Source Browser** — Browse English news sources grouped by category in horizontally scrolling rows
 - **Category Multi-Selection** — Dynamically filter sources by multiple categories client-side
 - **Hero Carousel** — Top 3 articles displayed in a cinematic auto-advancing carousel (5s interval)
 - **Reading List** — Bookmark/unbookmark articles with persistent local storage and haptic feedback
@@ -31,7 +31,6 @@
 - **Theming** — Three theme modes: Light, Dark, System
 
 ### Apple Ecosystem
-- **Home Screen & Lock Screen Widget** — Top headlines refreshed every 15 minutes
 - **Share Extension** — Save articles directly from Safari and other apps
 - **Core Spotlight** — Search articles from iOS system search
 - **Background App Refresh** — Periodic background updates for fresh content
@@ -42,6 +41,25 @@
 - Dynamic Type support
 - Reduce Motion awareness for animations
 - Haptic feedback for all interactive actions
+
+---
+
+## Screenshots
+
+### Light Mode
+
+<p align="center">
+  <img src="Screenshots/01-sources-light.png" width="250" alt="Sources Browser - Light">
+  <img src="Screenshots/04-sources-light-mock.png" width="250" alt="Sources with Mock Data - Light">
+</p>
+
+### Dark Mode
+
+<p align="center">
+  <img src="Screenshots/02-sources-dark.png" width="250" alt="Sources Browser - Dark">
+</p>
+
+> More screenshots (Articles, Settings, Article Detail, Widget, Share Extension) can be captured by running the app in the iOS Simulator and navigating through different screens.
 
 ---
 
@@ -299,21 +317,22 @@ The reading list migrated from `UserDefaults` to Core Data for proper relational
 
 ---
 
-## Widget & Extensions Setup
+## Design Patterns
 
-The project includes source code for Widget and Share Extension, but you must manually add the targets in Xcode:
+The codebase demonstrates the application of multiple Gang of Four (GoF) and architectural patterns:
 
-### Widget Extension
-1. File → New → Target → Widget Extension → Name it `NewsFlowWidget`
-2. Add files from `NewsFlowWidget/` to the new target
-3. Add `NewsAPIKey` to the Widget's `Info.plist` (or share via App Group)
-4. Build and add the widget to your Home Screen
-
-### Share Extension
-1. File → New → Target → Share Extension → Name it `NewsFlowShareExtension`
-2. Add files from `NewsFlowShareExtension/` to the new target
-3. Enable App Groups (`group.burakbilgen.NewsFlow`) for both main app and extension
-4. Add `newsflow` URL scheme to main app Info.plist for deep linking
+| Pattern | Usage | Location |
+|---------|-------|----------|
+| **MVVM** | Separation of UI and business logic | `*ViewModel.swift` |
+| **Repository** | Abstract data access with remote/local layers | `*Repository.swift` |
+| **Use Case** | Encapsulate single business operations | `*UseCase.swift` |
+| **Factory** | Create ViewModels with dependencies via `AppContainer` | `AppContainer.swift` |
+| **Adapter** | Bridge `ImageCache` actor to `ImageCacheServicing` protocol | `ImageCacheAdapter.swift` |
+| **Decorator** | Add retry behavior to `NewsAPIClient` transparently | `RetryingNewsAPIClientDecorator.swift` |
+| **Strategy** | Pluggable article sorting algorithms | `ArticleSorting.swift` |
+| **Observer** | `@Published` properties in ViewModels drive SwiftUI updates | `*ViewModel.swift` |
+| **Command** | `ToastAction` encapsulates retry logic as an object | `ToastManager.swift` |
+| **Template Method** | `Logging` protocol defines log level convenience methods | `Logger.swift` |
 
 ## Known Issues & Troubleshooting
 

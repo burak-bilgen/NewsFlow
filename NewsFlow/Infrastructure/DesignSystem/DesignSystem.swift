@@ -156,14 +156,16 @@ struct CategoryChipStyle: ViewModifier {
         content
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
+            .foregroundColor(isSelected ? .white : AppPalette.primaryRed)
             .padding(.horizontal, AppSpacing.md)
             .padding(.vertical, AppSpacing.xs)
-            .foregroundColor(isSelected ? .white : AppPalette.primaryRed)
-            .background(isSelected ? AppPalette.primaryRed : AppPalette.elevatedBackground)
-            .clipShape(Capsule())
-            .overlay(
+            .background(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : AppPalette.primaryRed.opacity(0.3), lineWidth: 1.5)
+                    .fill(isSelected ? AppPalette.primaryRed : AppPalette.elevatedBackground)
+                    .overlay(
+                        Capsule()
+                            .stroke(isSelected ? Color.clear : AppPalette.primaryRed.opacity(0.3), lineWidth: 1.5)
+                    )
             )
     }
 }

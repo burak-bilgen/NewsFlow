@@ -66,3 +66,9 @@ Config/Secrets.xcconfig
 
 # Internal planning documents (not for public review)
 PROFESSIONALIZATION_PLAN.md
+
+# Build artifacts
+DerivedData/
+build/
+*.xcresult
+*.profdata
