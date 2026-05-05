@@ -162,4 +162,83 @@ final class CachedRepositoriesTests: XCTestCase {
         let result = try await cached.fetchArticles(sourceID: "bbc", page: 1, pageSize: 3)
         XCTAssertTrue(result.hasMorePages)
     }
+
+    // MARK: - Cache Invalidation
+
+    func testInvalidateSourcesCacheForcesRemoteFetch() async throws {
+        // Arrange
+        let source = NewsSource(
+            id: "bbc",
+            name: "BBC",
+            description: "News",
+            category: "general",
+            language: "en",
+            url: nil
+        )
+        let remote = SourcesRepositorySpy(result: .success([source]))
+        let store = MockPersistentStore()
+        let cached = CachedSourcesRepository(remoteRepository: remote, store: store, cacheDuration: 300)
+
+        // First fetch populates cache
+        _ = try await cached.fetchSources()
+        XCTAssertEqual(remote.requestCount, 1)
+
+        // Second fetch uses cache
+        _ = try await cached.fetchSources()
+        XCTAssertEqual(remote.requestCount, 1)
+
+        // Act — invalidate cache
+        await cached.invalidateCache()
+
+        // Assert — next fetch should hit remote
+        _ = try await cached.fetchSources()
+        XCTAssertEqual(remote.requestCount, 2)
+    }
+
+    func testInvalidateArticlesCacheForSourceForcesRemoteFetch() async throws {
+        // Arrange
+        let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
+        let remote = ArticlesRepositorySpy(result: .success([article]))
+        let store = MockPersistentStore()
+        let cached = CachedArticlesRepository(remoteRepository: remote, store: store, cacheDuration: 60)
+
+        // First fetch populates cache
+        _ = try await cached.fetchArticles(sourceID: "bbc", page: 1, pageSize: 20)
+        XCTAssertEqual(remote.requestCount, 1)
+
+        // Second fetch uses cache
+        _ = try await cached.fetchArticles(sourceID: "bbc", page: 1, pageSize: 20)
+        XCTAssertEqual(remote.requestCount, 1)
+
+        // Act — invalidate cache for specific source
+        await cached.invalidateCache(sourceID: "bbc")
+
+        // Assert — next fetch should hit remote
+        _ = try await cached.fetchArticles(sourceID: "bbc", page: 1, pageSize: 20)
+        XCTAssertEqual(remote.requestCount, 2)
+    }
+
+    func testInvalidateArticlesCacheDoesNotAffectOtherSources() async throws {
+        // Arrange
+        let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
+        let remote = ArticlesRepositorySpy(result: .success([article]))
+        let store = MockPersistentStore()
+        let cached = CachedArticlesRepository(remoteRepository: remote, store: store, cacheDuration: 60)
+
+        // Fetch for two different sources
+        _ = try await cached.fetchArticles(sourceID: "bbc", page: 1, pageSize: 20)
+        _ = try await cached.fetchArticles(sourceID: "cnn", page: 1, pageSize: 20)
+        XCTAssertEqual(remote.requestCount, 2)
+
+        // Act — invalidate only BBC
+        await cached.invalidateCache(sourceID: "bbc")
+
+        // Assert — BBC hits remote, CNN still cached
+        _ = try await cached.fetchArticles(sourceID: "bbc", page: 1, pageSize: 20)
+        XCTAssertEqual(remote.requestCount, 3)
+
+        _ = try await cached.fetchArticles(sourceID: "cnn", page: 1, pageSize: 20)
+        XCTAssertEqual(remote.requestCount, 3) // still cached
+    }
 }
+

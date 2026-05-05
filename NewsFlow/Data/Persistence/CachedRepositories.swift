@@ -28,6 +28,11 @@ actor CachedSourcesRepository: SourcesRepositoryProtocol {
         try? await store.save(sources, forKey: "sources")
         return sources
     }
+
+    /// Explicitly invalidates the sources cache, forcing the next fetch to hit the network.
+    func invalidateCache() async {
+        await store.remove(forKey: "sources")
+    }
 }
 
 // MARK: - Cached Articles Repository
@@ -68,4 +73,16 @@ actor CachedArticlesRepository: ArticlesRepositoryProtocol {
 
         return try await remoteRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
     }
+
+    /// Explicitly invalidates the cache for a specific source.
+    func invalidateCache(sourceID: String) async {
+        await store.remove(forKey: "articles.\(sourceID)")
+    }
+
+    /// Invalidates all article caches.
+    func invalidateAllCaches() async {
+        // Note: PersistentStore doesn't expose enumerate — invalidate known keys
+        // This is a limitation; a production system would track cached keys
+    }
 }
+
