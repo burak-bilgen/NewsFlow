@@ -26,10 +26,6 @@ struct CategoryFilterView: View {
                                 Capsule()
                                     .fill(isSelected ? AppPalette.primaryRed : AppPalette.elevatedBackground)
                             )
-                            .overlay(
-                                Capsule()
-                                    .stroke(AppPalette.primaryRed.opacity(isSelected ? 0.9 : 0.7), lineWidth: 1)
-                            )
                     }
                     .buttonStyle(.plain)
                     .scaleEffect(isSelected ? 1.05 : 1.0)
