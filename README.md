@@ -59,9 +59,8 @@ This isn't another "follow a tutorial" app. It's a **production-grade codebase**
 
 ### Advanced Techniques
 
-- **`actor`** — Thread-safe caches and persistence without locks
 - **`async/await`** — All network/persistence ops are asynchronous
-- **Generic DTOs** — `凤凰<T>` decoder works with any Codable type
+- **`JSONDecoder`** — Type-safe DTO decoding with Codable
 - **Property Wrappers** — `@UserDefault` for type-safe, observable UserDefaults
 - **Keypath Navigation** — Type-safe SwiftUI `NavigationLink`
 - **Value Semantics** — Immutable models with functional `copy(_:)`
