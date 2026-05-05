@@ -11,20 +11,19 @@ A production-ready iOS news reader built with **Clean Architecture**, **MVVM**, 
 
 ---
 
-## Why This Project?
+## About This Project
 
-This isn't another "follow a tutorial" app. It's a **production-grade codebase** that demonstrates the architecture, patterns, and techniques you'd use building apps for **millions of users**.
+A production-ready iOS news reader demonstrating **Clean Architecture**, **MVVM**, and **modern Swift concurrency** — built entirely with native frameworks, zero third-party dependencies.
 
-**What you'll find:**
+**Key Architectural Decisions:**
 
-- **Zero external dependencies** — Native `URLSession`, no Alamofire/RxSwift/Combine clutter
-- **Actor-isolated concurrency** — Thread-safe caches without locks or race conditions
-- **Decorator-pattern networking** — Retry, error simulation, auth — transparently layered
-- **Two-tier caching** — Memory (50MB NSCache) + Disk (200MB, 7-day TTL)
-- **Offline-first architecture** — Disk persistence with graceful degradation
-- **Full Apple integration** — Spotlight indexing, Background Refresh, State Restoration
+- **Actor-based concurrency** — Thread-safe caches using Swift actors, no locks or race conditions
+- **Decorator pattern** — Network layer with transparent retry, error simulation, and auth decorators
+- **Two-tier caching** — Memory (50MB NSCache) + Disk (200MB, 7-day TTL) with graceful fallback
+- **Offline-first** — Disk persistence with seamless degradation when offline
+- **Full Apple ecosystem** — Spotlight indexing, Background Refresh, State Restoration
 
-**TL;DR:** If you want to show recruiters you can build apps the "right way" — this is the code to reference.
+**TL;DR:** A production-grade codebase demonstrating senior-level iOS architecture patterns in action.
 
 ---
 
