@@ -52,23 +52,6 @@ actor InMemoryReadingListRepositorySpy: ReadingListRepositoryProtocol {
     }
 }
 
-actor FixedErrorSimulator: ArticleRequestErrorSimulating {
-    private var results: [Bool]
-
-    init(results: [Bool]) {
-        self.results = results
-    }
-
-    func shouldSimulateError() async -> Bool {
-        guard !results.isEmpty else { return false }
-        return results.removeFirst()
-    }
-
-    func reset() async {
-        results.removeAll()
-    }
-}
-
 enum TestFactory {
     static let source = NewsSource(
         id: "bbc-news",

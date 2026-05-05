@@ -57,12 +57,14 @@ final class NewsAPIErrorTests: XCTestCase {
         XCTAssertEqual(NewsAPIError.emptyResponse.userMessage, L10n.text("error.generic"))
         XCTAssertEqual(NewsAPIError.decoding.userMessage, L10n.text("error.generic"))
         XCTAssertEqual(NewsAPIError.apiStatus(code: "1", message: "m").userMessage, L10n.text("error.generic"))
+        XCTAssertEqual(NewsAPIError.simulatedNetwork.userMessage, L10n.text("error.simulatedFetch"))
         XCTAssertEqual(NewsAPIError.cancelled.userMessage, "")
     }
 
     func testDebugDescriptions() {
         XCTAssertFalse(NewsAPIError.invalidURL.debugDescription.isEmpty)
         XCTAssertFalse(NewsAPIError.network.debugDescription.isEmpty)
+        XCTAssertFalse(NewsAPIError.simulatedNetwork.debugDescription.isEmpty)
         XCTAssertFalse(NewsAPIError.cancelled.debugDescription.isEmpty)
     }
 

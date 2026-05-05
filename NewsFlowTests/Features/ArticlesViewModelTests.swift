@@ -6,17 +6,14 @@ final class ArticlesViewModelTests: XCTestCase {
     private func makeViewModel(
         articles: Result<[Article], Error> = .success([]),
         readingList: ReadingListRepositoryProtocol? = nil,
-        errorSimulator: ArticleRequestErrorSimulating? = nil,
         pageSize: Int = 20
     ) -> ArticlesViewModel {
         let repository = ArticlesRepositorySpy(result: articles)
         let listRepo = readingList ?? InMemoryReadingListRepositorySpy()
-        let simulator = errorSimulator ?? FixedErrorSimulator(results: [false])
         return ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: listRepo),
-            errorSimulator: simulator,
             pageSize: pageSize
         )
     }
@@ -49,8 +46,7 @@ final class ArticlesViewModelTests: XCTestCase {
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false])
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
 
         await viewModel.loadIfNeeded()
@@ -60,19 +56,17 @@ final class ArticlesViewModelTests: XCTestCase {
     }
 
     func testLoadIfNeededDoesNotLoadWhenStateIsError() async {
-        let repository = ArticlesRepositorySpy(result: .success([]))
+        let repository = ArticlesRepositorySpy(result: .failure(NewsAPIError.simulatedNetwork))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [true])
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
         await viewModel.loadIfNeeded()
         XCTAssertEqual(viewModel.state, .error(L10n.text("error.simulatedFetch")))
 
         await viewModel.loadIfNeeded()
-        // Simulated error path does not call repository; second call skipped due to non-idle state
-        XCTAssertEqual(repository.requestCount, 0)
+        XCTAssertEqual(repository.requestCount, 1)
     }
 
     func testEmptyArticlesSetEmptyState() async {
@@ -150,8 +144,7 @@ final class ArticlesViewModelTests: XCTestCase {
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
-            readingListUseCase: ManageReadingListUseCase(repository: FailingReadingListRepository()),
-            errorSimulator: FixedErrorSimulator(results: [false])
+            readingListUseCase: ManageReadingListUseCase(repository: FailingReadingListRepository())
         )
         await viewModel.loadIfNeeded()
 
@@ -167,8 +160,7 @@ final class ArticlesViewModelTests: XCTestCase {
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
-            readingListUseCase: ManageReadingListUseCase(repository: readingList),
-            errorSimulator: FixedErrorSimulator(results: [false])
+            readingListUseCase: ManageReadingListUseCase(repository: readingList)
         )
 
         await viewModel.loadIfNeeded()
@@ -183,8 +175,7 @@ final class ArticlesViewModelTests: XCTestCase {
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false])
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
 
         await viewModel.loadIfNeeded()
@@ -201,7 +192,6 @@ final class ArticlesViewModelTests: XCTestCase {
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 1
         )
         await viewModel.loadIfNeeded()
@@ -216,14 +206,15 @@ final class ArticlesViewModelTests: XCTestCase {
 
     func testSimulatedErrorShowsWarningOnPullToRefreshWithExistingArticles() async {
         let article = TestFactory.article(id: "1", title: "Existing", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, true])
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
 
         await viewModel.loadIfNeeded()
+        repository.result = .failure(NewsAPIError.simulatedNetwork)
         await viewModel.pullToRefresh()
 
         // Toast is shown but state remains loaded
@@ -231,12 +222,10 @@ final class ArticlesViewModelTests: XCTestCase {
     }
 
     func testSimulatedErrorShowsErrorStateWhenNoArticles() async {
-        let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [true])
+            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .failure(NewsAPIError.simulatedNetwork))),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
 
         await viewModel.loadIfNeeded()
@@ -248,17 +237,18 @@ final class ArticlesViewModelTests: XCTestCase {
 
     func testSimulatedErrorOnLoadMoreDoesNotChangeState() async {
         let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .success([article]))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, true]),
             pageSize: 1
         )
 
         await viewModel.loadIfNeeded()
         XCTAssertEqual(viewModel.state, .loaded)
 
+        repository.result = .failure(NewsAPIError.simulatedNetwork)
         await viewModel.loadMore()
         XCTAssertEqual(viewModel.state, .loaded)
         // Toast is shown but state remains loaded
@@ -268,11 +258,11 @@ final class ArticlesViewModelTests: XCTestCase {
 
     func testRetryRecoversFromError() async {
         let article = TestFactory.article(id: "1", title: "Test", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .failure(NewsAPIError.simulatedNetwork))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [true, false])
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
 
         await viewModel.loadIfNeeded()
@@ -281,6 +271,7 @@ final class ArticlesViewModelTests: XCTestCase {
             return
         }
 
+        repository.result = .success([article])
         await viewModel.retry()
         XCTAssertEqual(viewModel.state, .loaded)
     }
@@ -290,8 +281,7 @@ final class ArticlesViewModelTests: XCTestCase {
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false])
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
         await viewModel.loadIfNeeded()
         XCTAssertEqual(viewModel.state, .empty)
@@ -313,7 +303,6 @@ final class ArticlesViewModelTests: XCTestCase {
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 2
         )
 
@@ -391,15 +380,16 @@ final class ArticlesViewModelTests: XCTestCase {
 
     func testWarningMessageIsClearedOnSuccess() async {
         let article = TestFactory.article(id: "1", title: "A", publishedAt: Date())
+        let repository = ArticlesRepositorySpy(result: .failure(NewsAPIError.simulatedNetwork))
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
-            fetchUseCase: FetchArticlesUseCase(repository: ArticlesRepositorySpy(result: .success([article]))),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [true, false])
+            fetchUseCase: FetchArticlesUseCase(repository: repository),
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
         await viewModel.loadIfNeeded()
         XCTAssertEqual(viewModel.state, .error(L10n.text("error.simulatedFetch")))
 
+        repository.result = .success([article])
         await viewModel.retry()
         XCTAssertEqual(viewModel.state, .loaded)
     }
@@ -435,8 +425,7 @@ final class ArticlesViewModelTests: XCTestCase {
         let viewModel = ArticlesViewModel(
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
-            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false])
+            readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy())
         )
 
         Task {
@@ -476,7 +465,6 @@ final class ArticlesViewModelTests: XCTestCase {
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 3
         )
 
@@ -502,7 +490,6 @@ final class ArticlesViewModelTests: XCTestCase {
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 2
         )
 
@@ -544,7 +531,6 @@ final class ArticlesViewModelTests: XCTestCase {
             source: TestFactory.source,
             fetchUseCase: FetchArticlesUseCase(repository: repository),
             readingListUseCase: ManageReadingListUseCase(repository: InMemoryReadingListRepositorySpy()),
-            errorSimulator: FixedErrorSimulator(results: [false, false]),
             pageSize: 2
         )
 
@@ -568,22 +554,4 @@ final class ArticlesViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isPrefetching)
     }
 
-    // MARK: - Error Simulator
-
-    func testEveryThirdRequestErrorSimulatorIsDeterministic() async {
-        let simulator = EveryThirdRequestErrorSimulator()
-        let first = await simulator.shouldSimulateError()
-        let second = await simulator.shouldSimulateError()
-        let third = await simulator.shouldSimulateError()
-        let fourth = await simulator.shouldSimulateError()
-
-        XCTAssertFalse(first)
-        XCTAssertFalse(second)
-        XCTAssertTrue(third)
-        XCTAssertFalse(fourth)
-
-        await simulator.reset()
-        let afterReset = await simulator.shouldSimulateError()
-        XCTAssertFalse(afterReset)
-    }
 }

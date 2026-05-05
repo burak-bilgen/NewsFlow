@@ -19,7 +19,8 @@ final class NewsAPIRequestBuilderTests: XCTestCase {
 
         XCTAssertEqual(components.scheme, "https")
         XCTAssertEqual(components.host, "newsapi.org")
-        XCTAssertEqual(components.path, "/v2/sources")
+        XCTAssertEqual(components.path, "/v2/top-headlines/sources")
+        XCTAssertEqual(queryItems["language"], "en")
         XCTAssertEqual(queryItems["apiKey"], "test-key")
         XCTAssertEqual(request.httpMethod, "GET")
         XCTAssertEqual(request.timeoutInterval, 12)
@@ -41,6 +42,9 @@ final class NewsAPIRequestBuilderTests: XCTestCase {
 
         XCTAssertEqual(components.path, "/v2/top-headlines")
         XCTAssertEqual(queryItems["sources"], "bbc-news")
+        XCTAssertEqual(queryItems["page"], "1")
+        XCTAssertEqual(queryItems["pageSize"], "20")
+        XCTAssertNil(queryItems["language"])
         XCTAssertEqual(queryItems["apiKey"], "test-key")
     }
 
@@ -174,7 +178,7 @@ final class NewsAPIClientTests: XCTestCase {
 
         let data = Data("{}".utf8)
         let response = URLResponse(
-            url: URL(string: "https://newsapi.org/v2/sources")!,
+            url: URL(string: "https://newsapi.org/v2/top-headlines/sources")!,
             mimeType: nil,
             expectedContentLength: 0,
             textEncodingName: nil
@@ -324,5 +328,75 @@ final class NewsAPIClientTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+}
+
+// MARK: - Simulated Network Error Decorator Tests
+
+final class SimulatedNetworkErrorClientDecoratorTests: XCTestCase {
+    private struct TestResponse: NewsAPIResponseEnvelope {
+        let status: String
+        let code: String?
+        let message: String?
+    }
+
+    private final class StubNewsAPIClient: NewsAPIClientProtocol {
+        private(set) var requestCount = 0
+
+        func request<Response: NewsAPIResponseEnvelope>(
+            _ responseType: Response.Type,
+            endpoint: NewsAPIEndpoint
+        ) async throws -> Response {
+            requestCount += 1
+            let response = TestResponse(status: "ok", code: nil, message: nil)
+            guard let typedResponse = response as? Response else {
+                throw NewsAPIError.decoding
+            }
+            return typedResponse
+        }
+    }
+
+    func testDecoratorFailsExactlyEveryThirdRequestWithoutCallingWrappedClient() async throws {
+        // Arrange
+        let client = StubNewsAPIClient()
+        let counter = NetworkRequestFailureCounter(failingInterval: 3)
+        let decorator = SimulatedNetworkErrorClientDecorator(
+            client: client,
+            failureCounter: counter
+        )
+
+        // Act
+        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
+        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
+
+        do {
+            _ = try await decorator.request(TestResponse.self, endpoint: .sources)
+            XCTFail("Expected simulated network error")
+        } catch let error as NewsAPIError {
+            XCTAssertEqual(error, .simulatedNetwork)
+        }
+
+        _ = try await decorator.request(TestResponse.self, endpoint: .sources)
+
+        // Assert
+        XCTAssertEqual(client.requestCount, 3)
+    }
+
+    func testFailureCounterCanReset() async {
+        // Arrange
+        let counter = NetworkRequestFailureCounter(failingInterval: 3)
+
+        // Act
+        let first = await counter.shouldFailNextRequest()
+        let second = await counter.shouldFailNextRequest()
+        let third = await counter.shouldFailNextRequest()
+        await counter.reset()
+        let afterReset = await counter.shouldFailNextRequest()
+
+        // Assert
+        XCTAssertFalse(first)
+        XCTAssertFalse(second)
+        XCTAssertTrue(third)
+        XCTAssertFalse(afterReset)
     }
 }
