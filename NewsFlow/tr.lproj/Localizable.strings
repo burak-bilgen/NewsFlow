@@ -26,6 +26,7 @@
 "error.network" = "Bağlantınızı kontrol edip tekrar deneyin.";
 "error.missingApiKey" = "NewsAPI anahtarı eksik. Kurulum adımlarını kontrol edin.";
 "error.simulatedFetch" = "Bilgiler alınamadı!";
+"error.cancelled" = "İstek iptal edildi";
 
 "settings.title" = "Ayarlar";
 "settings.appearance" = "Görünüm";

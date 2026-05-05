@@ -69,6 +69,15 @@ final class ToastManager: ObservableObject {
         action: ToastAction? = nil,
         onDismiss: (() -> Void)? = nil
     ) {
+        guard !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            print("[ToastManager] WARNING: Empty message rejected")
+            return
+        }
+        
+        #if DEBUG
+        print("[ToastManager] Showing: \(message) [\(style)]")
+        #endif
+        
         let toast = Toast(
             message: message,
             style: style,

@@ -26,6 +26,7 @@
 "error.network" = "Check your connection and try again.";
 "error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
 "error.simulatedFetch" = "Could not retrieve information.";
+"error.cancelled" = "Request cancelled";
 
 "settings.title" = "Settings";
 "settings.appearance" = "Appearance";

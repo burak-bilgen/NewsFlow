@@ -26,7 +26,7 @@ enum NewsAPIError: Error, Equatable {
             return L10n.text("error.generic")
 
         case .cancelled:
-            return ""
+            return L10n.text("error.cancelled")
         }
     }
 
