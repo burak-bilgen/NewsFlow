@@ -55,7 +55,7 @@ struct SourceMediaCard: View {
     private var fallbackInitials: some View {
         Text(source.nameInitials)
             .font(.system(size: 32, weight: .black, design: .serif))
-            .foregroundColor(AppPalette.primaryRed)
+            .foregroundColor(AppPalette.brandPrimary)
             .frame(width: 80, height: 80)
     }
 }
@@ -137,10 +137,10 @@ private struct CachedAsyncImage: View {
     private var placeholder: some View {
         ZStack {
             RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous)
-                .fill(AppPalette.primaryRed.opacity(0.08))
+                .fill(AppPalette.brandPrimary.opacity(0.08))
             Image(systemName: "newspaper.fill")
                 .font(.system(size: 24))
-                .foregroundColor(AppPalette.primaryRed.opacity(0.3))
+                .foregroundColor(AppPalette.brandPrimary.opacity(0.3))
         }
     }
 }

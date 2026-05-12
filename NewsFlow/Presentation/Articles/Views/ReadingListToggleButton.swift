@@ -17,9 +17,9 @@ struct ReadingListToggleButton: View {
         var savedForegroundColor: Color {
             switch self {
             case .card:
-                return AppPalette.goldAccent
+                return AppPalette.warning
             case .hero:
-                return AppPalette.goldAccent
+                return AppPalette.warning
             }
         }
 

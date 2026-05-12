@@ -49,3 +49,12 @@
 "category.science" = "Bilim";
 "category.sports" = "Spor";
 "category.technology" = "Teknoloji";
+
+"tab.feed" = "Akış";
+"tab.sources" = "Kaynaklar";
+"tab.readingList" = "Okuma Listem";
+"tab.settings" = "Ayarlar";
+
+"article.summarize" = "AI ile Özetle";
+"article.summarizing" = "Özetleniyor...";
+"article.summary.title" = "AI Özeti";

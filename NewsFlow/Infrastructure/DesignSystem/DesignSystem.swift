@@ -77,7 +77,7 @@ enum AppPalette {
     // Text
     static let textPrimary = Color.primary
     static let textSecondary = Color.secondary
-    static let textTertiary = Color.tertiary
+    static let textTertiary = Color.secondary.opacity(0.6)
     static let textOnImage = Color.white
 
     // Brand — deep blue + coral accent
@@ -93,6 +93,7 @@ enum AppPalette {
     static let success = Color(red: 0.25, green: 0.78, blue: 0.45)
     static let warning = Color(red: 1.0, green: 0.68, blue: 0.18)
     static let error = Color(red: 0.92, green: 0.28, blue: 0.25)
+    static let goldAccent = Color(red: 0.85, green: 0.65, blue: 0.13)
 
     // Legacy aliases
     static let primaryRed = accent
@@ -186,7 +187,7 @@ struct ModernButtonStyle: ButtonStyle {
             .frame(maxWidth: isFullWidth ? .infinity : nil)
             .padding(.horizontal, AppSpacing.xl)
             .padding(.vertical, AppSpacing.sm)
-            .background(color.gradient)
+            .background(LinearGradient(colors: [color], startPoint: .leading, endPoint: .trailing))
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)

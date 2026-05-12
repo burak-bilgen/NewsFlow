@@ -1,10 +1,7 @@
 import SwiftUI
 
-// MARK: - SourcesView
-
 struct SourcesView: View {
     @StateObject private var viewModel: SourcesViewModel
-    @EnvironmentObject private var router: AppRouter
     private let articlesViewModel: (NewsSource) -> ArticlesViewModel
     var heroNamespace: Namespace.ID?
 
@@ -23,27 +20,9 @@ struct SourcesView: View {
             AppPalette.screenBackground.ignoresSafeArea()
             content
         }
-        .navigationTitle("")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(AppPalette.primaryRed)
-                        .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(AppPalette.primaryRedMuted)
-                        )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .task {
-            await viewModel.load()
-        }
+        .navigationTitle(L10n.text("sources.title"))
+        .navigationBarTitleDisplayMode(.large)
+        .task { await viewModel.load() }
         .toastOverlay()
         .offlineAware()
         .accessibilityIdentifier("sources.screen")
@@ -60,7 +39,7 @@ struct SourcesView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.97)))
         case .empty:
             StateMessageView(
-                systemImage: "newspaper",
+                systemImage: "square.grid.2x2",
                 title: L10n.text("sources.empty.title"),
                 message: L10n.text("sources.empty.message")
             )
@@ -81,7 +60,7 @@ struct SourcesView: View {
     private var sourceList: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
-                mastheadHeader
+                sectionHeader
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.sm)
                     .padding(.bottom, AppSpacing.lg)
@@ -106,89 +85,35 @@ struct SourcesView: View {
                         value: viewModel.state
                     )
                 }
-
-                // Newspaper footer decoration
-                newspaperFooter
-                    .padding(.top, AppSpacing.xl)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
             .padding(.bottom, AppSpacing.xl)
         }
-        .refreshable {
-            await viewModel.refresh()
-        }
+        .refreshable { await viewModel.refresh() }
         .accessibilityIdentifier("sources.list")
     }
 
-    private var newspaperFooter: some View {
-        VStack(spacing: AppSpacing.sm) {
-            newspaperDivider
+    private var sectionHeader: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.xxs) {
             HStack(spacing: AppSpacing.sm) {
-                Text("Edition 1")
-                    .font(.system(size: 10, weight: .semibold, design: .serif))
-                    .foregroundColor(AppPalette.textSecondary)
-                Spacer()
-                Text("All Rights Reserved")
-                    .font(.system(size: 10, weight: .semibold, design: .serif))
-                    .foregroundColor(AppPalette.textSecondary)
-            }
-            newspaperDivider
-        }
-        .padding(.horizontal, AppSpacing.md)
-    }
-
-    // MARK: - Masthead Header (Newspaper Style)
-
-    @ViewBuilder
-    private var mastheadHeader: some View {
-        VStack(spacing: 0) {
-            // Top decorative line
-            newspaperDivider
-                .padding(.bottom, AppSpacing.sm)
-
-            // Main masthead title with newspaper effect
-            Text("NEWS FLOW")
-                .font(.system(size: 40, weight: .black, design: .serif))
-                .foregroundColor(AppPalette.textPrimary)
-                .shadow(color: Color.black.opacity(0.15), radius: 2, x: 1, y: 1)
-                .scaleEffect(1.0)
-                .animation(.easeOut(duration: 0.6).delay(0.1), value: true)
-
-            // Double-rule separator (classic newspaper)
-            VStack(spacing: 2) {
-                newspaperDivider
-                newspaperDivider
-            }
-            .padding(.vertical, AppSpacing.sm)
-
-            // Date and subtitle row
-            HStack {
-                Text(Date(), style: .date)
-                    .font(.system(size: 11, weight: .semibold, design: .serif))
-                    .foregroundColor(AppPalette.textSecondary)
-                    .textCase(.uppercase)
-
-                Spacer()
-
-                Text(L10n.text("sources.mastheadSubtitle"))
-                    .font(.system(size: 11, weight: .semibold, design: .serif))
-                    .foregroundColor(AppPalette.textSecondary)
+                Circle()
+                    .fill(AppPalette.brandPrimary)
+                    .frame(width: 8, height: 8)
+                Text(L10n.text("sources.title").uppercased())
+                    .font(AppTypography.sectionTitle.font)
+                    .foregroundColor(AppPalette.brandPrimary)
             }
 
-            // Bottom thin rule
-            newspaperDivider
+            Text(L10n.text("sources.mastheadSubtitle"))
+                .font(AppTypography.caption.font)
+                .foregroundColor(AppPalette.textTertiary)
+
+            Rectangle()
+                .fill(AppPalette.border)
+                .frame(height: 1)
                 .padding(.top, AppSpacing.sm)
         }
     }
-
-    private var newspaperDivider: some View {
-        Rectangle()
-            .fill(AppPalette.textPrimary.opacity(0.85))
-            .frame(height: 1)
-    }
 }
-
-// MARK: - Previews
 
 #if DEBUG
 #Preview("Sources - Loaded") {

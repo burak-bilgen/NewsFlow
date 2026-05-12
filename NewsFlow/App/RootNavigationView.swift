@@ -17,24 +17,16 @@ final class AppRouter: ObservableObject, AppRouterProtocol {
 struct RootNavigationView: View {
     @ObservedObject private var container: AppContainer
     @StateObject private var router = AppRouter()
-    @Namespace private var heroAnimation
 
     init(container: AppContainer) {
         self.container = container
     }
 
     var body: some View {
-        NavigationView {
-            FeedView(
-                viewModel: container.makeFeedViewModel(),
-                makeSourcesViewModel: { container.makeSourcesViewModel() },
-                makeArticlesViewModel: { container.makeArticlesViewModel(source: $0) }
-            )
-        }
-        .navigationViewStyle(.stack)
-        .environmentObject(router)
-        .onAppear {
-            AppLaunchMetrics.recordLaunchCompleted()
-        }
+        MainTabView(container: container)
+            .environmentObject(router)
+            .onAppear {
+                AppLaunchMetrics.recordLaunchCompleted()
+            }
     }
 }

@@ -49,3 +49,12 @@
 "category.science" = "Science";
 "category.sports" = "Sports";
 "category.technology" = "Technology";
+
+"tab.feed" = "Feed";
+"tab.sources" = "Sources";
+"tab.readingList" = "Reading List";
+"tab.settings" = "Settings";
+
+"article.summarize" = "Summarize with AI";
+"article.summarizing" = "Summarizing...";
+"article.summary.title" = "AI Summary";

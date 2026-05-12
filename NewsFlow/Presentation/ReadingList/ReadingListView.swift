@@ -7,7 +7,6 @@ import SwiftUI
 @MainActor
 struct ReadingListView: View {
     @StateObject private var viewModel: ReadingListViewModel
-    @Environment(\.dismiss) private var dismiss
 
     init(viewModel: ReadingListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -20,15 +19,6 @@ struct ReadingListView: View {
         }
         .navigationTitle(L10n.text("readingList.title"))
         .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(AppPalette.textSecondary)
-                }
-            }
-        }
         .task {
             await viewModel.load()
         }

@@ -108,4 +108,8 @@ final class AppContainer: ObservableObject {
             readingListUseCase: readingListUseCase
         )
     }
+
+    func makeReadingListViewModel() -> ReadingListViewModel {
+        ReadingListViewModel(useCase: readingListUseCase)
+    }
 }

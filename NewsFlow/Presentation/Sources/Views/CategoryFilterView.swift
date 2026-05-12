@@ -21,10 +21,10 @@ struct CategoryFilterView: View {
                             .lineLimit(1)
                             .padding(.horizontal, AppSpacing.md)
                             .padding(.vertical, AppSpacing.xs)
-                            .foregroundColor(isSelected ? .white : AppPalette.primaryRed)
+                            .foregroundColor(isSelected ? .white : AppPalette.brandPrimary)
                             .background(
                                 Capsule()
-                                    .fill(isSelected ? AppPalette.primaryRed : AppPalette.elevatedBackground)
+                                    .fill(isSelected ? AppPalette.brandPrimary : AppPalette.elevatedBackground)
                             )
                     }
                     .buttonStyle(.plain)

@@ -4,81 +4,106 @@ struct ArticleHeroCard: View {
     let article: Article
     let sourceName: String
     var heroNamespace: Namespace.ID?
-    var sourceID: String?
-    var isSaved: Bool = false
-    var onToggle: (() -> Void)?
-    @State private var isPressed = false
+    var sourceID: String = ""
+    let isSaved: Bool
+    let onToggle: () -> Void
 
     var body: some View {
-        NavigationLink {
-            ArticleDetailView(
-                article: article,
-                sourceName: sourceName,
-                isSaved: isSaved,
-                onToggleReadingList: onToggle
-            )
-        } label: {
-            ZStack(alignment: .topTrailing) {
-                cardContent
-                
-                if let onToggle = onToggle {
-                    ReadingListToggleButton(
-                        isSaved: isSaved,
-                        displayStyle: .hero,
-                        action: onToggle
-                    )
-                    .padding(AppSpacing.md)
-                }
+        ZStack(alignment: .bottomLeading) {
+            NavigationLink {
+                ArticleDetailView(
+                    article: article,
+                    sourceName: sourceName,
+                    isSaved: isSaved,
+                    onToggleReadingList: onToggle
+                )
+            } label: {
+                heroContent
             }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
-        .scaleEffect(isPressed ? 0.97 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
-        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
-            isPressed = pressing
-        }, perform: {})
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
+        .shadow(color: AppPalette.shadowColorStrong, radius: 12, x: 0, y: 4)
     }
 
-    private var cardContent: some View {
-        ZStack(alignment: .bottomLeading) {
-            ArticleImageView(url: article.imageURL)
-                .ifLet(heroNamespace, sourceID) { view, ns, id in
-                    view.matchedGeometryEffect(id: "source.\(id)", in: ns)
+    private var heroContent: some View {
+        Group {
+            if let url = article.imageURL {
+                if let ns = heroNamespace {
+                    ArticleImageView(url: url)
+                        .matchedGeometryEffect(id: "image-\(article.id)", in: ns)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .overlay(gradientOverlay)
+                        .overlay(overlayContent, alignment: .bottomLeading)
+                } else {
+                    ArticleImageView(url: url)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .overlay(gradientOverlay)
+                        .overlay(overlayContent, alignment: .bottomLeading)
                 }
-
-            LinearGradient(
-                colors: [
-                    AppPalette.gradientStart,
-                    AppPalette.gradientMid,
-                    AppPalette.gradientEnd
-                ],
-                startPoint: .bottom,
-                endPoint: .top
-            )
-
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack {
-                    Spacer()
-                }
-
-                Spacer(minLength: 60)
-
-                Text(article.title)
-                    .font(.system(size: 22, weight: .black, design: .serif))
-                    .foregroundColor(.white)
-                    .lineLimit(3)
-                    .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 2)
-
-                Text(article.displayDate)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.9))
-                    .shadow(color: .black.opacity(0.6), radius: 3, x: 0, y: 1)
+            } else {
+                Rectangle()
+                    .fill(AppPalette.brandPrimaryMuted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlay(
+                        Image(systemName: "newspaper")
+                            .font(.system(size: 48))
+                            .foregroundColor(AppPalette.brandPrimary.opacity(0.3))
+                    )
+                    .overlay(gradientOverlay)
+                    .overlay(overlayContent, alignment: .bottomLeading)
             }
-            .padding(AppSpacing.lg)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous))
-        .shadow(color: AppPalette.shadowColor, radius: 20, x: 0, y: 10)
+    }
+
+    private var gradientOverlay: some View {
+        LinearGradient(
+            colors: [AppPalette.gradientDark, AppPalette.gradientMid, AppPalette.gradientClear],
+            startPoint: .bottom,
+            endPoint: .top
+        )
+    }
+
+    private var overlayContent: some View {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                HStack(spacing: AppSpacing.xs) {
+                    Text(sourceName.uppercased())
+                        .font(AppTypography.badge.font)
+                        .foregroundColor(AppPalette.accent)
+
+                    Circle()
+                        .fill(Color.white.opacity(0.4))
+                        .frame(width: 3, height: 3)
+
+                    if article.estimatedReadingMinutes > 0 {
+                        Text(article.readingTimeDisplay)
+                            .font(AppTypography.caption.font)
+                            .foregroundColor(.white.opacity(0.7))
+                        Circle()
+                            .fill(Color.white.opacity(0.4))
+                            .frame(width: 3, height: 3)
+                    }
+
+                    Text(article.displayDate)
+                        .font(AppTypography.caption.font)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+
+            Text(article.title)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.white)
+                .lineLimit(3)
+                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+
+            if let description = article.description {
+                Text(description)
+                    .font(AppTypography.body.font)
+                    .foregroundColor(.white.opacity(0.75))
+                    .lineLimit(2)
+            }
+        }
+        .padding(AppSpacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -87,10 +112,10 @@ struct ArticleHeroCard: View {
     ArticleHeroCard(
         article: NewsFixture.articlesBySource["bbc-news"]![0],
         sourceName: "BBC News",
-        heroNamespace: nil,
-        sourceID: nil
+        isSaved: false,
+        onToggle: {}
     )
-    .frame(height: 400)
+    .frame(height: 380)
     .padding()
 }
 #endif

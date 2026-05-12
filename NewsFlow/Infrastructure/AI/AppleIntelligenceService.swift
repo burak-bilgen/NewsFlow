@@ -1,7 +1,7 @@
 import Foundation
 import NaturalLanguage
 
-enum AIAvailability {
+enum AIAvailability: Equatable {
     case available
     case unavailable(String)
 
@@ -22,35 +22,24 @@ final class AppleIntelligenceService: IntelligenceServicing {
     static let shared = AppleIntelligenceService()
 
     var availability: AIAvailability {
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18, *) {
             return .available
         }
         return .unavailable("Requires iOS 18+")
     }
 
-    var isAvailable: Bool { availability.isAvailable }
-
     func generateSummary(for text: String) async -> String? {
-        guard #available(iOS 18.0, *) else { return nil }
+        guard #available(iOS 18, *) else { return fallbackSummary(for: text) }
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
-
-        let generator = NLGenerateSummary()
-        do {
-            let summary = try await generator.generateSummary(for: text, type: .paragraph)
-            return summary.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
-        } catch {
-            NewsFlowLogger.shared.error("Summary generation failed: \(error.localizedDescription)", category: "AI")
-            return nil
-        }
+        return fallbackSummary(for: text)
     }
 
     func extractTopics(from text: String) -> [String] {
         let tagger = NLTagger(tagSchemes: [.nameType])
         tagger.string = text
-        let options: NLTagger.Options = [.omitPunctuation, .omitWhitespace, .joinNames]
         var topics: [String] = []
 
-        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .nameType, options: options) { tag, tokenRange in
+        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .nameType, options: [.omitPunctuation, .omitWhitespace, .joinNames]) { tag, tokenRange in
             if tag == .placeName || tag == .organizationName || tag == .personalName {
                 topics.append(String(text[tokenRange]))
             }
@@ -63,17 +52,6 @@ final class AppleIntelligenceService: IntelligenceServicing {
     func importanceScore(for article: Article) async -> Int {
         var score = 0
 
-        if let summary = await generateSummary(for: "\(article.title). \(article.description ?? "")") {
-            score += min(summary.count / 10, 15)
-        }
-
-        if #available(iOS 18.0, *) {
-            let generator = NLGenerateSummary()
-            if let keywords = try? await generator.generateSummary(for: article.title, type: .keyphrase) {
-                score += keywords.isEmpty ? 0 : 5
-            }
-        }
-
         if let description = article.description {
             let topics = extractTopics(from: description)
             score += min(topics.count * 3, 15)
@@ -81,21 +59,36 @@ final class AppleIntelligenceService: IntelligenceServicing {
 
         if let publishedAt = article.publishedAt {
             let hoursAgo = Date().timeIntervalSince(publishedAt) / 3600
-            if hoursAgo < 6 { score += 20 }
-            else if hoursAgo < 24 { score += 15 }
-            else { score += 5 }
+            if hoursAgo < 3 { score += 25 }
+            else if hoursAgo < 6 { score += 20 }
+            else if hoursAgo < 12 { score += 15 }
+            else if hoursAgo < 24 { score += 10 }
+            else if hoursAgo < 48 { score += 5 }
+            else { score += 2 }
         }
 
-        if article.imageURL != nil { score += 10 }
-        if let desc = article.description, desc.count > 100 { score += 5 }
+        if article.imageURL != nil { score += 12 }
+        if let desc = article.description {
+            let wordCount = desc.split(separator: " ").count
+            score += min(wordCount / 5, 8)
+        }
+
+        let titleLength = article.title.split(separator: " ").count
+        if titleLength >= 5 { score += 5 }
 
         return score
+    }
+
+    private func fallbackSummary(for text: String) -> String? {
+        guard !text.isEmpty else { return nil }
+        let words = text.split(separator: " ")
+        if words.count <= 55 { return text }
+        return words.prefix(55).joined(separator: " ") + "..."
     }
 }
 
 final class FallbackIntelligenceService: IntelligenceServicing {
     let availability: AIAvailability = .unavailable("Fallback")
-
     private let scorer = SmartArticleScorer()
 
     func generateSummary(for text: String) async -> String? {
@@ -127,11 +120,11 @@ final class FallbackIntelligenceService: IntelligenceServicing {
 enum IntelligenceFactory {
     static func make() -> IntelligenceServicing {
         let ai = AppleIntelligenceService()
-        if ai.isAvailable {
-            NewsFlowLogger.shared.info("Apple Intelligence is available — using AI features", category: "AI")
+        if ai.availability.isAvailable {
+            NewsFlowLogger.shared.info("Apple Intelligence available", category: "AI")
             return ai
         }
-        NewsFlowLogger.shared.info("Apple Intelligence not available — using fallback", category: "AI")
+        NewsFlowLogger.shared.info("Apple Intelligence unavailable, using fallback", category: "AI")
         return FallbackIntelligenceService()
     }
 }
