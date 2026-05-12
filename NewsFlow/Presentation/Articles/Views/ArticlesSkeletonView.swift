@@ -62,7 +62,10 @@ struct ArticleHeroSkeleton: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     ArticlesSkeletonView()
 }
+#endif
+
 #endif

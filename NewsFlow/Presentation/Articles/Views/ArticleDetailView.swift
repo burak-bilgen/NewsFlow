@@ -361,6 +361,7 @@ private struct AudioWaveBar: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     NavigationView {
         ArticleDetailView(
@@ -369,4 +370,6 @@ private struct AudioWaveBar: View {
         )
     }
 }
+#endif
+
 #endif

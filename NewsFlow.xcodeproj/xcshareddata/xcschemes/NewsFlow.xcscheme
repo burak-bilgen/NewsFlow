@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "67305E742F9E05210034CAA8"
+               BlueprintIdentifier = "6757606A2FA8DE1B003F06BE"
                BuildableName = "NewsFlow.app"
                BlueprintName = "NewsFlow"
                ReferencedContainer = "container:NewsFlow.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "67305E872F9E05220034CAA8"
+               BlueprintIdentifier = "6757607C2FA8DE1C003F06BE"
                BuildableName = "NewsFlowTests.xctest"
                BlueprintName = "NewsFlowTests"
                ReferencedContainer = "container:NewsFlow.xcodeproj">
@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "67305E912F9E05220034CAA8"
+               BlueprintIdentifier = "675760862FA8DE1C003F06BE"
                BuildableName = "NewsFlowUITests.xctest"
                BlueprintName = "NewsFlowUITests"
                ReferencedContainer = "container:NewsFlow.xcodeproj">
@@ -61,7 +61,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "67305E872F9E05220034CAA8"
+               BlueprintIdentifier = "6757607C2FA8DE1C003F06BE"
                BuildableName = "NewsFlowTests.xctest"
                BlueprintName = "NewsFlowTests"
                ReferencedContainer = "container:NewsFlow.xcodeproj">
@@ -71,7 +71,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "67305E912F9E05220034CAA8"
+               BlueprintIdentifier = "675760862FA8DE1C003F06BE"
                BuildableName = "NewsFlowUITests.xctest"
                BlueprintName = "NewsFlowUITests"
                ReferencedContainer = "container:NewsFlow.xcodeproj">
@@ -93,7 +93,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "67305E742F9E05210034CAA8"
+            BlueprintIdentifier = "6757606A2FA8DE1B003F06BE"
             BuildableName = "NewsFlow.app"
             BlueprintName = "NewsFlow"
             ReferencedContainer = "container:NewsFlow.xcodeproj">
@@ -110,7 +110,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "67305E742F9E05210034CAA8"
+            BlueprintIdentifier = "6757606A2FA8DE1B003F06BE"
             BuildableName = "NewsFlow.app"
             BlueprintName = "NewsFlow"
             ReferencedContainer = "container:NewsFlow.xcodeproj">

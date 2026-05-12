@@ -64,9 +64,12 @@ struct FeaturedCarouselView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     let vm = NewsFixture.previewViewModel()
     FeaturedCarouselView(viewModel: vm)
         .padding()
 }
+#endif
+
 #endif

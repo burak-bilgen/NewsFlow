@@ -1,6 +1,7 @@
 import Foundation
 
 protocol ReadingListRepositoryProtocol {
+    func savedArticles() async -> [Article]
     func savedArticleIDs() async -> Set<String>
     func isSaved(articleID: String) async -> Bool
     func add(_ article: Article) async throws

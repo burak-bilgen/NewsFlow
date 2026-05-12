@@ -32,22 +32,14 @@ final class BackgroundRefreshManager {
     private func handleRefresh(task: BGAppRefreshTask) {
         schedule()
 
-        let queue = OperationQueue()
-        queue.maxConcurrentOperationCount = 1
-
-        let refreshOperation = BlockOperation { [weak self] in
-            Task {
-                await self?.performRefresh()
-            }
+        let refreshTask = Task { [weak self] in
+            await self?.performRefresh()
+            task.setTaskCompleted(success: !Task.isCancelled)
         }
 
-        task.expirationHandler = { queue.cancelAllOperations() }
-
-        refreshOperation.completionBlock = {
-            task.setTaskCompleted(success: !refreshOperation.isCancelled)
+        task.expirationHandler = {
+            refreshTask.cancel()
         }
-
-        queue.addOperations([refreshOperation], waitUntilFinished: false)
     }
 
     private func performRefresh() async {

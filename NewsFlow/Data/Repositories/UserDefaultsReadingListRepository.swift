@@ -15,6 +15,12 @@ actor UserDefaultsReadingListRepository: ReadingListRepositoryProtocol {
         Set(loadArticles().map(\.id))
     }
 
+    func savedArticles() async -> [Article] {
+        loadArticles().sorted {
+            ($0.publishedAt ?? .distantPast) > ($1.publishedAt ?? .distantPast)
+        }
+    }
+
     func isSaved(articleID: String) async -> Bool {
         loadArticles().contains { $0.id == articleID }
     }

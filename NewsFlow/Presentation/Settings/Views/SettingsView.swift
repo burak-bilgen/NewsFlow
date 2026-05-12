@@ -145,6 +145,7 @@ struct SettingsView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     NavigationView {
         SettingsView()
@@ -152,4 +153,6 @@ struct SettingsView: View {
             .environmentObject(LanguageManager())
     }
 }
+#endif
+
 #endif

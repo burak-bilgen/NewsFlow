@@ -108,6 +108,7 @@ struct ArticleHeroCard: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     ArticleHeroCard(
         article: NewsFixture.articlesBySource["bbc-news"]![0],
@@ -118,4 +119,6 @@ struct ArticleHeroCard: View {
     .frame(height: 380)
     .padding()
 }
+#endif
+
 #endif

@@ -69,6 +69,12 @@ actor InMemoryReadingListRepository: ReadingListRepositoryProtocol {
         Set(articles.keys)
     }
 
+    func savedArticles() async -> [Article] {
+        articles.values.sorted {
+            ($0.publishedAt ?? .distantPast) > ($1.publishedAt ?? .distantPast)
+        }
+    }
+
     func isSaved(articleID: String) async -> Bool {
         articles[articleID] != nil
     }

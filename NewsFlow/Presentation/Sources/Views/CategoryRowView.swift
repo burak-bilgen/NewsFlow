@@ -59,6 +59,7 @@ struct CategoryRowView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     CategoryRowView(
         category: "General",
@@ -66,4 +67,6 @@ struct CategoryRowView: View {
         articlesViewModel: { _ in NewsFixture.previewViewModel() }
     )
 }
+#endif
+
 #endif

@@ -106,6 +106,7 @@ struct ArticleImageView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     VStack(spacing: 20) {
         ArticleImageView(url: URL(string: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400"))
@@ -118,4 +119,6 @@ struct ArticleImageView: View {
     }
     .padding()
 }
+#endif
+
 #endif

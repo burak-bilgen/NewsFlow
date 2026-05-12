@@ -53,10 +53,13 @@ struct PullToRefreshIndicator: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     VStack {
         PullToRefreshIndicator(isRefreshing: true)
         Spacer()
     }
 }
+#endif
+
 #endif

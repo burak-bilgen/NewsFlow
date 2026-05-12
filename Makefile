@@ -1,7 +1,9 @@
 .PHONY: test lint build clean setup help
 
-# Default destination
-DESTINATION ?= platform=iOS Simulator,name=iPhone 17e
+# Override when your local simulator name differs, for example:
+# make test DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
+DESTINATION ?= platform=iOS Simulator,name=iPhone 16 Pro
+BUILD_DESTINATION ?= generic/platform=iOS Simulator
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -37,7 +39,10 @@ build: ## Build the project
 	@xcodebuild build \
 		-project NewsFlow.xcodeproj \
 		-scheme NewsFlow \
-		-destination '$(DESTINATION)' \
+		-destination '$(BUILD_DESTINATION)' \
+		-derivedDataPath DerivedData \
+		CODE_SIGNING_ALLOWED=NO \
+		OTHER_SWIFT_FLAGS="-D CODEX_DISABLE_PREVIEWS" \
 		-quiet
 
 clean: ## Clean build artifacts

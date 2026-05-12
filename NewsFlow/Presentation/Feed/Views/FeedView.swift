@@ -285,6 +285,7 @@ struct FeedView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview("Feed - Loaded") {
     let repo = MockArticlesRepository(articlesBySource: NewsFixture.articlesBySource)
     let readingList = InMemoryReadingListRepository()
@@ -307,4 +308,6 @@ struct FeedView: View {
         )
     }
 }
+#endif
+
 #endif

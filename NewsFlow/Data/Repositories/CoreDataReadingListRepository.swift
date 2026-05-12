@@ -15,6 +15,27 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
 
     // MARK: - ReadingListRepositoryProtocol
 
+    func savedArticles() async -> [Article] {
+        let context = coreDataStack.newBackgroundContext()
+        return await context.perform {
+            let request = NSFetchRequest<ReadingListItem>(entityName: "ReadingListItem")
+            request.sortDescriptors = [
+                NSSortDescriptor(key: "savedAt", ascending: false),
+                NSSortDescriptor(key: "publishedAt", ascending: false)
+            ]
+            do {
+                let results = try context.fetch(request)
+                return results.map(Self.article(from:))
+            } catch {
+                NewsFlowLogger.shared.error(
+                    "Failed to fetch saved articles: \(error.localizedDescription)",
+                    category: "CoreData"
+                )
+                return []
+            }
+        }
+    }
+
     func savedArticleIDs() async -> Set<String> {
         let context = coreDataStack.newBackgroundContext()
         return await context.perform {
@@ -44,11 +65,13 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
             let item = ReadingListItem(context: context)
             item.id = article.id
             item.title = article.title
+            item.articleDescription = article.description
             item.url = article.url?.absoluteString
             item.urlToImage = article.imageURL?.absoluteString
             item.publishedAt = article.publishedAt
             item.savedAt = Date()
             item.sourceID = article.sourceID
+            item.sourceName = article.sourceName
             do {
                 try context.save()
                 NewsFlowLogger.shared.info(
@@ -109,5 +132,18 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
             request.fetchLimit = 1
             return try? context.fetch(request).first
         }
+    }
+
+    private static func article(from item: ReadingListItem) -> Article {
+        Article(
+            id: item.id,
+            sourceID: item.sourceID,
+            title: item.title,
+            description: item.articleDescription,
+            imageURL: item.urlToImage.flatMap(URL.init(string:)),
+            publishedAt: item.publishedAt,
+            url: item.url.flatMap(URL.init(string:)),
+            sourceName: item.sourceName ?? ""
+        )
     }
 }

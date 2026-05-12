@@ -116,6 +116,7 @@ struct SourcesView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview("Sources - Loaded") {
     NavigationView {
         SourcesView(
@@ -133,4 +134,6 @@ struct SourcesView: View {
         )
     }
 }
+#endif
+
 #endif

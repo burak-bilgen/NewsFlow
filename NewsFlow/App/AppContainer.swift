@@ -46,7 +46,16 @@ final class AppContainer: ObservableObject {
         let requestBuilder = NewsAPIRequestBuilder()
         let baseClient = NewsAPIClient(requestBuilder: requestBuilder)
         let retryingClient = RetryingNewsAPIClientDecorator(client: baseClient)
-        let client = SimulatedNetworkErrorClientDecorator(client: retryingClient)
+        let client: NewsAPIClientProtocol
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("Debug.SimulateNetworkErrors") {
+            client = SimulatedNetworkErrorClientDecorator(client: retryingClient)
+        } else {
+            client = retryingClient
+        }
+        #else
+        client = retryingClient
+        #endif
         let store: PersistentStore
         do {
             store = try FilePersistentStore()
@@ -70,7 +79,7 @@ final class AppContainer: ObservableObject {
             guardianClient: guardianClient,
             nytClient: nytClient
         )
-            let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
+        let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
 
         let feedUseCase = FetchFeedUseCase(repository: articlesRepo)
 

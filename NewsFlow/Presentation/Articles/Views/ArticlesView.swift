@@ -190,6 +190,7 @@ struct ArticlesView: View {
 // MARK: - Previews
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview("Articles - Loaded") {
     NavigationView {
         ArticlesView(viewModel: NewsFixture.previewViewModel())
@@ -213,4 +214,6 @@ struct ArticlesView: View {
         ArticlesView(viewModel: NewsFixture.previewViewModel().withState(.error("Network connection failed")))
     }
 }
+#endif
+
 #endif

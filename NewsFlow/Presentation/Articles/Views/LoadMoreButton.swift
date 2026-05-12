@@ -46,6 +46,7 @@ struct LoadMoreButton: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     VStack(spacing: 20) {
         LoadMoreButton(isLoading: false) {}
@@ -53,4 +54,6 @@ struct LoadMoreButton: View {
     }
     .padding()
 }
+#endif
+
 #endif

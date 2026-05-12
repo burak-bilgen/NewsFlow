@@ -89,6 +89,7 @@ struct StateMessageView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview("Error State") {
     StateMessageView(
         systemImage: "exclamationmark.triangle.fill",
@@ -106,4 +107,6 @@ struct StateMessageView: View {
         message: "There are no articles available from this source at the moment."
     )
 }
+#endif
+
 #endif

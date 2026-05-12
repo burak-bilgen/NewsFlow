@@ -137,12 +137,8 @@ final class ReadingListViewModel: ObservableObject {
     }
 
     func load() async {
-        do {
-            _ = await useCase.savedArticleIDs()
-            // In a full implementation, we'd map saved IDs to full Article objects.
-            // For now, ReadingListView is toggled inline within ArticlesView.
-            state = .loaded([])
-        }
+        let articles = await useCase.savedArticles()
+        state = .loaded(articles)
     }
 
     func remove(_ article: Article) async {
@@ -172,6 +168,7 @@ final class ReadingListViewModel: ObservableObject {
 // MARK: - Preview
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     NavigationView {
         ReadingListView(
@@ -183,4 +180,6 @@ final class ReadingListViewModel: ObservableObject {
         )
     }
 }
+#endif
+
 #endif

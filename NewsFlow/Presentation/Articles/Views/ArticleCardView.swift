@@ -160,6 +160,7 @@ struct ArticleCardView: View {
     }
 }
 
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     ArticleCardView(
         article: NewsFixture.articlesBySource["bbc-news"]![1],
@@ -169,3 +170,5 @@ struct ArticleCardView: View {
     )
     .padding()
 }
+
+#endif

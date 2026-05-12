@@ -24,8 +24,11 @@ struct SectionHeaderView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     SectionHeaderView(title: "Latest News")
         .padding()
 }
+#endif
+
 #endif

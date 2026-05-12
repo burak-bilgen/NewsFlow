@@ -4,6 +4,7 @@ import Foundation
 // MARK: - Failing Reading List Repository
 
 actor FailingReadingListRepository: ReadingListRepositoryProtocol {
+    func savedArticles() async -> [Article] { [] }
     func savedArticleIDs() async -> Set<String> { [] }
     func isSaved(articleID: String) async -> Bool { false }
     func add(_ article: Article) async throws {
@@ -23,6 +24,12 @@ actor ConfigurableFailureReadingListRepository: ReadingListRepositoryProtocol {
 
     func savedArticleIDs() async -> Set<String> {
         Set(articles.keys)
+    }
+
+    func savedArticles() async -> [Article] {
+        articles.values.sorted {
+            ($0.publishedAt ?? .distantPast) > ($1.publishedAt ?? .distantPast)
+        }
     }
 
     func isSaved(articleID: String) async -> Bool {
@@ -143,4 +150,3 @@ final class StubNewsAPIClient: NewsAPIClientProtocol {
         throw NewsAPIError.network
     }
 }
-

@@ -24,7 +24,13 @@ actor AggregateArticlesRepository: ArticlesRepositoryProtocol {
 
         logSourceErrors(newsAPI: newsAPIResult, guardian: guardianResult, nyt: nytResult)
 
-        return merge(newsAPIPaginated: newsAPIResult, guardianArticles: guardianResult, nytArticles: nytResult, page: page)
+        return try merge(
+            newsAPIPaginated: newsAPIResult,
+            guardianArticles: guardianResult,
+            nytArticles: nytResult,
+            page: page,
+            pageSize: pageSize
+        )
     }
 
     func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
@@ -36,7 +42,42 @@ actor AggregateArticlesRepository: ArticlesRepositoryProtocol {
 
         logSourceErrors(newsAPI: newsAPIResult, guardian: guardianResult, nyt: nytResult)
 
-        return merge(newsAPIPaginated: newsAPIResult, guardianArticles: guardianResult, nytArticles: nytResult, page: page)
+        return try merge(
+            newsAPIPaginated: newsAPIResult,
+            guardianArticles: guardianResult,
+            nytArticles: nytResult,
+            page: page,
+            pageSize: pageSize
+        )
+    }
+}
+
+extension AggregateArticlesRepository: CacheBypassing {
+    func fetchArticlesBypassingCache(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        async let newsAPIFuture: PaginatedResult<Article>? = {
+            if let cacheBypassingRepo = newsAPIRepository as? CacheBypassing {
+                return try? await cacheBypassingRepo.fetchArticlesBypassingCache(
+                    sourceID: sourceID,
+                    page: page,
+                    pageSize: pageSize
+                )
+            }
+            return try? await newsAPIRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
+        }()
+        async let guardianFuture = try? guardianClient.search(query: nil, page: page, pageSize: pageSize, section: sourceID == "all" ? nil : sourceID)
+        async let nytFuture = try? nytClient.search(query: nil, page: page, section: sourceID == "all" ? nil : sourceID)
+
+        let (newsAPIResult, guardianResult, nytResult) = await (newsAPIFuture, guardianFuture, nytFuture)
+
+        logSourceErrors(newsAPI: newsAPIResult, guardian: guardianResult, nyt: nytResult)
+
+        return try merge(
+            newsAPIPaginated: newsAPIResult,
+            guardianArticles: guardianResult,
+            nytArticles: nytResult,
+            page: page,
+            pageSize: pageSize
+        )
     }
 }
 
@@ -50,7 +91,13 @@ extension AggregateArticlesRepository: ArticleSearchProtocol {
 
         logSourceErrors(newsAPI: newsAPIResult, guardian: guardianResult, nyt: nytResult)
 
-        return merge(newsAPIPaginated: newsAPIResult, guardianArticles: guardianResult, nytArticles: nytResult, page: page)
+        return try merge(
+            newsAPIPaginated: newsAPIResult,
+            guardianArticles: guardianResult,
+            nytArticles: nytResult,
+            page: page,
+            pageSize: pageSize
+        )
     }
 }
 
@@ -64,7 +111,13 @@ extension AggregateArticlesRepository: CategoryFilterProtocol {
 
         logSourceErrors(newsAPI: newsAPIResult, guardian: guardianResult, nyt: nytResult)
 
-        return merge(newsAPIPaginated: newsAPIResult, guardianArticles: guardianResult, nytArticles: nytResult, page: page)
+        return try merge(
+            newsAPIPaginated: newsAPIResult,
+            guardianArticles: guardianResult,
+            nytArticles: nytResult,
+            page: page,
+            pageSize: pageSize
+        )
     }
 }
 
@@ -75,7 +128,17 @@ private extension AggregateArticlesRepository {
         if nyt == nil { NewsFlowLogger.shared.error("NYT source failed", category: "Repository") }
     }
 
-    func merge(newsAPIPaginated: PaginatedResult<Article>?, guardianArticles: [Article]?, nytArticles: [Article]?, page: Int) -> PaginatedResult<Article> {
+    func merge(
+        newsAPIPaginated: PaginatedResult<Article>?,
+        guardianArticles: [Article]?,
+        nytArticles: [Article]?,
+        page: Int,
+        pageSize: Int
+    ) throws -> PaginatedResult<Article> {
+        guard newsAPIPaginated != nil || guardianArticles != nil || nytArticles != nil else {
+            throw NewsAPIError.network
+        }
+
         var allArticles: [Article] = []
         var hasMore = false
 
@@ -86,14 +149,15 @@ private extension AggregateArticlesRepository {
 
         if let articles = guardianArticles {
             allArticles.append(contentsOf: articles)
-            hasMore = true
+            if articles.count >= pageSize { hasMore = true }
         }
 
         if let articles = nytArticles {
             allArticles.append(contentsOf: articles)
-            hasMore = true
+            if !articles.isEmpty { hasMore = true }
         }
 
+        allArticles = deduplicated(allArticles)
         allArticles.sort { ($0.publishedAt ?? .distantPast) > ($1.publishedAt ?? .distantPast) }
 
         if allArticles.isEmpty {
@@ -105,5 +169,36 @@ private extension AggregateArticlesRepository {
             currentPage: page,
             hasMorePages: hasMore
         )
+    }
+
+    func deduplicated(_ articles: [Article]) -> [Article] {
+        var seen: Set<String> = []
+        var unique: [Article] = []
+
+        for article in articles {
+            let key = dedupeKey(for: article)
+            guard seen.insert(key).inserted else { continue }
+            unique.append(article)
+        }
+
+        return unique
+    }
+
+    func dedupeKey(for article: Article) -> String {
+        if let url = article.url?.absoluteString.lowercased(), !url.isEmpty {
+            return "url:\(url)"
+        }
+
+        let normalizedTitle = article.title
+            .lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+
+        if !normalizedTitle.isEmpty {
+            return "title:\(normalizedTitle)"
+        }
+
+        return "id:\(article.id)"
     }
 }

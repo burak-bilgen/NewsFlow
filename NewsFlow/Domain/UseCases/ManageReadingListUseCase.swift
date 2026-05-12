@@ -6,6 +6,7 @@ protocol ManageReadingListUseCaseProtocol {
     func toggle(_ article: Article) async throws -> Bool
     func isSaved(articleID: String) async -> Bool
     func savedArticleIDs() async -> Set<String>
+    func savedArticles() async -> [Article]
 }
 
 final class ManageReadingListUseCase: ManageReadingListUseCaseProtocol {
@@ -25,5 +26,9 @@ final class ManageReadingListUseCase: ManageReadingListUseCaseProtocol {
 
     func savedArticleIDs() async -> Set<String> {
         await repository.savedArticleIDs()
+    }
+
+    func savedArticles() async -> [Article] {
+        await repository.savedArticles()
     }
 }

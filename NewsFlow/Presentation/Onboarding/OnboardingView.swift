@@ -197,7 +197,10 @@ private struct FeatureCard: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     OnboardingView()
 }
+#endif
+
 #endif

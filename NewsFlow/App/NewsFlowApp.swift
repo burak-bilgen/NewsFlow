@@ -11,6 +11,7 @@ struct NewsFlowApp: App {
     init() {
         AppLaunchMetrics.startTracking()
         BackgroundRefreshManager.shared.register()
+        BackgroundRefreshManager.shared.schedule()
         MemoryWarningHandler.shared.startMonitoring()
         MemoryWarningHandler.shared.onMemoryWarning = { [imageCache] in
             Task {

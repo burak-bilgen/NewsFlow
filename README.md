@@ -146,23 +146,39 @@ open NewsFlow.xcodeproj
 
 Select the **NewsFlow** scheme and run on an iPhone simulator.
 
-### API Key
+### API Keys
 
-The app uses [NewsAPI.org](https://newsapi.org) for live news. Create `Config/Secrets.xcconfig`:
+The app aggregates live news from [NewsAPI.org](https://newsapi.org), The Guardian Open Platform, and the New York Times Article Search API. Create `Config/Secrets.xcconfig`:
 
 ```bash
 cp Config/Secrets.xcconfig.example Config/Secrets.xcconfig
 ```
 
-Add your API key to the file. **Not required for previews** — mock data is bundled.
+Add your provider keys to the file:
+
+```xcconfig
+NEWS_API_KEY = your_newsapi_key
+GUARDIAN_API_KEY = your_guardian_key
+NYT_API_KEY = your_nyt_key
+```
+
+The app can still run previews and UI-test mocks without live keys.
 
 ### Commands
 
 ```bash
-make test     # Run unit tests
-make lint    # Run SwiftLint
-make build   # Build project
+make build    # Build project for a generic iOS Simulator target
+make test     # Run unit tests on DESTINATION
+make lint     # Run SwiftLint
 ```
+
+If your simulator name differs, override it:
+
+```bash
+make test DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
+```
+
+To test the error UI in Debug builds, launch with the `Debug.SimulateNetworkErrors` argument.
 
 ---
 
@@ -181,7 +197,7 @@ make build   # Build project
 - Category multi-select filtering
 
 ```bash
-xcodebuild test -scheme NewsFlow -destination 'platform=iOS Simulator,name=iPhone 17e'
+xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
 ```
 
 ---

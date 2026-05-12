@@ -41,6 +41,7 @@ struct CategoryFilterView: View {
 }
 
 #if DEBUG
+#if !CODEX_DISABLE_PREVIEWS
 #Preview {
     CategoryFilterView(
         viewModel: SourcesViewModel(
@@ -49,4 +50,6 @@ struct CategoryFilterView: View {
     )
         .padding()
 }
+#endif
+
 #endif
