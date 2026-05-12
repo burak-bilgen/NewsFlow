@@ -49,6 +49,10 @@ struct StubArticlesRepository: ArticlesRepositoryProtocol {
     func fetchArticles(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
         try result.get()
     }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try result.get()
+    }
 }
 
 struct StubGuardianClient: GuardianClientProtocol {

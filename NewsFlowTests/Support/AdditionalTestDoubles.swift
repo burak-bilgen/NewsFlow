@@ -66,6 +66,10 @@ final class DelayedArticlesRepositorySpy: ArticlesRepositoryProtocol {
             hasMorePages: items.count >= pageSize
         )
     }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try await fetchArticles(sourceID: "all", page: page, pageSize: pageSize)
+    }
 }
 
 // MARK: - Delayed Sources Repository
@@ -112,6 +116,10 @@ final class ThrowingOnPageArticlesRepositorySpy: ArticlesRepositoryProtocol {
             currentPage: page,
             hasMorePages: items.count >= pageSize
         )
+    }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try await fetchArticles(sourceID: "all", page: page, pageSize: pageSize)
     }
 }
 

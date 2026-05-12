@@ -40,6 +40,10 @@ final class ArticlesRepositorySpy: ArticlesRepositoryProtocol {
             hasMorePages: items.count >= pageSize
         )
     }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try await fetchArticles(sourceID: "all", page: page, pageSize: pageSize)
+    }
 }
 
 // MARK: - Paged Articles Repository Spy (returns different results per page)
@@ -71,6 +75,10 @@ final class PagedArticlesRepositorySpy: ArticlesRepositoryProtocol {
             currentPage: page,
             hasMorePages: items.count >= pageSize
         )
+    }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try await fetchArticles(sourceID: "all", page: page, pageSize: pageSize)
     }
 }
 

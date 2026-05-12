@@ -25,7 +25,7 @@ struct NewsFlowApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if hasSeenOnboarding {
+            if hasSeenOnboarding || ProcessInfo.processInfo.arguments.contains("UITest.MockNews") {
                 RootNavigationView(container: container)
                     .environmentObject(themeManager)
                     .environmentObject(languageManager)
