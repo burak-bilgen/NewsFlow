@@ -55,7 +55,14 @@ struct FeedView: View {
                 }
             }
         }
-        .task { await viewModel.loadIfNeeded() }
+        .task {
+            await viewModel.loadIfNeeded()
+            if viewModel.state == .loaded, !viewModel.articles.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    showBreakingNewsIfAvailable()
+                }
+            }
+        }
         .onAppear { startCarouselAutoScroll() }
         .onDisappear { stopCarouselAutoScroll() }
         .onReceive(carouselTimer) { _ in
@@ -258,6 +265,20 @@ struct FeedView: View {
     private func stopCarouselAutoScrollAfterManualSelection() {
         guard !isProgrammaticCarouselAdvance else { return }
         stopCarouselAutoScroll()
+    }
+
+    private func showBreakingNewsIfAvailable() {
+        guard let topArticle = viewModel.featuredArticles.first else { return }
+        ToastManager.shared.show(
+            "Breaking: \(topArticle.title)",
+            style: .info,
+            duration: 4.0,
+            action: ToastAction(title: "Read") {
+                Task { @MainActor in
+                    viewModel.carouselSelection = 0
+                }
+            }
+        )
     }
 }
 
