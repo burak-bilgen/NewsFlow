@@ -181,7 +181,7 @@ struct ArticleDetailView: View {
                         Image(systemName: "sparkle.magnifyingglass")
                             .font(.system(size: 15))
                     }
-                    Text(isSummarizing ? "Summarizing..." : "Summarize with AI")
+                    Text(isSummarizing ? L10n.text("article.summarizing") : L10n.text("article.summarize"))
                         .font(.system(size: 14, weight: .semibold))
                     Spacer()
                     if intelligence.availability.isAvailable {
@@ -207,7 +207,7 @@ struct ArticleDetailView: View {
                 Image(systemName: "sparkle")
                     .font(.system(size: 12))
                     .foregroundColor(AppPalette.accent)
-                Text("AI Summary")
+                Text(L10n.text("article.summary.title"))
                     .font(AppTypography.sectionTitle.font)
                     .foregroundColor(AppPalette.accent)
                 Spacer()
@@ -239,7 +239,7 @@ struct ArticleDetailView: View {
         let isPlayingThis = ttsService.currentArticleID == article.id && ttsService.isPlaying
         let isPausedThis = ttsService.currentArticleID == article.id && ttsService.isPaused
         let iconName: String = isPlayingThis ? "pause.circle.fill" : isPausedThis ? "play.circle.fill" : "ear.fill"
-        let labelText: String = isPlayingThis ? "Pause" : isPausedThis ? "Resume" : "Listen"
+        let labelText: String = isPlayingThis ? L10n.text("article.tts.pause") : isPausedThis ? L10n.text("article.tts.resume") : L10n.text("article.tts.listen")
 
         return Button {
             let text = [article.title, article.description, article.contentSnippet]

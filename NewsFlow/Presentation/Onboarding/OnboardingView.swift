@@ -8,32 +8,32 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             icon: "newspaper.fill",
-            title: "Your AI-Powered News Feed",
-            description: "All your news from top sources, intelligently sorted by importance and relevance — so you never miss what matters.",
+            title: L10n.text("onboarding.ai.title"),
+            description: L10n.text("onboarding.ai.description"),
             color: AppPalette.brandPrimary
         ),
         OnboardingPage(
             icon: "sparkle.magnifyingglass",
-            title: "Smart Summaries",
-            description: "Get AI-generated article summaries on supported devices. Tap 'Summarize' to get the key points in seconds.",
+            title: L10n.text("onboarding.summary.title"),
+            description: L10n.text("onboarding.summary.description"),
             color: AppPalette.accent
         ),
         OnboardingPage(
             icon: "ear.fill",
-            title: "Listen on the Go",
-            description: "Can't read now? Tap 'Listen' and let your articles be read aloud. Perfect for commutes and workouts.",
+            title: L10n.text("onboarding.tts.title"),
+            description: L10n.text("onboarding.tts.description"),
             color: AppPalette.success
         ),
         OnboardingPage(
             icon: "bookmark.fill",
-            title: "Read Anywhere, Anytime",
-            description: "Save articles to your reading list, share beautiful cards with friends, and pick up right where you left off.",
+            title: L10n.text("onboarding.bookmark.title"),
+            description: L10n.text("onboarding.bookmark.description"),
             color: AppPalette.brandPrimaryLight
         ),
         OnboardingPage(
             icon: "square.grid.2x2",
-            title: "Browse by Source",
-            description: "Prefer a specific source? Browse articles from BBC, The Guardian, NYT, and more — all in one place.",
+            title: L10n.text("onboarding.sources.title"),
+            description: L10n.text("onboarding.sources.description"),
             color: AppPalette.accent
         )
     ]
@@ -74,7 +74,7 @@ struct OnboardingView: View {
                                 hasSeenOnboarding = true
                             }
                         } label: {
-                            Text("Get Started")
+                            Text(L10n.text("onboarding.get_started"))
                                 .font(.system(size: 17, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -91,7 +91,7 @@ struct OnboardingView: View {
                                 currentPage += 1
                             }
                         } label: {
-                            Text("Continue")
+                            Text(L10n.text("onboarding.continue"))
                                 .font(.system(size: 17, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -106,7 +106,7 @@ struct OnboardingView: View {
                     Button {
                         withAnimation { hasSeenOnboarding = true }
                     } label: {
-                        Text("Skip")
+                        Text(L10n.text("onboarding.skip"))
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(AppPalette.textTertiary)
                     }

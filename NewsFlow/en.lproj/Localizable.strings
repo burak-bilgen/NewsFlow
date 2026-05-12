@@ -67,6 +67,24 @@
 "notifications.permission.granted" = "Notifications enabled!";
 "notifications.permission.denied" = "Notification permission denied. Check iOS Settings.";
 
+"onboarding.ai.title" = "Your AI-Powered News Feed";
+"onboarding.ai.description" = "All your news from top sources, intelligently sorted by importance and relevance — so you never miss what matters.";
+"onboarding.summary.title" = "Smart Summaries";
+"onboarding.summary.description" = "Get AI-generated article summaries on supported devices. Tap 'Summarize' to get the key points in seconds.";
+"onboarding.tts.title" = "Listen on the Go";
+"onboarding.tts.description" = "Can't read now? Tap 'Listen' and let your articles be read aloud. Perfect for commutes and workouts.";
+"onboarding.bookmark.title" = "Read Anywhere, Anytime";
+"onboarding.bookmark.description" = "Save articles to your reading list, share beautiful cards with friends, and pick up right where you left off.";
+"onboarding.sources.title" = "Browse by Source";
+"onboarding.sources.description" = "Prefer a specific source? Browse articles from BBC, The Guardian, NYT, and more — all in one place.";
+"onboarding.get_started" = "Get Started";
+"onboarding.continue" = "Continue";
+"onboarding.skip" = "Skip";
+
+"article.tts.listen" = "Listen";
+"article.tts.pause" = "Pause";
+"article.tts.resume" = "Resume";
+
 "article.summarize" = "Summarize with AI";
 "article.summarizing" = "Summarizing...";
 "article.summary.title" = "AI Summary";

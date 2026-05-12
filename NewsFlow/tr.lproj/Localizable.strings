@@ -67,6 +67,24 @@
 "notifications.permission.granted" = "Bildirimler a\u00e7\u0131ld\u0131!";
 "notifications.permission.denied" = "Bildirim izni reddedildi. iOS Ayarlar\u0131'n\u0131 kontrol edin.";
 
+"onboarding.ai.title" = "Yapay Zeka Destekli Haber Ak\u0131\u015f\u0131";
+"onboarding.ai.description" = "T\u00fcm haber kaynaklar\u0131n\u0131zdan gelen i\u00e7erikler, \u00f6nem ve g\u00fcncelli\u011fe g\u00f6re ak\u0131ll\u0131ca s\u0131ralan\u0131r.";
+"onboarding.summary.title" = "Ak\u0131ll\u0131 \u00d6zetler";
+"onboarding.summary.description" = "Desteklenen cihazlarda yapay zeka ile olu\u015fturulmu\u015f haber \u00f6zetlerini al\u0131n. Saniyeler i\u00e7inde \u00f6nemli noktalar\u0131 g\u00f6r\u00fcn.";
+"onboarding.tts.title" = "Hareket Halindeyken Dinleyin";
+"onboarding.tts.description" = "Okuyam\u0131yor musunuz? 'Dinle'ye dokunun ve makalelerin sesli okunmas\u0131n\u0131 sa\u011flay\u0131n.";
+"onboarding.bookmark.title" = "Her Yerde, Her Zaman Okuyun";
+"onboarding.bookmark.description" = "Makaleleri okuma listenize kaydedin, arkada\u015flar\u0131n\u0131zla payla\u015f\u0131n ve kald\u0131\u011f\u0131n\u0131z yerden devam edin.";
+"onboarding.sources.title" = "Kayna\u011fa G\u00f6re Gezin";
+"onboarding.sources.description" = "Belirli bir kayna\u011f\u0131 m\u0131 tercih ediyorsunuz? BBC, The Guardian, NYT ve daha fazlas\u0131na g\u00f6z at\u0131n.";
+"onboarding.get_started" = "Ba\u015fla";
+"onboarding.continue" = "Devam Et";
+"onboarding.skip" = "Atla";
+
+"article.tts.listen" = "Dinle";
+"article.tts.pause" = "Durdur";
+"article.tts.resume" = "Devam Et";
+
 "article.summarize" = "AI ile Özetle";
 "article.summarizing" = "Özetleniyor...";
 "article.summary.title" = "AI Özeti";
