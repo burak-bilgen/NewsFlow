@@ -6,16 +6,17 @@ import Security
 /// Securely stores and retrieves the NewsAPI key from the iOS Keychain.
 /// Falls back to Info.plist if no keychain entry exists (first launch).
 enum KeychainAPIKeyStore {
-    private static let service = "burakbilgen.NewsFlow.apikey"
-    private static let account = "newsapi-key"
+    private static func service(for key: String) -> String {
+        "burakbilgen.NewsFlow.\(key.lowercased())"
+    }
 
-    static func save(_ apiKey: String) -> Bool {
+    static func save(_ apiKey: String, key: String = "newsapi-key") -> Bool {
         guard let data = apiKey.data(using: .utf8) else { return false }
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
+            kSecAttrService as String: service(for: key),
+            kSecAttrAccount as String: key,
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         ]
@@ -27,11 +28,11 @@ enum KeychainAPIKeyStore {
         return status == errSecSuccess
     }
 
-    static func load() -> String? {
+    static func load(key: String = "newsapi-key") -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
+            kSecAttrService as String: service(for: key),
+            kSecAttrAccount as String: key,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
@@ -50,11 +51,11 @@ enum KeychainAPIKeyStore {
         return apiKey
     }
 
-    static func delete() -> Bool {
+    static func delete(key: String = "newsapi-key") -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account
+            kSecAttrService as String: service(for: key),
+            kSecAttrAccount as String: key
         ]
         return SecItemDelete(query as CFDictionary) == errSecSuccess
     }

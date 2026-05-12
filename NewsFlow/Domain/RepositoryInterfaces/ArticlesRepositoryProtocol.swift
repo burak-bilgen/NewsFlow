@@ -18,3 +18,11 @@ protocol ArticlesRepositoryProtocol {
 protocol CacheBypassing {
     func fetchArticlesBypassingCache(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
 }
+
+protocol ArticleSearchProtocol {
+    func searchArticles(query: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
+}
+
+protocol CategoryFilterProtocol {
+    func fetchArticlesByCategory(_ category: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
+}

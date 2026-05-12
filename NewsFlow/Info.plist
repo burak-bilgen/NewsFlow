@@ -4,6 +4,10 @@
 <dict>
 	<key>NewsAPIKey</key>
 	<string>$(NEWS_API_KEY)</string>
+	<key>GuardianAPIKey</key>
+	<string>$(GUARDIAN_API_KEY)</string>
+	<key>NYTAPIKey</key>
+	<string>$(NYT_API_KEY)</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 </dict>

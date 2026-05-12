@@ -53,9 +53,17 @@ final class AppContainer: ObservableObject {
             remoteRepository: NewsAPISourcesRepository(client: client),
             store: store
         )
-        let articlesRepo = CachedArticlesRepository(
-            remoteRepository: NewsAPIArticlesRepository(client: client),
+        let newsAPIArticlesRepo = NewsAPIArticlesRepository(client: client)
+        let cachedNewsAPIArticles = CachedArticlesRepository(
+            remoteRepository: newsAPIArticlesRepo,
             store: store
+        )
+        let guardianClient = GuardianClient()
+        let nytClient = NYTClient()
+        let articlesRepo = AggregateArticlesRepository(
+            newsAPIRepository: cachedNewsAPIArticles,
+            guardianClient: guardianClient,
+            nytClient: nytClient
         )
         let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
 

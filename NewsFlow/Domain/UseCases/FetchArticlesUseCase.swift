@@ -4,6 +4,7 @@ import Foundation
 
 protocol FetchArticlesUseCaseProtocol {
     func execute(sourceID: String, page: Int, pageSize: Int, bypassCache: Bool) async throws -> PaginatedResult<Article>
+    func searchArticles(query: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
 }
 
 final class FetchArticlesUseCase: FetchArticlesUseCaseProtocol {
@@ -31,6 +32,21 @@ final class FetchArticlesUseCase: FetchArticlesUseCaseProtocol {
         
         let result = try await repository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
         let sorted = sortingStrategy.newestFirst(result.items)
+        return PaginatedResult(
+            items: sorted,
+            currentPage: result.currentPage,
+            hasMorePages: result.hasMorePages
+        )
+    }
+
+    func searchArticles(query: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        guard let searchableRepo = repository as? ArticleSearchProtocol else {
+            NewsFlowLogger.shared.error("Repository does not support search", category: "UseCase")
+            throw NewsAPIError.searchNotSupported
+        }
+        let result = try await searchableRepo.searchArticles(query: query, page: page, pageSize: pageSize)
+        let sorted = sortingStrategy.newestFirst(result.items)
+        NewsFlowLogger.shared.debug("Search returned \(sorted.count) articles (page \(page))", category: "UseCase")
         return PaginatedResult(
             items: sorted,
             currentPage: result.currentPage,
