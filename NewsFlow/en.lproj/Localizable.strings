@@ -15,6 +15,9 @@
 "articles.latest" = "Latest News";
 "articles.loadMore" = "Load More Articles";
 
+"readingList.title" = "Reading List";
+"readingList.empty.title" = "Your reading list is empty";
+"readingList.empty.message" = "Save articles to read later by tapping the bookmark icon.";
 "readingList.add" = "Add to Reading List";
 "readingList.remove" = "Remove from Reading List";
 
@@ -28,6 +31,8 @@
 "error.simulatedFetch" = "Could not retrieve information.";
 "error.cancelled" = "Request cancelled";
 "offline.banner" = "No internet connection";
+"offline.check" = "Check your connection";
+"search.placeholder" = "Search articles...";
 
 "settings.title" = "Settings";
 "settings.appearance" = "Appearance";

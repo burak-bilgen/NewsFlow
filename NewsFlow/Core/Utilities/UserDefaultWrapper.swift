@@ -10,6 +10,7 @@ import Foundation
 /// @UserDefault("selectedTheme", defaultValue: AppTheme.system)
 /// var selectedTheme: AppTheme
 /// ```
+@available(*, deprecated, message: "Use UserDefaults directly instead.")
 @propertyWrapper
 struct UserDefault<Value: Codable> {
     let key: String

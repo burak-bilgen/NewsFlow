@@ -46,7 +46,7 @@ struct ArticlesView: View {
         .onChange(of: viewModel.carouselSelection) { _ in
             stopCarouselAutoScrollAfterManualSelection()
         }
-        .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search articles...")
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: L10n.text("search.placeholder"))
         .onChange(of: searchQuery) { newValue in
             viewModel.updateSearchQuery(newValue)
         }

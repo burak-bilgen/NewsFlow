@@ -62,7 +62,7 @@ struct OfflineBannerView: View {
                 Text(L10n.text("offline.banner"))
                     .font(.subheadline.weight(.semibold))
                 
-                Text("Check your connection")
+                Text(L10n.text("offline.check"))
                     .font(.caption2)
                     .opacity(0.8)
             }

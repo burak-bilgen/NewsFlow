@@ -15,6 +15,9 @@
 "articles.latest" = "Son Haberler";
 "articles.loadMore" = "Daha Fazla Haber Yükle";
 
+"readingList.title" = "Okuma Listem";
+"readingList.empty.title" = "Okuma listen boş";
+"readingList.empty.message" = "Daha sonra okumak için haberleri yer imi ile kaydedebilirsin.";
 "readingList.add" = "Okuma listeme ekle";
 "readingList.remove" = "Okuma listemden çıkar";
 
@@ -28,6 +31,8 @@
 "error.simulatedFetch" = "Bilgiler alınamadı!";
 "error.cancelled" = "İstek iptal edildi";
 "offline.banner" = "İnternet bağlantısı yok";
+"offline.check" = "Bağlantını kontrol et";
+"search.placeholder" = "Haber ara...";
 
 "settings.title" = "Ayarlar";
 "settings.appearance" = "Görünüm";
