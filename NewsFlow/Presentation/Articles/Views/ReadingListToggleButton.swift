@@ -76,7 +76,7 @@ struct ReadingListToggleButton: View {
             }
             if !wasSaved {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    var generator = UINotificationFeedbackGenerator()
+                    let generator = UINotificationFeedbackGenerator()
                     generator.notificationOccurred(.success)
                 }
             }

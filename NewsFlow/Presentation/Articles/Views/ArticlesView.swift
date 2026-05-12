@@ -117,10 +117,9 @@ struct ArticlesView: View {
                         article: article,
                         sourceName: viewModel.source.name,
                         isSaved: viewModel.isSaved(article),
+                        onToggle: { Task { await viewModel.toggleReadingList(for: article) } },
                         heroNamespace: heroAnimation
-                    ) {
-                        Task { await viewModel.toggleReadingList(for: article) }
-                    }
+                    )
                     .padding(.horizontal, AppSpacing.md)
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .move(edge: .bottom)),

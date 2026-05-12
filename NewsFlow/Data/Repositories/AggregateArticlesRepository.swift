@@ -26,6 +26,18 @@ actor AggregateArticlesRepository: ArticlesRepositoryProtocol {
 
         return merge(newsAPIPaginated: newsAPIResult, guardianArticles: guardianResult, nytArticles: nytResult, page: page)
     }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        async let newsAPIFuture = try? newsAPIRepository.fetchArticles(sourceID: "all", page: page, pageSize: pageSize)
+        async let guardianFuture = try? guardianClient.search(query: nil, page: page, pageSize: pageSize * 2, section: nil)
+        async let nytFuture = try? nytClient.search(query: nil, page: page, section: nil)
+
+        let (newsAPIResult, guardianResult, nytResult) = await (newsAPIFuture, guardianFuture, nytFuture)
+
+        logSourceErrors(newsAPI: newsAPIResult, guardian: guardianResult, nyt: nytResult)
+
+        return merge(newsAPIPaginated: newsAPIResult, guardianArticles: guardianResult, nytArticles: nytResult, page: page)
+    }
 }
 
 extension AggregateArticlesRepository: ArticleSearchProtocol {

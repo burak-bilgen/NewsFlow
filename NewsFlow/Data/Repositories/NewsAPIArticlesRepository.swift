@@ -17,7 +17,6 @@ final class NewsAPIArticlesRepository: ArticlesRepositoryProtocol {
 
         let articles = response.articles.compactMap { $0.domainModel(fallbackSourceID: sourceID) }
 
-        // NewsAPI returns max 100 results; if we got a full page, assume more exist
         let hasMore = articles.count >= pageSize
 
         return PaginatedResult(
@@ -25,5 +24,9 @@ final class NewsAPIArticlesRepository: ArticlesRepositoryProtocol {
             currentPage: page,
             hasMorePages: hasMore
         )
+    }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try await fetchArticles(sourceID: "general", page: page, pageSize: pageSize)
     }
 }

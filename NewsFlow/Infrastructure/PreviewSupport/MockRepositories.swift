@@ -41,6 +41,23 @@ final class MockArticlesRepository: ArticlesRepositoryProtocol {
             hasMorePages: endIndex < allArticles.count
         )
     }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        let allArticles = articlesBySource.values.flatMap { $0 }
+        let startIndex = (page - 1) * pageSize
+        let endIndex = min(startIndex + pageSize, allArticles.count)
+
+        guard startIndex < allArticles.count else {
+            return PaginatedResult(items: [], currentPage: page, hasMorePages: false)
+        }
+
+        let items = Array(allArticles[startIndex..<endIndex])
+        return PaginatedResult(
+            items: items,
+            currentPage: page,
+            hasMorePages: endIndex < allArticles.count
+        )
+    }
 }
 
 // MARK: - In-Memory Reading List Repository

@@ -5,15 +5,18 @@ import Foundation
 final class AppContainer: ObservableObject {
     private let fetchSourcesUseCase: FetchSourcesUseCaseProtocol
     private let fetchArticlesUseCaseFactory: (NewsSource) -> FetchArticlesUseCaseProtocol
+    private let feedUseCase: FetchFeedUseCaseProtocol
     private let readingListUseCase: ManageReadingListUseCaseProtocol
 
     init(
         fetchSourcesUseCase: FetchSourcesUseCaseProtocol,
         fetchArticlesUseCaseFactory: @escaping (NewsSource) -> FetchArticlesUseCaseProtocol,
+        feedUseCase: FetchFeedUseCaseProtocol,
         readingListUseCase: ManageReadingListUseCaseProtocol
     ) {
         self.fetchSourcesUseCase = fetchSourcesUseCase
         self.fetchArticlesUseCaseFactory = fetchArticlesUseCaseFactory
+        self.feedUseCase = feedUseCase
         self.readingListUseCase = readingListUseCase
     }
 
@@ -28,11 +31,13 @@ final class AppContainer: ObservableObject {
             let readingListUseCase = ManageReadingListUseCase(repository: readingListRepo)
             let sourcesRepo = MockSourcesRepository(sources: NewsFixture.sources)
             let articlesRepo = MockArticlesRepository(articlesBySource: NewsFixture.articlesBySource)
+            let feedUseCase = FetchFeedUseCase(repository: articlesRepo)
             return AppContainer(
                 fetchSourcesUseCase: FetchSourcesUseCase(repository: sourcesRepo),
                 fetchArticlesUseCaseFactory: { _ in
                     FetchArticlesUseCase(repository: articlesRepo)
                 },
+                feedUseCase: feedUseCase,
                 readingListUseCase: readingListUseCase
             )
         }
@@ -65,7 +70,9 @@ final class AppContainer: ObservableObject {
             guardianClient: guardianClient,
             nytClient: nytClient
         )
-        let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
+            let readingListRepo: ReadingListRepositoryProtocol = CoreDataReadingListRepository()
+
+        let feedUseCase = FetchFeedUseCase(repository: articlesRepo)
 
         CrashReporter.shared.recordBreadcrumb(
             "AppContainer initialized",
@@ -78,12 +85,20 @@ final class AppContainer: ObservableObject {
             fetchArticlesUseCaseFactory: { _ in
                 FetchArticlesUseCase(repository: articlesRepo)
             },
+            feedUseCase: feedUseCase,
             readingListUseCase: ManageReadingListUseCase(repository: readingListRepo)
         )
     }
 
     func makeSourcesViewModel() -> SourcesViewModel {
         SourcesViewModel(fetchUseCase: fetchSourcesUseCase)
+    }
+
+    func makeFeedViewModel() -> FeedViewModel {
+        FeedViewModel(
+            feedUseCase: feedUseCase,
+            readingListUseCase: readingListUseCase
+        )
     }
 
     func makeArticlesViewModel(source: NewsSource) -> ArticlesViewModel {

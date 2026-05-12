@@ -59,7 +59,6 @@ actor CachedArticlesRepository: ArticlesRepositoryProtocol, CacheBypassing {
     }
 
     func fetchArticles(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
-        // Only cache page 1 (first load). Subsequent pages are fetched live.
         if page == 1 {
             let cacheKey = "articles.\(sourceID)"
             if let cached: [Article] = await store.load([Article].self, forKey: cacheKey),
@@ -78,6 +77,10 @@ actor CachedArticlesRepository: ArticlesRepositoryProtocol, CacheBypassing {
         }
 
         return try await remoteRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
+    }
+
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {
+        try await remoteRepository.fetchAllArticles(page: page, pageSize: pageSize)
     }
 
     /// Explicitly invalidates the cache for a specific source.

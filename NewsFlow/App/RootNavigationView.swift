@@ -25,12 +25,10 @@ struct RootNavigationView: View {
 
     var body: some View {
         NavigationView {
-            SourcesView(
-                viewModel: container.makeSourcesViewModel(),
-                articlesViewModel: { source in
-                    container.makeArticlesViewModel(source: source)
-                },
-                heroNamespace: heroAnimation
+            FeedView(
+                viewModel: container.makeFeedViewModel(),
+                makeSourcesViewModel: { container.makeSourcesViewModel() },
+                makeArticlesViewModel: { container.makeArticlesViewModel(source: $0) }
             )
         }
         .navigationViewStyle(.stack)

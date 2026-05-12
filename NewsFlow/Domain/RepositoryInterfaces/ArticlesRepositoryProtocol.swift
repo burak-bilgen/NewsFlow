@@ -13,6 +13,7 @@ struct PaginatedResult<T: Sendable>: Sendable {
 
 protocol ArticlesRepositoryProtocol {
     func fetchArticles(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
+    func fetchAllArticles(page: Int, pageSize: Int) async throws -> PaginatedResult<Article>
 }
 
 protocol CacheBypassing {
