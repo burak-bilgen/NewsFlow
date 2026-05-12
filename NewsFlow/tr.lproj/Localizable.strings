@@ -55,6 +55,18 @@
 "tab.readingList" = "Okuma Listem";
 "tab.settings" = "Ayarlar";
 
+"notifications.title" = "Bildirim \u00d6zeti";
+"notifications.digest.frequency" = "Bildirim S\u0131kl\u0131\u011f\u0131";
+"notifications.digest.description" = "G\u00fcn\u00fcn en \u00f6nemli haberlerini bildirim olarak al \u2014 sadece ger\u00e7ekten \u00f6nemli bir \u015fey varsa.";
+"notifications.digest.footer" = "Bildirimler yaln\u0131zca \u00f6nemli veya son dakika haberleri tespit edildi\u011finde g\u00f6nderilir.";
+"notifications.frequency.off" = "Kapal\u0131";
+"notifications.frequency.once" = "G\u00fcnde bir kez";
+"notifications.frequency.twice" = "G\u00fcnde iki kez";
+"notifications.frequency.threeTimes" = "G\u00fcnde \u00fc\u00e7 kez";
+"notifications.allow" = "Bildirimleri A\u00e7";
+"notifications.permission.granted" = "Bildirimler a\u00e7\u0131ld\u0131!";
+"notifications.permission.denied" = "Bildirim izni reddedildi. iOS Ayarlar\u0131'n\u0131 kontrol edin.";
+
 "article.summarize" = "AI ile Özetle";
 "article.summarizing" = "Özetleniyor...";
 "article.summary.title" = "AI Özeti";

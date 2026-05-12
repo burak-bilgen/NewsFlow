@@ -124,6 +124,10 @@ final class FeedViewModel: ObservableObject {
             carouselSelection = min(carouselSelection, max(featuredArticles.count - 1, 0))
             resetLoadingState(mode: mode)
             state = articles.isEmpty ? .empty : .loaded
+
+            if mode == .initial || mode == .pullToRefresh {
+                Task { await DigestNotificationService.shared.scheduleDigestIfNeeded(articles: articles) }
+            }
         } catch {
             resetLoadingState(mode: mode)
             if articles.isEmpty {

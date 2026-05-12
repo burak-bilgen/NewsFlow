@@ -55,6 +55,18 @@
 "tab.readingList" = "Reading List";
 "tab.settings" = "Settings";
 
+"notifications.title" = "Digest Notifications";
+"notifications.digest.frequency" = "Digest Frequency";
+"notifications.digest.description" = "Get a daily digest of the most important headlines — only when there's news worth sharing.";
+"notifications.digest.footer" = "Notifications are sent only when important or breaking news is detected.";
+"notifications.frequency.off" = "Off";
+"notifications.frequency.once" = "Once daily";
+"notifications.frequency.twice" = "Twice daily";
+"notifications.frequency.threeTimes" = "Three times daily";
+"notifications.allow" = "Enable Notifications";
+"notifications.permission.granted" = "Notifications enabled!";
+"notifications.permission.denied" = "Notification permission denied. Check iOS Settings.";
+
 "article.summarize" = "Summarize with AI";
 "article.summarizing" = "Summarizing...";
 "article.summary.title" = "AI Summary";

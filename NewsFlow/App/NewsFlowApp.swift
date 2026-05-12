@@ -17,6 +17,10 @@ struct NewsFlowApp: App {
                 await imageCache.clearMemory()
             }
         }
+
+        if DigestNotificationService.shared.frequency != .off {
+            Task { await DigestNotificationService.shared.requestAuthorization() }
+        }
     }
 
     var body: some Scene {

@@ -1,12 +1,58 @@
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @EnvironmentObject private var languageManager: LanguageManager
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("digestFrequency") private var digestFrequency: DigestFrequency = .once
 
     var body: some View {
         List {
+            // Notifications Section
+            Section {
+                Picker(selection: $digestFrequency) {
+                    ForEach(DigestFrequency.allCases, id: \.self) { freq in
+                        Text(L10n.text(freq.localizedKey))
+                            .tag(freq)
+                    }
+                } label: {
+                    Label(L10n.text("notifications.digest.frequency"), systemImage: "bell.badge.fill")
+                        .font(.subheadline)
+                }
+
+                Text(L10n.text("notifications.digest.description"))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.vertical, 4)
+
+                if digestFrequency != .off {
+                    Button {
+                        Task { await requestNotificationPermission() }
+                    } label: {
+                        HStack {
+                            Label(L10n.text("notifications.allow"), systemImage: "checkmark.circle")
+                                .font(.subheadline)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                        }
+                    }
+                }
+            } header: {
+                HStack(spacing: 6) {
+                    Image(systemName: "bell.badge.fill")
+                        .font(.system(size: 12))
+                    Text(L10n.text("notifications.title"))
+                        .font(.system(size: 13, weight: .bold))
+                        .textCase(.uppercase)
+                }
+            } footer: {
+                Text(L10n.text("notifications.digest.footer"))
+                    .font(.caption2)
+            }
+
+            // Appearance Section
             Section {
                 ForEach(AppTheme.allCases) { theme in
                     ThemeRow(theme: theme, isSelected: themeManager.currentTheme == theme) {
@@ -22,6 +68,7 @@ struct SettingsView: View {
                     .textCase(.uppercase)
             }
 
+            // Language Section
             Section {
                 ForEach(AppLanguage.allCases) { language in
                     LanguageRow(
@@ -40,6 +87,7 @@ struct SettingsView: View {
                     .textCase(.uppercase)
             }
 
+            // About Section
             Section {
                 HStack {
                     Label(L10n.text("settings.version"), systemImage: "number")
@@ -65,8 +113,26 @@ struct SettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-                .navigationTitle(L10n.text("settings.title"))
+        .navigationTitle(L10n.text("settings.title"))
         .navigationBarTitleDisplayMode(.large)
+    }
+
+    private func requestNotificationPermission() async {
+        let granted = await DigestNotificationService.shared.requestAuthorization()
+        if granted {
+            Haptic.success()
+            ToastManager.shared.show(
+                L10n.text("notifications.permission.granted"),
+                style: .success,
+                duration: 2.0
+            )
+        } else {
+            ToastManager.shared.show(
+                L10n.text("notifications.permission.denied"),
+                style: .warning,
+                duration: 3.0
+            )
+        }
     }
 
     private var appVersion: String {
@@ -77,8 +143,6 @@ struct SettingsView: View {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 }
-
-// MARK: - Preview
 
 #if DEBUG
 #Preview {
