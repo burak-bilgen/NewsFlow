@@ -1,8 +1,11 @@
 import AVFoundation
+import Combine
 import UIKit
 
 @MainActor
-final class TextToSpeechService: ObservableObject {
+final class TextToSpeechService: NSObject, ObservableObject {
+    let objectWillChange = ObservableObjectPublisher()
+
     static let shared = TextToSpeechService()
 
     @Published private(set) var isPlaying = false
@@ -86,6 +89,7 @@ final class TextToSpeechService: ObservableObject {
 extension TextToSpeechService: AVSpeechSynthesizerDelegate {
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
+            objectWillChange.send()
             isPlaying = false
             currentArticleID = nil
             speechState = .idle
@@ -94,6 +98,7 @@ extension TextToSpeechService: AVSpeechSynthesizerDelegate {
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
+            objectWillChange.send()
             isPlaying = false
             currentArticleID = nil
             speechState = .idle

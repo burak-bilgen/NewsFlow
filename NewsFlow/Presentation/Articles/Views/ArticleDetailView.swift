@@ -11,6 +11,7 @@ struct ArticleDetailView: View {
     @State private var showSummary = false
     @State private var summary: String?
     @State private var isSummarizing = false
+    @ObservedObject private var ttsService = TextToSpeechService.shared
 
     private let intelligence = IntelligenceFactory.make()
 
@@ -129,6 +130,8 @@ struct ArticleDetailView: View {
                     .lineSpacing(4)
             }
 
+            listenButton
+
             if let url = article.url {
                 Button {
                     showSafari = true
@@ -232,6 +235,46 @@ struct ArticleDetailView: View {
         )
     }
 
+    private var listenButton: some View {
+        let isPlayingThis = ttsService.currentArticleID == article.id && ttsService.isPlaying
+        let isPausedThis = ttsService.currentArticleID == article.id && ttsService.isPaused
+        let iconName: String = isPlayingThis ? "pause.circle.fill" : isPausedThis ? "play.circle.fill" : "ear.fill"
+        let labelText: String = isPlayingThis ? "Pause" : isPausedThis ? "Resume" : "Listen"
+
+        return Button {
+            let text = [article.title, article.description, article.contentSnippet]
+                .compactMap { $0 }
+                .joined(separator: ". ")
+            if ttsService.currentArticleID == article.id {
+                ttsService.toggle()
+            } else {
+                ttsService.speak(text, articleID: article.id)
+            }
+        } label: {
+            HStack(spacing: AppSpacing.sm) {
+                Image(systemName: iconName)
+                    .font(.system(size: 15))
+                Text(labelText)
+                    .font(.system(size: 14, weight: .semibold))
+                Spacer()
+                if isPlayingThis {
+                    HStack(spacing: 3) {
+                        ForEach(0..<3) { i in
+                            AudioWaveBar(index: i)
+                        }
+                    }
+                    .frame(height: 16)
+                }
+            }
+            .foregroundColor(AppPalette.success)
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.vertical, AppSpacing.sm)
+            .background(AppPalette.success.opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
     private func generateSummary() {
         isSummarizing = true
         Task {
@@ -245,6 +288,26 @@ struct ArticleDetailView: View {
                 if result != nil { Haptic.success() }
             }
         }
+    }
+}
+
+private struct AudioWaveBar: View {
+    let index: Int
+    @State private var height: CGFloat = 4
+
+    private var animationDelay: Double { Double(index) * 0.15 }
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 2)
+            .fill(AppPalette.success)
+            .frame(width: 3, height: height)
+            .animation(
+                .easeInOut(duration: 0.5).repeatForever(autoreverses: true).delay(animationDelay),
+                value: height
+            )
+            .onAppear {
+                height = [12, 16, 8][index]
+            }
     }
 }
 
