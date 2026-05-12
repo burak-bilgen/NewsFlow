@@ -85,6 +85,10 @@
 "article.tts.pause" = "Pause";
 "article.tts.resume" = "Resume";
 
+"ai.banner.title" = "Apple Intelligence Available";
+"ai.banner.message" = "Enable Apple Intelligence in Settings for AI-powered summaries.";
+"ai.banner.action" = "Open Settings";
+
 "article.summarize" = "Summarize with AI";
 "article.summarizing" = "Summarizing...";
 "article.summary.title" = "AI Summary";

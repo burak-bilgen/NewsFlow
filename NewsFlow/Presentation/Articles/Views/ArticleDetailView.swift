@@ -90,10 +90,6 @@ struct ArticleDetailView: View {
     private var contentSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text(article.displayDate)
-                    .font(AppTypography.caption.font)
-                    .foregroundColor(AppPalette.textTertiary)
-
                 if let description = article.description {
                     Text(description)
                         .font(.system(size: 16, weight: .regular))
@@ -129,6 +125,8 @@ struct ArticleDetailView: View {
                     .foregroundColor(AppPalette.textSecondary)
                     .lineSpacing(4)
             }
+
+            aiAvailabilityBanner
 
             listenButton
 
@@ -273,6 +271,57 @@ struct ArticleDetailView: View {
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var aiAvailabilityBanner: some View {
+        if case .disabled = intelligence.availability {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 14))
+                    .foregroundColor(AppPalette.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.text("ai.banner.title"))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(AppPalette.textPrimary)
+                    Text(L10n.text("ai.banner.message"))
+                        .font(.system(size: 11))
+                        .foregroundColor(AppPalette.textSecondary)
+                }
+                Spacer(minLength: 8)
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString + "APPLE_INTELLIGENCE") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text(L10n.text("ai.banner.action"))
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(AppPalette.brandPrimary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(12)
+            .background(AppPalette.brandPrimaryMuted.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                    .stroke(AppPalette.accent.opacity(0.2), lineWidth: 1)
+            )
+        } else if case .unavailable(let message) = intelligence.availability {
+            HStack(spacing: 8) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 12))
+                    .foregroundColor(AppPalette.textTertiary)
+                Text(message)
+                    .font(.system(size: 11))
+                    .foregroundColor(AppPalette.textTertiary)
+            }
+            .padding(8)
+        }
     }
 
     private func generateSummary() {

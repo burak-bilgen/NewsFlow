@@ -85,6 +85,10 @@
 "article.tts.pause" = "Durdur";
 "article.tts.resume" = "Devam Et";
 
+"ai.banner.title" = "Apple Intelligence Kullan\u0131labilir";
+"ai.banner.message" = "AI destekli \u00f6zetler i\u00e7in Ayarlar'dan Apple Intelligence'\u0131 etkinle\u015ftirin.";
+"ai.banner.action" = "Ayarlar\u0131 A\u00e7";
+
 "article.summarize" = "AI ile Özetle";
 "article.summarizing" = "Özetleniyor...";
 "article.summary.title" = "AI Özeti";
