@@ -210,7 +210,7 @@ struct ArticleDetailView: View {
                     .foregroundColor(AppPalette.accent)
                 Spacer()
                 if intelligence.availability.isAvailable {
-                    Text("iOS 18+")
+                    Text(L10n.text("article.detail.ai_badge"))
                         .font(AppTypography.badge.font)
                         .foregroundColor(AppPalette.success)
                         .padding(.horizontal, 6)

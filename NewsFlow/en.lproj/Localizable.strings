@@ -92,3 +92,42 @@
 "article.summarize" = "Summarize with AI";
 "article.summarizing" = "Summarizing...";
 "article.summary.title" = "AI Summary";
+
+"feed.masthead.title1" = "NEWS";
+"feed.masthead.title2" = "FLOW";
+"feed.masthead.ai" = "AI-Powered";
+"feed.accessibility.carousel" = "Featured stories";
+"feed.accessibility.carousel.hint" = "Swipe to browse top stories";
+"feed.breaking.prefix" = "Breaking:";
+"feed.breaking.action" = "Read";
+"feed.breaking.message" = "Breaking: %@";
+"feed.accessibility.featured" = "Featured story %lld of %lld";
+"feed.accessibility.featured.hint" = "Swipe to browse featured stories";
+"feed.accessibility.source.hint" = "Tap to browse articles from this source";
+
+"article.detail.ai_badge" = "iOS 18+";
+"article.accessibility.read" = "Double tap to read. %@";
+"article.accessibility.saved" = "Saved.";
+"article.accessibility.save_hint" = "Tap bookmark to save.";
+"article.accessibility.source_hint" = "Tap to browse articles from this source";
+
+"reading.time.short" = "%lld min read";
+"reading.time.under1" = "<1 min";
+
+"theme.light" = "Light";
+"theme.dark" = "Dark";
+"theme.system" = "System";
+
+"state.handoff.title" = "Reading Article";
+
+"ai.available" = "Apple Intelligence is available but may be disabled in Settings. Enable it for AI-powered summaries.";
+"ai.unavailable" = "AI features require iOS 18+";
+"ai.fallback" = "Using standard sorting — no AI features available";
+
+"digest.breaking.title" = "Breaking: %@";
+"digest.multi.title" = "%lld top stories today";
+"digest.bullet" = "• %@";
+"digest.empty" = "";
+
+"language.english" = "English";
+"language.turkish" = "Türkçe";

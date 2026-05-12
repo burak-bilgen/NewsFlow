@@ -10,12 +10,9 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .light:
-            return "Light"
-        case .dark:
-            return "Dark"
-        case .system:
-            return "System"
+        case .light: return L10n.text("theme.light")
+        case .dark: return L10n.text("theme.dark")
+        case .system: return L10n.text("theme.system")
         }
     }
 

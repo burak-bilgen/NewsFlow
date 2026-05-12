@@ -15,8 +15,8 @@ struct ReadingTimeCalculator {
     }
 
     static func displayString(for minutes: Int) -> String {
-        if minutes < 1 { return "<1 min" }
-        return "\(minutes) min read"
+        if minutes < 1 { return L10n.text("reading.time.under1") }
+        return L10n.text("reading.time.short", minutes)
     }
 }
 

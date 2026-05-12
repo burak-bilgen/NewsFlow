@@ -91,4 +91,43 @@
 
 "article.summarize" = "AI ile Özetle";
 "article.summarizing" = "Özetleniyor...";
-"article.summary.title" = "AI Özeti";
+"article.summary.title" = "AI \u00d6zeti";
+
+"feed.masthead.title1" = "NEWS";
+"feed.masthead.title2" = "FLOW";
+"feed.masthead.ai" = "AI Destekli";
+"feed.accessibility.carousel" = "\u00d6ne \u00e7\u0131kan haberler";
+"feed.accessibility.carousel.hint" = "Kayd\u0131rarak \u00f6ne \u00e7\u0131kan haberleri g\u00f6r";
+"feed.breaking.prefix" = "Son Dakika:";
+"feed.breaking.action" = "Oku";
+"feed.breaking.message" = "Son Dakika: %@";
+"feed.accessibility.featured" = "\u00d6ne \u00e7\u0131kan haber %lld / %lld";
+"feed.accessibility.featured.hint" = "Kayd\u0131rarak \u00f6ne \u00e7\u0131kan haberleri g\u00f6r\u00fcnt\u00fcleyin";
+"feed.accessibility.source.hint" = "Bu kaynaktaki haberlere g\u00f6z atmak i\u00e7in dokunun";
+
+"article.detail.ai_badge" = "iOS 18+";
+"article.accessibility.read" = "Okumak i\u00e7in \u00e7ift dokunun. %@";
+"article.accessibility.saved" = "Kaydedildi.";
+"article.accessibility.save_hint" = "Kaydetmek i\u00e7in yer i\u015faretine dokunun.";
+"article.accessibility.source_hint" = "Bu kaynaktaki makalelere g\u00f6z atmak i\u00e7in dokunun";
+
+"reading.time.short" = "%lld dk okuma";
+"reading.time.under1" = "<1 dk";
+
+"theme.light" = "A\u00e7\u0131k";
+"theme.dark" = "Koyu";
+"theme.system" = "Sistem";
+
+"state.handoff.title" = "Makale Okunuyor";
+
+"ai.available" = "Apple Intelligence kullan\u0131labilir ancak Ayarlar'da kapal\u0131 olabilir. AI destekli \u00f6zetler i\u00e7in etkinle\u015ftirin.";
+"ai.unavailable" = "AI \u00f6zellikleri iOS 18+ gerektirir";
+"ai.fallback" = "Standart s\u0131ralama kullan\u0131l\u0131yor - AI \u00f6zellikleri mevcut de\u011fil";
+
+"digest.breaking.title" = "Son Dakika: %@";
+"digest.multi.title" = "Bug\u00fcn %lld \u00f6nemli haber";
+"digest.bullet" = "\u2022 %@";
+"digest.empty" = "";
+
+"language.english" = "\u0130ngilizce";
+"language.turkish" = "T\u00fcrk\u00e7e";

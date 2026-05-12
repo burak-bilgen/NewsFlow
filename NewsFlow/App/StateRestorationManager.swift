@@ -30,7 +30,7 @@ final class StateRestorationManager: ObservableObject {
 
     func createUserActivity() -> NSUserActivity {
         let activity = NSUserActivity(activityType: "burakbilgen.NewsFlow.viewArticle")
-        activity.title = "Reading Article"
+        activity.title = L10n.text("state.handoff.title")
         if let sourceID = selectedSourceID {
             activity.userInfo = ["sourceID": sourceID]
         }

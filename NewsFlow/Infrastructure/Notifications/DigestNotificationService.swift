@@ -154,14 +154,14 @@ final class DigestNotificationService {
 
     private func digestTitle(articles: [Article]) -> String {
         if articles.count == 1 {
-            return "Breaking: \(articles[0].title.prefix(60))"
+            return L10n.text("digest.breaking.title", String(articles[0].title.prefix(60)))
         }
-        return "\(articles.count) top stories today"
+        return L10n.text("digest.multi.title", articles.count)
     }
 
     private func digestBody(articles: [Article]) -> String {
         let top = articles.prefix(3)
-        return top.map { "• \($0.title.prefix(80))" }.joined(separator: "\n")
+        return top.map { L10n.text("digest.bullet", String($0.title.prefix(80))) }.joined(separator: "\n")
     }
 
     private func scheduledTimes(for frequency: DigestFrequency) -> [DateComponents] {

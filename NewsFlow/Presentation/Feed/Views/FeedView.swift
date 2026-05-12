@@ -139,8 +139,8 @@ struct FeedView: View {
                         onManualInteraction: stopCarouselAutoScroll,
                         heroNamespace: heroAnimation
                     )
-                    .accessibilityLabel("Featured stories")
-                    .accessibilityHint("Swipe to browse top stories")
+                    .accessibilityLabel(L10n.text("feed.accessibility.carousel"))
+                    .accessibilityHint(L10n.text("feed.accessibility.carousel.hint"))
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -194,10 +194,10 @@ struct FeedView: View {
             newspaperDivider.padding(.bottom, AppSpacing.sm)
 
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.sm) {
-                Text("NEWS")
+                Text(L10n.text("feed.masthead.title1"))
                     .font(.system(size: 44, weight: .black, design: .serif))
                     .foregroundColor(AppPalette.textPrimary)
-                Text("FLOW")
+                Text(L10n.text("feed.masthead.title2"))
                     .font(.system(size: 44, weight: .black, design: .serif))
                     .foregroundColor(AppPalette.primaryRed)
             }
@@ -221,7 +221,7 @@ struct FeedView: View {
                     .foregroundColor(AppPalette.textSecondary)
                     .textCase(.uppercase)
                 Spacer()
-                Text("AI-Powered")
+                Text(L10n.text("feed.masthead.ai"))
                     .font(.system(size: 9, weight: .bold, design: .monospaced))
                     .foregroundColor(AppPalette.primaryRed)
                     .padding(.horizontal, 6)
@@ -272,10 +272,10 @@ struct FeedView: View {
     private func showBreakingNewsIfAvailable() {
         guard let topArticle = viewModel.featuredArticles.first else { return }
         ToastManager.shared.show(
-            "Breaking: \(topArticle.title)",
+            L10n.text("feed.breaking.message", String(topArticle.title.prefix(60))),
             style: .info,
             duration: 4.0,
-            action: ToastAction(title: "Read") {
+            action: ToastAction(title: L10n.text("feed.breaking.action")) {
                 Task { @MainActor in
                     viewModel.carouselSelection = 0
                 }

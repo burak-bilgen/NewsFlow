@@ -9,10 +9,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .english:
-            return "English"
-        case .turkish:
-            return "Türkçe"
+        case .english: return L10n.text("language.english")
+        case .turkish: return L10n.text("language.turkish")
         }
     }
 

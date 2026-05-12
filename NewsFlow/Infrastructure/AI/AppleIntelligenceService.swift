@@ -29,9 +29,9 @@ final class AppleIntelligenceService: IntelligenceServicing {
 
     var availability: AIAvailability {
         if #available(iOS 18, *) {
-            return .disabled("Apple Intelligence is available but may be disabled in Settings. Enable it for AI-powered summaries.")
+            return .disabled(L10n.text("ai.available"))
         }
-        return .unavailable("AI features require iOS 18+")
+        return .unavailable(L10n.text("ai.unavailable"))
     }
 
     func generateSummary(for text: String) async -> String? {
@@ -86,7 +86,7 @@ final class AppleIntelligenceService: IntelligenceServicing {
 }
 
 final class FallbackIntelligenceService: IntelligenceServicing {
-    let availability: AIAvailability = .unavailable("Using standard sorting — no AI features available")
+    let availability: AIAvailability = .unavailable(L10n.text("ai.fallback"))
     private let scorer = SmartArticleScorer()
 
     func generateSummary(for text: String) async -> String? {

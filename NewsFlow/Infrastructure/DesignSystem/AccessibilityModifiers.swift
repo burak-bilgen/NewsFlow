@@ -2,22 +2,28 @@ import SwiftUI
 
 extension View {
     func accessibilityArticle(_ article: Article, isSaved: Bool) -> some View {
-        self
+        let hint: String
+        if isSaved {
+            hint = L10n.text("article.accessibility.read", L10n.text("article.accessibility.saved"))
+        } else {
+            hint = L10n.text("article.accessibility.read", L10n.text("article.accessibility.save_hint"))
+        }
+        return self
             .accessibilityLabel(article.title)
-            .accessibilityHint("Double tap to read. \(isSaved ? "Saved." : "Tap bookmark to save.")")
+            .accessibilityHint(hint)
             .accessibilityAddTraits(.isButton)
     }
 
     func accessibilityCarousel(index: Int, total: Int) -> some View {
         self
-            .accessibilityLabel("Featured story \(index + 1) of \(total)")
-            .accessibilityHint("Swipe to browse featured stories")
+            .accessibilityLabel(L10n.text("feed.accessibility.featured", index + 1, total))
+            .accessibilityHint(L10n.text("feed.accessibility.featured.hint"))
     }
 
     func accessibilitySourceCard(_ source: NewsSource) -> some View {
         self
-            .accessibilityLabel("\(source.name)")
-            .accessibilityHint("Tap to browse articles from this source")
+            .accessibilityLabel(source.name)
+            .accessibilityHint(L10n.text("feed.accessibility.source.hint"))
             .accessibilityAddTraits(.isButton)
     }
 }
