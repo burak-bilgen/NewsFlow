@@ -12,6 +12,8 @@ struct ArticlesView: View {
     @State private var timerConnection: Cancellable?
     @State private var isCarouselAutoScrollEnabled = true
     @State private var isProgrammaticCarouselAdvance = false
+    @State private var searchQuery: String = ""
+    @Namespace private var heroAnimation
     var heroNamespace: Namespace.ID?
 
     init(viewModel: ArticlesViewModel, heroNamespace: Namespace.ID? = nil) {
@@ -43,6 +45,10 @@ struct ArticlesView: View {
         }
         .onChange(of: viewModel.carouselSelection) { _ in
             stopCarouselAutoScrollAfterManualSelection()
+        }
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search articles...")
+        .onChange(of: searchQuery) { newValue in
+            viewModel.updateSearchQuery(newValue)
         }
         .toastOverlay()
         .offlineAware()
@@ -110,7 +116,8 @@ struct ArticlesView: View {
                     ArticleCardView(
                         article: article,
                         sourceName: viewModel.source.name,
-                        isSaved: viewModel.isSaved(article)
+                        isSaved: viewModel.isSaved(article),
+                        heroNamespace: heroAnimation
                     ) {
                         Task { await viewModel.toggleReadingList(for: article) }
                     }

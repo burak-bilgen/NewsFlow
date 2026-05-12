@@ -165,7 +165,17 @@ final class ReadingListViewModel: ObservableObject {
     }
 
     func remove(at offsets: IndexSet) async {
-        // Implementation for swipe-to-delete
+        guard case .loaded(let articles) = state else { return }
+        for index in offsets {
+            let article = articles[index]
+            do {
+                _ = try await useCase.toggle(article)
+            } catch {
+                state = .error(L10n.text("error.generic"))
+                return
+            }
+        }
+        await load()
     }
 }
 

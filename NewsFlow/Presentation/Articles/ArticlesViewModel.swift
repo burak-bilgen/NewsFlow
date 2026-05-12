@@ -32,7 +32,10 @@ final class ArticlesViewModel: ObservableObject {
     @Published private(set) var isPrefetching = false
     @Published private(set) var hasMorePages = true
     @Published var carouselSelection = 0
+    @Published var searchQuery: String = ""
+    @Published var isSearching: Bool = false
     let source: NewsSource
+    private var searchTask: Task<Void, Never>?
 
     private let fetchUseCase: FetchArticlesUseCaseProtocol
     private let readingListUseCase: ManageReadingListUseCaseProtocol
@@ -41,6 +44,7 @@ final class ArticlesViewModel: ObservableObject {
     private var latestRequestID = UUID()
     private var automaticRefreshTask: Task<Void, Never>?
     private var currentPage = 1
+    private var searchCurrentPage = 1
 
     init(
         source: NewsSource,
@@ -56,6 +60,7 @@ final class ArticlesViewModel: ObservableObject {
 
     deinit {
         automaticRefreshTask?.cancel()
+        searchTask?.cancel()
     }
 
     var featuredArticles: [Article] {
@@ -84,6 +89,10 @@ final class ArticlesViewModel: ObservableObject {
     }
 
     func loadMore() async {
+        if isSearching {
+            await loadMoreSearch()
+            return
+        }
         guard !isLoadingMore, hasMorePages else { return }
         currentPage += 1
         await fetch(mode: .loadMore)
@@ -130,6 +139,74 @@ final class ArticlesViewModel: ObservableObject {
         return self
     }
     #endif
+
+    func updateSearchQuery(_ query: String) {
+        searchQuery = query
+        searchTask?.cancel()
+
+        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+            isSearching = false
+            hasMorePages = true
+            currentPage = 1
+            Task { await fetch(mode: .initial) }
+            return
+        }
+
+        isSearching = true
+        searchCurrentPage = 1
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            guard !Task.isCancelled else { return }
+            await performSearch(query)
+        }
+    }
+
+    private func performSearch(_ query: String) async {
+        state = .loading
+        do {
+            let result = try await fetchUseCase.searchArticles(query: query, page: 1, pageSize: pageSize)
+            if result.items.isEmpty {
+                articles = []
+                state = .empty
+                NewsFlowLogger.shared.info("Search returned no results for: \(query)", category: "Search")
+            } else {
+                articles = result.items
+                state = .loaded
+                NewsFlowLogger.shared.debug("Search found \(result.items.count) results for: \(query)", category: "Search")
+            }
+            currentPage = 1
+            hasMorePages = result.hasMorePages
+        } catch {
+            NewsFlowLogger.shared.error("Search failed: \(error.localizedDescription)", category: "Search")
+            if articles.isEmpty {
+                state = .error(L10n.text("error.generic"))
+            }
+            currentPage = 1
+        }
+    }
+
+    private func loadMoreSearch() async {
+        guard !isLoadingMore, hasMorePages else { return }
+        isLoadingMore = true
+        searchCurrentPage += 1
+        do {
+            let result = try await fetchUseCase.searchArticles(query: searchQuery, page: searchCurrentPage, pageSize: pageSize)
+            let existingIDs = Set(articles.map(\.id))
+            let uniqueNewItems = result.items.filter { !existingIDs.contains($0.id) }
+            articles.append(contentsOf: uniqueNewItems)
+            hasMorePages = result.hasMorePages
+            NewsFlowLogger.shared.debug("Search load more added \(uniqueNewItems.count) items", category: "Search")
+        } catch {
+            NewsFlowLogger.shared.error("Search load more failed: \(error.localizedDescription)", category: "Search")
+            searchCurrentPage -= 1
+            ToastManager.shared.show(
+                L10n.text("error.generic"),
+                style: .error,
+                duration: 5.0
+            )
+        }
+        isLoadingMore = false
+    }
 
     func toggleReadingList(for article: Article) async {
         do {

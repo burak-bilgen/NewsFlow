@@ -7,6 +7,7 @@ struct ArticleDetailView: View {
     let sourceName: String
     var isSaved: Bool = false
     var onToggleReadingList: (() -> Void)?
+    var heroNamespace: Namespace.ID? = nil
     @State private var showSafari = false
     @State private var appearAnimation = false
 
@@ -17,6 +18,7 @@ struct ArticleDetailView: View {
                 // Hero image
                 ZStack(alignment: .topLeading) {
                     ArticleImageView(url: article.imageURL)
+                        .matchedGeometryEffect(id: article.id, in: heroNamespace!)
                         .frame(maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: 320)
                         .clipShape(
                             RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)

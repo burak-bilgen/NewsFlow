@@ -5,6 +5,7 @@ struct ArticleCardView: View {
     let sourceName: String
     let isSaved: Bool
     let onToggle: () -> Void
+    var heroNamespace: Namespace.ID? = nil
     @State private var isPressed = false
 
     var body: some View {
@@ -14,7 +15,8 @@ struct ArticleCardView: View {
                         article: article,
                         sourceName: sourceName,
                         isSaved: isSaved,
-                        onToggleReadingList: onToggle
+                        onToggleReadingList: onToggle,
+                        heroNamespace: heroNamespace
                     )
             } label: {
                 HStack(alignment: .top, spacing: AppSpacing.md) {
@@ -47,6 +49,7 @@ struct ArticleCardView: View {
     private var articlePreview: some View {
         HStack(alignment: .top, spacing: AppSpacing.md) {
             ArticleImageView(url: article.imageURL)
+                .matchedGeometryEffect(id: article.id, in: heroNamespace!)
                 .frame(width: 100, height: 100)
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
                 .overlay(
