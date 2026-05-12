@@ -139,6 +139,8 @@ struct FeedView: View {
                         onManualInteraction: stopCarouselAutoScroll,
                         heroNamespace: heroAnimation
                     )
+                    .accessibilityLabel("Featured stories")
+                    .accessibilityHint("Swipe to browse top stories")
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
