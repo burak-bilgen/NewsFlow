@@ -112,6 +112,145 @@ final class NewsAPIDecodingTests: XCTestCase {
     }
 }
 
+// MARK: - Guardian DTO Tests
+
+final class GuardianDTOTests: XCTestCase {
+    func testGuardianSearchResponseDecoding() throws {
+        let json = """
+        {
+          "response": {
+            "status": "ok",
+            "total": 1,
+            "results": [
+              {
+                "id": "world/2026/may/12/test",
+                "type": "article",
+                "sectionId": "world",
+                "sectionName": "World news",
+                "webPublicationDate": "2026-05-12T10:00:00Z",
+                "webTitle": "Test Guardian Article",
+                "webUrl": "https://www.theguardian.com/world/2026/may/12/test",
+                "fields": {
+                  "trailText": "A test article",
+                  "thumbnail": "https://media.guim.co.uk/test.jpg",
+                  "bodyText": "Full body text"
+                }
+              }
+            ]
+          }
+        }
+        """
+        let data = Data(json.utf8)
+        let response = try JSONDecoder().decode(GuardianSearchResponse.self, from: data)
+
+        XCTAssertEqual(response.response.status, "ok")
+        XCTAssertEqual(response.response.total, 1)
+        XCTAssertEqual(response.response.results.count, 1)
+
+        let dto = try XCTUnwrap(response.response.results.first)
+        XCTAssertEqual(dto.id, "world/2026/may/12/test")
+        XCTAssertEqual(dto.webTitle, "Test Guardian Article")
+        XCTAssertEqual(dto.sectionName, "World news")
+    }
+
+    func testGuardianArticleDTODomainModelMapping() throws {
+        let json = """
+        {
+          "id": "world/2026/may/12/test",
+          "type": "article",
+          "sectionId": "world",
+          "sectionName": "World news",
+          "webPublicationDate": "2026-05-12T10:00:00Z",
+          "webTitle": "Test Guardian Article",
+          "webUrl": "https://www.theguardian.com/world/2026/may/12/test",
+          "fields": {
+            "trailText": "A test article",
+            "thumbnail": "https://media.guim.co.uk/test.jpg"
+          }
+        }
+        """
+        let data = Data(json.utf8)
+        let dto = try JSONDecoder().decode(GuardianArticleDTO.self, from: data)
+        let article = dto.domainModel()
+
+        XCTAssertEqual(article.id, "guardian-world/2026/may/12/test")
+        XCTAssertEqual(article.sourceID, "guardian")
+        XCTAssertEqual(article.title, "Test Guardian Article")
+        XCTAssertEqual(article.sourceName, "The Guardian")
+        XCTAssertEqual(article.apiSource, .guardian)
+        XCTAssertNotNil(article.publishedAt)
+        XCTAssertNotNil(article.url)
+        XCTAssertEqual(article.url?.absoluteString, "https://www.theguardian.com/world/2026/may/12/test")
+    }
+}
+
+// MARK: - NYT DTO Tests
+
+final class NYTDTOTests: XCTestCase {
+    func testNYTSearchResponseDecoding() throws {
+        let json = """
+        {
+          "status": "OK",
+          "response": {
+            "docs": [
+              {
+                "_id": "nyt://article/test-id",
+                "headline": { "main": "Test NYT Article" },
+                "snippet": "A test snippet",
+                "lead_paragraph": "A lead paragraph",
+                "pub_date": "2026-05-12T10:00:00Z",
+                "web_url": "https://www.nytimes.com/2026/05/12/test.html",
+                "multimedia": [
+                  { "url": "images/test.jpg", "subtype": "superJumbo", "width": 2000, "height": 1000 }
+                ],
+                "source": "The New York Times",
+                "section_name": "World"
+              }
+            ]
+          }
+        }
+        """
+        let data = Data(json.utf8)
+        let response = try JSONDecoder().decode(NYTSearchResponse.self, from: data)
+
+        XCTAssertEqual(response.status, "OK")
+        let docs = try XCTUnwrap(response.response?.docs)
+        XCTAssertEqual(docs.count, 1)
+
+        let dto = try XCTUnwrap(docs.first)
+        XCTAssertEqual(dto._id, "nyt://article/test-id")
+        XCTAssertEqual(dto.headline?.main, "Test NYT Article")
+        XCTAssertEqual(dto.snippet, "A test snippet")
+        XCTAssertEqual(dto.source, "The New York Times")
+    }
+
+    func testNYTArticleDTODomainModelMapping() throws {
+        let json = """
+        {
+          "_id": "nyt://article/test-id",
+          "headline": { "main": "Test NYT Article" },
+          "snippet": "A test snippet",
+          "pub_date": "2026-05-12T10:00:00Z",
+          "web_url": "https://www.nytimes.com/2026/05/12/test.html",
+          "source": "The New York Times",
+          "section_name": "World"
+        }
+        """
+        let data = Data(json.utf8)
+        let dto = try JSONDecoder().decode(NYTArticleDTO.self, from: data)
+        let article = dto.domainModel()
+
+        XCTAssertEqual(article.id, "nyt-nyt://article/test-id")
+        XCTAssertEqual(article.sourceID, "nyt")
+        XCTAssertEqual(article.title, "Test NYT Article")
+        XCTAssertEqual(article.sourceName, "The New York Times")
+        XCTAssertEqual(article.apiSource, .nyt)
+        XCTAssertNotNil(article.publishedAt)
+        XCTAssertNotNil(article.url)
+        XCTAssertEqual(article.url?.absoluteString, "https://www.nytimes.com/2026/05/12/test.html")
+    }
+}
+
 // MARK: - Mock URLSession
 
 actor MockURLSession: URLSessionProtocol {
