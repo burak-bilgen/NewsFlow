@@ -119,7 +119,11 @@ struct FeedView: View {
                 Group {
                     // Find first article with image for hero banner (skip HackerNews and image-less articles)
                     let heroArticle = feedArticles.first { $0.imageURL != nil && $0.apiSource != .hackernews }
-                    let remainingArticles = heroArticle != nil ? feedArticles.filter { $0.id != heroArticle!.id } : feedArticles
+                    let remainingArticles = if let hero = heroArticle {
+                        feedArticles.filter { $0.id != hero.id }
+                    } else {
+                        feedArticles
+                    }
                     
                     if let article = heroArticle {
                         VStack(alignment: .leading, spacing: 0) {

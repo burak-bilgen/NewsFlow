@@ -77,6 +77,9 @@ actor EnhancedArticleScorer {
     // MARK: - Main Scoring Method
     
     func scoreAndEnrich(_ articles: [Article]) async -> [Article] {
+        // Reset source history for each new batch
+        sourceHistory.removeAll()
+        
         var scoredArticles: [(article: Article, score: ArticleScore)] = []
         
         for article in articles {

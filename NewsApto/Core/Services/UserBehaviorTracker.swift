@@ -63,7 +63,9 @@ actor UserBehaviorTracker {
     }
     
     private init() {
-        loadFromStorage()
+        Task {
+            await loadFromStorage()
+        }
     }
     
     // MARK: - Track Interactions
@@ -197,7 +199,7 @@ actor UserBehaviorTracker {
         }
     }
     
-    private func loadFromStorage() {
+    private func loadFromStorage() async {
         if let data = UserDefaults.standard.data(forKey: storageKey),
            let loaded = try? JSONDecoder().decode([ArticleInteraction].self, from: data) {
             interactions = loaded
