@@ -8,5 +8,9 @@
 	<string>$(NYT_API_KEY)</string>
 	<key>NewsAPIKey</key>
 	<string>$(NEWS_API_KEY)</string>
+	<key>GNewsAPIKey</key>
+	<string>$(GNEWS_API_KEY)</string>
+	<key>NewsDataAPIKey</key>
+	<string>$(NEWSDATA_API_KEY)</string>
 </dict>
 </plist>
