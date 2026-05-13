@@ -9,9 +9,17 @@ struct MagazineGridCard: View {
     var body: some View {
         Button(action: onSelect) {
             VStack(alignment: .leading, spacing: 0) {
-                ArticleImageView(url: article.imageURL)
-                    .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120)
-                    .clipped()
+                ZStack(alignment: .topLeading) {
+                    ArticleImageView(url: article.imageURL)
+                        .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120)
+                        .clipped()
+                    
+                    // Badges overlay
+                    if !article.badges.isEmpty {
+                        ArticleBadgeView(badges: article.badges, size: .small)
+                            .padding(6)
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.sourceName.uppercased())
@@ -24,9 +32,19 @@ struct MagazineGridCard: View {
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text(article.displayDate)
-                        .font(AppTypography.small)
-                        .foregroundColor(AppPalette.textTertiary)
+                    HStack {
+                        Text(article.displayDate)
+                            .font(AppTypography.small)
+                            .foregroundColor(AppPalette.textTertiary)
+                        
+                        Spacer()
+                        
+                        if let score = article.qualityScore {
+                            Text("\(Int(score))pt")
+                                .font(AppTypography.monoTiny)
+                                .foregroundColor(AppPalette.accent.opacity(0.7))
+                        }
+                    }
                 }
                 .padding(8)
             }

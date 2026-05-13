@@ -32,9 +32,35 @@ enum APIConfig {
             )
         }
     }
+    
+    struct GNewsConfig {
+        let baseURL: URL?
+        let apiKey: String?
+        
+        static var live: GNewsConfig {
+            GNewsConfig(
+                baseURL: URL(string: "https://gnews.io/api/v4"),
+                apiKey: APIConfig.key(from: "GNewsAPIKey")
+            )
+        }
+    }
+    
+    struct NewsDataConfig {
+        let baseURL: URL?
+        let apiKey: String?
+        
+        static var live: NewsDataConfig {
+            NewsDataConfig(
+                baseURL: URL(string: "https://newsdata.io/api/1"),
+                apiKey: APIConfig.key(from: "NewsDataAPIKey")
+            )
+        }
+    }
 
     static var guardian: GuardianConfig { .live }
     static var nyt: NYTConfig { .live }
+    static var gnews: GNewsConfig { .live }
+    static var newsdata: NewsDataConfig { .live }
 
     private static func key(from infoKey: String) -> String? {
         let plistKey: String? = {

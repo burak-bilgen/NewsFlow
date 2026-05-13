@@ -11,6 +11,28 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
     var sourceName: String = ""
     var apiSource: APISource = .newsAPI
     var contentSnippet: String?
+    
+    // Smart Curation Fields
+    var qualityScore: Double?
+    var topicID: String?
+    var badges: [ArticleBadge]
+    var curationReason: CurationReason?
+    var engagementScore: Double?
+    var sourceAuthority: Double?
+    
+    enum ArticleBadge: String, Codable, Hashable, Sendable {
+        case trending = "🔥 TRENDING"
+        case breaking = "⚡ BREAKING"
+        case editorsChoice = "⭐ EDITOR'S CHOICE"
+        case personalized = "🎯 FOR YOU"
+        case multiSource = "🌐 VERIFIED"
+        case highQuality = "📈 HIGH QUALITY"
+    }
+    
+    struct CurationReason: Codable, Hashable, Sendable {
+        let reason: String
+        let factors: [String]
+    }
 
     init(
         id: String,
@@ -22,7 +44,13 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
         url: URL? = nil,
         sourceName: String = "",
         apiSource: APISource = .newsAPI,
-        contentSnippet: String? = nil
+        contentSnippet: String? = nil,
+        qualityScore: Double? = nil,
+        topicID: String? = nil,
+        badges: [ArticleBadge] = [],
+        curationReason: CurationReason? = nil,
+        engagementScore: Double? = nil,
+        sourceAuthority: Double? = nil
     ) {
         self.id = id
         self.sourceID = sourceID
@@ -34,6 +62,12 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.sourceName = sourceName
         self.apiSource = apiSource
         self.contentSnippet = contentSnippet
+        self.qualityScore = qualityScore
+        self.topicID = topicID
+        self.badges = badges
+        self.curationReason = curationReason
+        self.engagementScore = engagementScore
+        self.sourceAuthority = sourceAuthority
     }
 
     var displayDate: String {
@@ -44,6 +78,7 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
 extension Article {
     enum CodingKeys: String, CodingKey {
         case id, sourceID, title, description, imageURL, publishedAt, url, sourceName, apiSource, contentSnippet
+        case qualityScore, topicID, badges, curationReason, engagementScore, sourceAuthority
     }
 
     init(from decoder: Decoder) throws {
@@ -58,6 +93,12 @@ extension Article {
         sourceName = try container.decodeIfPresent(String.self, forKey: .sourceName) ?? ""
         apiSource = try container.decodeIfPresent(APISource.self, forKey: .apiSource) ?? .newsAPI
         contentSnippet = try container.decodeIfPresent(String.self, forKey: .contentSnippet)
+        qualityScore = try container.decodeIfPresent(Double.self, forKey: .qualityScore)
+        topicID = try container.decodeIfPresent(String.self, forKey: .topicID)
+        badges = try container.decodeIfPresent([ArticleBadge].self, forKey: .badges) ?? []
+        curationReason = try container.decodeIfPresent(CurationReason.self, forKey: .curationReason)
+        engagementScore = try container.decodeIfPresent(Double.self, forKey: .engagementScore)
+        sourceAuthority = try container.decodeIfPresent(Double.self, forKey: .sourceAuthority)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -72,6 +113,12 @@ extension Article {
         try container.encode(sourceName, forKey: .sourceName)
         try container.encode(apiSource, forKey: .apiSource)
         try container.encodeIfPresent(contentSnippet, forKey: .contentSnippet)
+        try container.encodeIfPresent(qualityScore, forKey: .qualityScore)
+        try container.encodeIfPresent(topicID, forKey: .topicID)
+        try container.encode(badges, forKey: .badges)
+        try container.encodeIfPresent(curationReason, forKey: .curationReason)
+        try container.encodeIfPresent(engagementScore, forKey: .engagementScore)
+        try container.encodeIfPresent(sourceAuthority, forKey: .sourceAuthority)
     }
 }
 

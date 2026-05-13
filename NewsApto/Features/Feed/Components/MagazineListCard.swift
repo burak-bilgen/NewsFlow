@@ -13,7 +13,13 @@ struct MagazineListCard: View {
                     .frame(width: 80, height: 80)
                     .clipped()
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
+                    // Badges row
+                    if !article.badges.isEmpty {
+                        ArticleBadgeView(badges: article.badges, size: .small)
+                            .padding(.bottom, 2)
+                    }
+                    
                     Text(article.sourceName.uppercased())
                         .font(AppTypography.small.weight(.bold))
                         .foregroundColor(AppPalette.accent)
@@ -23,9 +29,26 @@ struct MagazineListCard: View {
                         .foregroundColor(AppPalette.textPrimary)
                         .lineLimit(2)
 
-                    Text(article.displayDate)
-                        .font(AppTypography.small)
-                        .foregroundColor(AppPalette.textTertiary)
+                    HStack(spacing: 8) {
+                        Text(article.displayDate)
+                            .font(AppTypography.small)
+                            .foregroundColor(AppPalette.textTertiary)
+                        
+                        if let score = article.qualityScore {
+                            Text("• \(Int(score))pt")
+                                .font(AppTypography.monoTiny)
+                                .foregroundColor(AppPalette.accent.opacity(0.7))
+                        }
+                    }
+                    
+                    // Curation reason
+                    if let reason = article.curationReason {
+                        Text(reason.reason)
+                            .font(AppTypography.monoTiny)
+                            .foregroundColor(AppPalette.textTertiary.opacity(0.8))
+                            .lineLimit(1)
+                            .padding(.top, 2)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 2)

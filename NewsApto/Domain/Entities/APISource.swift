@@ -4,4 +4,7 @@ enum APISource: String, Codable, Sendable, CaseIterable {
     case newsAPI = "newsapi"
     case guardian = "guardian"
     case nyt = "nyt"
+    case gnews = "gnews"
+    case newsdata = "newsdata"
+    case hackernews = "hackernews"
 }

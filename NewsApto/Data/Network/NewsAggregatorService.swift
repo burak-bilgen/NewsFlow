@@ -19,17 +19,31 @@ actor NewsAggregatorService: NewsAggregating {
     private let newsAPIRepository: ArticlesRepositoryProtocol
     private let guardianClient: GuardianClientProtocol
     private let nytClient: NYTClientProtocol
-    private let scorer = SmartArticleScorer()
+    private let gnewsClient: GNewsClient
+    private let newsDataClient: NewsDataClient
+    private let hackerNewsClient: HackerNewsClient
+    private let enhancedScorer: EnhancedArticleScorer
+    private let topicDiversity: TopicDiversityEngine
+    private let behaviorTracker: UserBehaviorTracker
     private var inflightFeed: Task<AggregatedResult, Never>?
 
     init(
         newsAPIRepository: ArticlesRepositoryProtocol,
         guardianClient: GuardianClientProtocol,
-        nytClient: NYTClientProtocol
+        nytClient: NYTClientProtocol,
+        gnewsClient: GNewsClient = GNewsClient(),
+        newsDataClient: NewsDataClient = NewsDataClient(),
+        hackerNewsClient: HackerNewsClient = HackerNewsClient()
     ) {
         self.newsAPIRepository = newsAPIRepository
         self.guardianClient = guardianClient
         self.nytClient = nytClient
+        self.gnewsClient = gnewsClient
+        self.newsDataClient = newsDataClient
+        self.hackerNewsClient = hackerNewsClient
+        self.enhancedScorer = EnhancedArticleScorer()
+        self.topicDiversity = TopicDiversityEngine()
+        self.behaviorTracker = UserBehaviorTracker.shared
     }
 
     func fetchFeed(page: Int = 1, pageSize: Int = 30) async -> AggregatedResult {
@@ -49,11 +63,48 @@ actor NewsAggregatorService: NewsAggregating {
     }
 
     private func _fetchFeed(page: Int, pageSize: Int) async -> AggregatedResult {
-        let newsResult = await fetchNewsAPI(page: page, pageSize: pageSize)
-        let guardianArticles = await fetchGuardian(page: page, pageSize: pageSize)
-        let nytResult = await fetchNYT(page: page)
-
-        return combine(newsResult, guardianArticles, nytResult)
+        // Fetch from all sources concurrently
+        async let newsResult = fetchNewsAPI(page: page, pageSize: pageSize)
+        async let guardianArticles = fetchGuardian(page: page, pageSize: pageSize)
+        async let nytResult = fetchNYT(page: page)
+        async let gnewsArticles = fetchGNews(page: page)
+        async let newsDataResult = fetchNewsData(page: page)
+        async let hnArticles = fetchHackerNews()
+        
+        let (newsRes, guardianRes, nytRes, gnewsRes, newsDataRes, hnRes) = await (
+            newsResult, guardianArticles, nytResult, gnewsArticles, newsDataResult, hnArticles
+        )
+        
+        var allArticles = await combineAllSources(
+            newsRes, guardianRes, nytRes, gnewsRes, newsDataRes, hnRes
+        )
+        
+        // Apply smart scoring
+        allArticles = await enhancedScorer.scoreAndEnrich(allArticles)
+        
+        // Apply topic diversity (max 2 articles per topic)
+        allArticles = await topicDiversity.ensureDiversity(in: allArticles, maxPerTopic: 2)
+        
+        // Get user preferences for personalization boost
+        let profile = await behaviorTracker.getUserProfile()
+        allArticles = applyPersonalizationBoost(articles: allArticles, profile: profile)
+        
+        return AggregatedResult(
+            articles: Array(allArticles.prefix(pageSize)),
+            sourceCount: 6
+        )
+    }
+    
+    private func applyPersonalizationBoost(articles: [Article], profile: UserBehaviorTracker.UserPreferenceProfile) -> [Article] {
+        return articles.map { article in
+            var boosted = article
+            if let sourceScore = profile.preferredSources[article.sourceName] {
+                // Boost quality score based on user preferences
+                let boost = sourceScore * 10
+                boosted.qualityScore = (boosted.qualityScore ?? 50) + boost
+            }
+            return boosted
+        }.sorted { ($0.qualityScore ?? 0) > ($1.qualityScore ?? 0) }
     }
 
     private func fetchNewsAPI(page: Int, pageSize: Int) async -> PaginatedResult<Article>? {
@@ -82,54 +133,70 @@ actor NewsAggregatorService: NewsAggregating {
             return nil
         }
     }
-
-    func fetchArticles(sourceID: String, page: Int = 1, pageSize: Int = 20) async -> AggregatedResult {
-        let newsResult: PaginatedResult<Article>? = await {
-            do {
-                return try await newsAPIRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
-            } catch {
-                NewsAptoLogger.shared.error("NewsAPI fetch failed for \(sourceID): \(error)", category: "Network")
-                return nil
-            }
-        }()
-        let guardianArticles: [Article]? = await {
-            do {
-                return try await guardianClient.search(query: nil, page: page, pageSize: pageSize, section: sourceID == "all" ? nil : sourceID)
-            } catch {
-                NewsAptoLogger.shared.error("Guardian fetch failed for \(sourceID): \(error)", category: "Network")
-                return nil
-            }
-        }()
-        let nytResult: NYTSearchResult? = await {
-            do {
-                return try await nytClient.search(query: nil, page: page, section: sourceID == "all" ? nil : sourceID)
-            } catch {
-                NewsAptoLogger.shared.error("NYT fetch failed for \(sourceID): \(error)", category: "Network")
-                return nil
-            }
-        }()
-
-        return combine(newsResult, guardianArticles, nytResult)
+    
+    private func fetchGNews(page: Int) async -> [Article]? {
+        do {
+            return try await gnewsClient.fetchTopHeadlines(max: 20, page: page)
+        } catch {
+            NewsAptoLogger.shared.error("GNews fetch failed: \(error)", category: "Network")
+            return nil
+        }
+    }
+    
+    private func fetchNewsData(page: Int) async -> NewsDataClient.NewsDataResult? {
+        do {
+            return try await newsDataClient.fetchLatestNews(page: page > 1 ? String(page) : nil)
+        } catch {
+            NewsAptoLogger.shared.error("NewsData fetch failed: \(error)", category: "Network")
+            return nil
+        }
+    }
+    
+    private func fetchHackerNews() async -> [Article]? {
+        do {
+            return try await hackerNewsClient.fetchTopStories(limit: 15)
+        } catch {
+            NewsAptoLogger.shared.error("HackerNews fetch failed: \(error)", category: "Network")
+            return nil
+        }
     }
 
-    private func combine(_ newsResult: PaginatedResult<Article>?, _ guardianArticles: [Article]?, _ nytResult: NYTSearchResult?) -> AggregatedResult {
+    private func combineAllSources(
+        _ newsResult: PaginatedResult<Article>?,
+        _ guardianArticles: [Article]?,
+        _ nytResult: NYTSearchResult?,
+        _ gnewsArticles: [Article]?,
+        _ newsDataResult: NewsDataClient.NewsDataResult?,
+        _ hnArticles: [Article]?
+    ) async -> [Article] {
         var allArticles: [Article] = []
-        var sourceCount = 0
 
         if let paginated = newsResult {
             allArticles.append(contentsOf: paginated.items)
-            sourceCount += 1
         }
         if let articles = guardianArticles {
             allArticles.append(contentsOf: articles)
-            sourceCount += 1
         }
         if let result = nytResult {
             allArticles.append(contentsOf: result.articles)
-            sourceCount += 1
+        }
+        if let articles = gnewsArticles {
+            allArticles.append(contentsOf: articles)
+        }
+        if let result = newsDataResult {
+            allArticles.append(contentsOf: result.articles)
+        }
+        if let articles = hnArticles {
+            allArticles.append(contentsOf: articles)
         }
 
-        let sorted = scorer.sortAndDeduplicate(allArticles)
-        return AggregatedResult(articles: sorted, sourceCount: sourceCount)
+        // Deduplicate by URL
+        var seenURLs = Set<String>()
+        return allArticles.filter { article in
+            guard let url = article.url?.absoluteString else { return true }
+            guard !seenURLs.contains(url) else { return false }
+            seenURLs.insert(url)
+            return true
+        }
     }
 }
