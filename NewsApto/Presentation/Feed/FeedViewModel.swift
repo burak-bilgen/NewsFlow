@@ -206,7 +206,6 @@ enum CategoryMatcher {
         "nutrition": "health",
         "diet": "health",
         "disease": "health",
-        "mental-health": "health",
         "psychology": "health",
         "therapy": "health",
         "treatment": "health",
