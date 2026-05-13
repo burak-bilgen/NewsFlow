@@ -110,19 +110,61 @@ final class FeedViewModel: ObservableObject {
     }
 }
 
-// MARK: - Category Matcher (Data-Driven)
+// MARK: - Category Matcher (Uses Article.category with NLP fallback)
 
 enum CategoryMatcher {
+    // Map external API categories to our standard categories
+    private static let categoryMappings: [String: String] = [
+        // Technology mappings
+        "technology": "technology", "tech": "technology", "science-and-technology": "technology",
+        "computers": "technology", "internet": "technology", "gadgets": "technology",
+        
+        // Business mappings
+        "business": "business", "economy": "business", "finance": "business",
+        "money": "business", "markets": "business", "companies": "business",
+        
+        // Science mappings  
+        "science": "science", "research": "science", "space": "science",
+        "environment": "science", "climate": "science", "nature": "science",
+        
+        // Health mappings
+        "health": "health", "wellness": "health", "medical": "health",
+        "medicine": "health", "mental-health": "health", "fitness": "health",
+        
+        // Sports mappings
+        "sports": "sports", "sport": "sports", "football": "sports",
+        "basketball": "sports", "soccer": "sports", "tennis": "sports",
+        
+        // Entertainment mappings
+        "entertainment": "entertainment", "arts": "entertainment", "culture": "entertainment",
+        "movies": "entertainment", "music": "entertainment", "television": "entertainment",
+        "arts-and-culture": "entertainment", "lifestyle": "entertainment",
+        
+        // Politics/World (mapped to business for now)
+        "politics": "business", "world": "business", "news": "business",
+        "us-news": "business", "uk-news": "business"
+    ]
+    
+    // Fallback keyword matching for articles without category
     private static let keywords: [String: [String]] = [
-        "technology": ["tech", "ai ", "digital", "computer", "software", "apple", "google", "microsoft", "crypto", "bitcoin", "quantum", "startup", "cybersecurity", "algorithm"],
-        "business": ["market", "economy", "stock", "finance", "bank", "trade", "merger", "investment", "earnings", "revenue", "profit"],
-        "science": ["science", "space", "research", "study", "climate", "gene", "quantum", "nasa", "dna", "species", "physics"],
-        "health": ["health", "medical", "drug", "hospital", "doctor", "vaccine", "mental", "wellness", "brain", "cancer", "disease"],
-        "sports": ["sport", "game", "match", "team", "league", "olympic", "champion", "football", "soccer", "basketball", "tennis"],
-        "entertainment": ["entertainment", "movie", "film", "music", "celebrity", "tv ", "streaming", "award", "actor", "artist", "netflix"]
+        "technology": ["tech", "artificial intelligence", "ai", "digital", "computer", "software", "apple", "google", "microsoft", "crypto", "bitcoin", "quantum", "startup", "cybersecurity", "algorithm", "app", "smartphone", "cloud", "data", "robot", "automation"],
+        "business": ["market", "economy", "stock", "finance", "bank", "trade", "merger", "investment", "earnings", "revenue", "profit", "corporate", "ceo", "company", "startup funding"],
+        "science": ["science", "space", "research", "study", "climate change", "gene", "nasa", "dna", "species", "physics", "chemistry", "biology", "laboratory", "discovery", "experiment"],
+        "health": ["health", "medical", "drug", "hospital", "doctor", "vaccine", "mental health", "wellness", "brain", "cancer", "disease", "pandemic", "treatment", "patient", "symptom"],
+        "sports": ["sport", "game", "match", "team", "league", "olympic", "champion", "football", "soccer", "basketball", "tennis", "baseball", "player", "coach", "tournament"],
+        "entertainment": ["entertainment", "movie", "film", "music", "celebrity", "tv", "streaming", "award", "actor", "artist", "netflix", "show", "album", "concert", "hollywood"]
     ]
 
     static func matches(_ article: Article, category: String) -> Bool {
+        // First check if article has explicit category from API
+        if let articleCategory = article.category?.lowercased() {
+            let normalizedCategory = categoryMappings[articleCategory] ?? articleCategory
+            if normalizedCategory == category {
+                return true
+            }
+        }
+        
+        // Fallback to keyword matching on title/description
         guard let categoryKeywords = keywords[category] else { return true }
         let text = (article.title + " " + (article.description ?? "") + " " + article.sourceName).lowercased()
         return categoryKeywords.contains { text.contains($0) }

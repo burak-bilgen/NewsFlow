@@ -11,6 +11,7 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
     var sourceName: String = ""
     var apiSource: APISource = .newsAPI
     var contentSnippet: String?
+    var category: String?  // News category (technology, business, etc.)
     
     // Smart Curation Fields
     var qualityScore: Double?
@@ -45,6 +46,7 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
         sourceName: String = "",
         apiSource: APISource = .newsAPI,
         contentSnippet: String? = nil,
+        category: String? = nil,
         qualityScore: Double? = nil,
         topicID: String? = nil,
         badges: [ArticleBadge] = [],
@@ -62,6 +64,7 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.sourceName = sourceName
         self.apiSource = apiSource
         self.contentSnippet = contentSnippet
+        self.category = category
         self.qualityScore = qualityScore
         self.topicID = topicID
         self.badges = badges
@@ -77,7 +80,7 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
 
 extension Article {
     enum CodingKeys: String, CodingKey {
-        case id, sourceID, title, description, imageURL, publishedAt, url, sourceName, apiSource, contentSnippet
+        case id, sourceID, title, description, imageURL, publishedAt, url, sourceName, apiSource, contentSnippet, category
         case qualityScore, topicID, badges, curationReason, engagementScore, sourceAuthority
     }
 
@@ -93,6 +96,7 @@ extension Article {
         sourceName = try container.decodeIfPresent(String.self, forKey: .sourceName) ?? ""
         apiSource = try container.decodeIfPresent(APISource.self, forKey: .apiSource) ?? .newsAPI
         contentSnippet = try container.decodeIfPresent(String.self, forKey: .contentSnippet)
+        category = try container.decodeIfPresent(String.self, forKey: .category)
         qualityScore = try container.decodeIfPresent(Double.self, forKey: .qualityScore)
         topicID = try container.decodeIfPresent(String.self, forKey: .topicID)
         badges = try container.decodeIfPresent([ArticleBadge].self, forKey: .badges) ?? []
@@ -113,6 +117,7 @@ extension Article {
         try container.encode(sourceName, forKey: .sourceName)
         try container.encode(apiSource, forKey: .apiSource)
         try container.encodeIfPresent(contentSnippet, forKey: .contentSnippet)
+        try container.encodeIfPresent(category, forKey: .category)
         try container.encodeIfPresent(qualityScore, forKey: .qualityScore)
         try container.encodeIfPresent(topicID, forKey: .topicID)
         try container.encode(badges, forKey: .badges)
