@@ -114,57 +114,339 @@ final class FeedViewModel: ObservableObject {
 
 enum CategoryMatcher {
     // Map external API categories to our standard categories
+    // Supports: Guardian (sectionId), NYT (sectionName), NewsData (category[]), GNews (topic), HN (hardcoded)
     private static let categoryMappings: [String: String] = [
-        // Technology mappings
-        "technology": "technology", "tech": "technology", "science-and-technology": "technology",
-        "computers": "technology", "internet": "technology", "gadgets": "technology",
+        // ========== TECHNOLOGY ==========
+        "technology": "technology",
+        "tech": "technology",
+        "technology-science": "technology",
+        "science-and-technology": "technology",
+        "information-technology": "technology",
+        "computers": "technology",
+        "internet": "technology",
+        "gadgets": "technology",
+        "mobile": "technology",
+        "telecommunications": "technology",
+        "ai": "technology",
+        "artificial-intelligence": "technology",
+        "cyber-security": "technology",
+        "cybersecurity": "technology",
+        "programming": "technology",
+        "software": "technology",
+        "startups": "technology",
+        "innovation": "technology",
+        "scienceandtechnology": "technology",
+        // NewsData specific
+        "top": "technology", "technology-technology": "technology",
         
-        // Business mappings
-        "business": "business", "economy": "business", "finance": "business",
-        "money": "business", "markets": "business", "companies": "business",
+        // ========== BUSINESS ==========
+        "business": "business",
+        "economy": "business",
+        "finance": "business",
+        "financial": "business",
+        "money": "business",
+        "markets": "business",
+        "stock-market": "business",
+        "companies": "business",
+        "company": "business",
+        "corporate": "business",
+        "industry": "business",
+        "trade": "business",
+        "commercial": "business",
+        "us": "business", "uk": "business",  // Guardian US/UK news sections
+        "us-news": "business",
+        "uk-news": "business",
+        "world": "business",
+        "politics": "business",
+        "political": "business",
+        "government": "business",
+        "policy": "business",
+        "law": "business",
+        "legal": "business",
+        "international": "business",
+        "breaking": "business",
+        "general": "business",
+        "news": "business",
+        // NewsData specific
+        "business-business": "business", "business-us": "business",
         
-        // Science mappings  
-        "science": "science", "research": "science", "space": "science",
-        "environment": "science", "climate": "science", "nature": "science",
+        // ========== SCIENCE ==========
+        "science": "science",
+        "research": "science",
+        "space": "science",
+        "astronomy": "science",
+        "environment": "science",
+        "environmental": "science",
+        "climate": "science",
+        "climate-change": "science",
+        "nature": "science",
+        "earth": "science",
+        "physics": "science",
+        "chemistry": "science",
+        "biology": "science",
+        "genetics": "science",
+        "evolution": "science",
+        "energy": "science",
+        "renewable": "science",
+        "weather": "science",
+        "discovery": "science",
+        "laboratory": "science",
+        "scientific": "science",
+        "tech-and-science": "science",
+        // NewsData specific
+        "science-science": "science", "science-environment": "science",
         
-        // Health mappings
-        "health": "health", "wellness": "health", "medical": "health",
-        "medicine": "health", "mental-health": "health", "fitness": "health",
+        // ========== HEALTH ==========
+        "health": "health",
+        "wellness": "health",
+        "medical": "health",
+        "medicine": "health",
+        "mental-health": "health",
+        "fitness": "health",
+        "nutrition": "health",
+        "diet": "health",
+        "disease": "health",
+        "mental-health": "health",
+        "psychology": "health",
+        "therapy": "health",
+        "treatment": "health",
+        "healthcare": "health",
+        "public-health": "health",
+        "life-and-style": "health",
+        "lifestyle": "health",
+        "lifeandstyle": "health",
+        "life": "health",
+        "society": "health",
+        "wellbeing": "health",
+        // NewsData specific
+        "health-health": "health",
         
-        // Sports mappings
-        "sports": "sports", "sport": "sports", "football": "sports",
-        "basketball": "sports", "soccer": "sports", "tennis": "sports",
+        // ========== SPORTS ==========
+        "sports": "sports",
+        "sport": "sports",
+        "football": "sports",
+        "soccer": "sports",
+        "basketball": "sports",
+        "tennis": "sports",
+        "baseball": "sports",
+        "cricket": "sports",
+        "rugby": "sports",
+        "golf": "sports",
+        "hockey": "sports",
+        "formula-one": "sports",
+        "f1": "sports",
+        "olympics": "sports",
+        "athletics": "sports",
+        "swimming": "sports",
+        "cycling": "sports",
+        "boxing": "sports",
+        "mma": "sports",
+        "ufc": "sports",
+        "racing": "sports",
+        "motorsport": "sports",
+        "skiing": "sports",
+        // NewsData specific
+        "sports-sports": "sports",
         
-        // Entertainment mappings
-        "entertainment": "entertainment", "arts": "entertainment", "culture": "entertainment",
-        "movies": "entertainment", "music": "entertainment", "television": "entertainment",
-        "arts-and-culture": "entertainment", "lifestyle": "entertainment",
-        
-        // Politics/World (mapped to business for now)
-        "politics": "business", "world": "business", "news": "business",
-        "us-news": "business", "uk-news": "business"
+        // ========== ENTERTAINMENT ==========
+        "entertainment": "entertainment",
+        "arts": "entertainment",
+        "culture": "entertainment",
+        "arts-and-culture": "entertainment",
+        "artanddesign": "entertainment",
+        "books": "entertainment",
+        "film": "entertainment",
+        "movies": "entertainment",
+        "music": "entertainment",
+        "television": "entertainment",
+        "tv": "entertainment",
+        "streaming": "entertainment",
+        "celebrity": "entertainment",
+        "celebrities": "entertainment",
+        "fashion": "entertainment",
+        "style": "entertainment",
+        "design": "entertainment",
+        "photography": "entertainment",
+        "gaming": "entertainment",
+        "games": "entertainment",
+        "theater": "entertainment",
+        "theatre": "entertainment",
+        "stage": "entertainment",
+        "radio": "entertainment",
+        "media": "entertainment",
+        "social-media": "entertainment",
+        "hollywood": "entertainment",
+        "bollywood": "entertainment",
+        "festival": "entertainment",
+        "events": "entertainment",
+        "gossip": "entertainment",
+        "travel": "entertainment",
+        "food": "entertainment",
+        "restaurant": "entertainment",
+        "recipes": "entertainment",
+        "tv-and-radio": "entertainment",
+        "culture-culture": "entertainment",
+        "lifeandstyle": "entertainment",
+        // NewsData specific
+        "entertainment-entertainment": "entertainment",
     ]
     
-    // Fallback keyword matching for articles without category
+    // Enhanced fallback keyword matching with more comprehensive terms
     private static let keywords: [String: [String]] = [
-        "technology": ["tech", "artificial intelligence", "ai", "digital", "computer", "software", "apple", "google", "microsoft", "crypto", "bitcoin", "quantum", "startup", "cybersecurity", "algorithm", "app", "smartphone", "cloud", "data", "robot", "automation"],
-        "business": ["market", "economy", "stock", "finance", "bank", "trade", "merger", "investment", "earnings", "revenue", "profit", "corporate", "ceo", "company", "startup funding"],
-        "science": ["science", "space", "research", "study", "climate change", "gene", "nasa", "dna", "species", "physics", "chemistry", "biology", "laboratory", "discovery", "experiment"],
-        "health": ["health", "medical", "drug", "hospital", "doctor", "vaccine", "mental health", "wellness", "brain", "cancer", "disease", "pandemic", "treatment", "patient", "symptom"],
-        "sports": ["sport", "game", "match", "team", "league", "olympic", "champion", "football", "soccer", "basketball", "tennis", "baseball", "player", "coach", "tournament"],
-        "entertainment": ["entertainment", "movie", "film", "music", "celebrity", "tv", "streaming", "award", "actor", "artist", "netflix", "show", "album", "concert", "hollywood"]
+        "technology": [
+            "tech", "technology", "artificial intelligence", "ai", "machine learning", "ml",
+            "digital", "computer", "software", "hardware", "app", "apps", "application",
+            "apple", "google", "microsoft", "amazon", "meta", "facebook", "twitter", "x",
+            "crypto", "cryptocurrency", "bitcoin", "ethereum", "blockchain",
+            "quantum", "quantum computing", "startup", "startups",
+            "cybersecurity", "cyber security", "hacking", "hack", "breach",
+            "algorithm", "algorithms", "data", "big data", "database",
+            "smartphone", "phone", "mobile", "device", "gadget",
+            "cloud", "cloud computing", "saas", "software as a service",
+            "robot", "robotics", "automation", "automated", "drone", "drones",
+            "semiconductor", "chip", "processor", "cpu", "gpu",
+            "internet", "web", "online", "digital transformation",
+            "5g", "wifi", "network", "telecommunications",
+            "vr", "virtual reality", "ar", "augmented reality", "metaverse",
+            "programming", "coding", "developer", "development", "api",
+            "electric vehicle", "ev", "tesla", "battery", "renewable energy"
+        ],
+        "business": [
+            "market", "markets", "stock", "stocks", "stock market", "exchange",
+            "economy", "economic", "economics", "gdp", "inflation", "recession",
+            "finance", "financial", "bank", "banking", "banks", "investment", "investing",
+            "trade", "trading", "commerce", "commercial",
+            "merger", "acquisition", "mergers and acquisitions", "m&a",
+            "earnings", "revenue", "profit", "profits", "loss", "revenues",
+            "corporate", "corporation", "company", "companies", "firm",
+            "ceo", "cfo", "executive", "executives", "management",
+            "shareholder", "shareholders", "investor", "investors",
+            "ipo", "public offering", "valuation", "valued",
+            "startup funding", "venture capital", "vc", "private equity",
+            "deal", "deals", "contract", "contracts", "agreement",
+            "tax", "taxes", "tariff", "tariffs", "regulation", "regulatory",
+            "central bank", "federal reserve", "fed", "interest rate",
+            "employment", "unemployment", "jobs", "job", "hiring", "layoff", "layoffs",
+            "supply chain", "logistics", "shipping", "transport",
+            "oil", "gas", "energy price", "commodity", "commodities",
+            "real estate", "property", "housing", "mortgage",
+            "manufacturing", "industry", "industrial", "production",
+            "retail", "sales", "consumer", "consumption",
+            "global trade", "international trade", "import", "export",
+            "brexit", "eu", "european union", "trade war"
+        ],
+        "science": [
+            "science", "scientific", "research", "researchers", "study", "studies",
+            "space", "nasa", "spacex", "rocket", "satellite", "mars", "moon",
+            "astronomy", "planet", "planets", "galaxy", "universe",
+            "climate change", "global warming", "carbon", "emissions", "greenhouse",
+            "environment", "environmental", "ecology", "ecosystem", "biodiversity",
+            "nature", "natural", "wildlife", "animal", "animals", "species",
+            "physics", "chemistry", "biology", "biological", "genetics", "gene", "genes", "dna", "rna",
+            "evolution", "evolutionary", "natural selection",
+            "laboratory", "lab", "experiment", "experimental",
+            "discovery", "discoveries", "breakthrough", "finding", "findings",
+            "renewable energy", "solar", "wind power", "hydroelectric", "nuclear",
+            "material", "materials", "nanotechnology", "nano",
+            "quantum physics", "particle physics", "theoretical physics",
+            "archaeology", "archaeological", "fossil", "fossils",
+            "ocean", "marine", "deep sea", "arctic", "antarctic",
+            "weather", "forecast", "hurricane", "tornado", "storm", "earthquake",
+            "volcano", "volcanic", "tsunami", "natural disaster",
+            "medicine", "medical research", "clinical trial"
+        ],
+        "health": [
+            "health", "healthy", "healthcare", "medical", "medical care",
+            "medicine", "medication", "drug", "drugs", "pharmaceutical", "pharmacy",
+            "hospital", "hospitals", "clinic", "doctor", "doctors", "physician", "physicians",
+            "nurse", "nursing", "patient", "patients", "treatment", "treatments",
+            "vaccine", "vaccines", "vaccination", "immunization",
+            "mental health", "mental illness", "depression", "anxiety", "stress",
+            "therapy", "therapist", "psychology", "psychological", "psychiatry",
+            "disease", "diseases", "disorder", "disorders", "condition",
+            "cancer", "tumor", "diabetes", "heart disease", "stroke",
+            "pandemic", "epidemic", "outbreak", "virus", "viral", "infection",
+            "covid", "coronavirus", "flu", "influenza",
+            "wellness", "wellbeing", "self-care", "mindfulness", "meditation",
+            "fitness", "exercise", "workout", "gym", "training",
+            "nutrition", "diet", "healthy eating", "weight loss", "obesity",
+            "sleep", "insomnia", "aging", "longevity",
+            "surgery", "surgical", "operation", "transplant",
+            "symptom", "symptoms", "diagnosis", "diagnostic",
+            "public health", "health policy", "health insurance",
+            "life expectancy", "mortality", "death rate"
+        ],
+        "sports": [
+            "sport", "sports", "game", "games", "match", "matches", "competition",
+            "team", "teams", "player", "players", "athlete", "athletes",
+            "league", "leagues", "division", "conference", "championship",
+            "football", "soccer", "premier league", "la liga", "bundesliga", "serie a",
+            "nfl", "ncaa", "super bowl", "world cup",
+            "basketball", "nba", "ncaa basketball", "final four", "march madness",
+            "baseball", "mlb", "world series", "softball",
+            "tennis", "grand slam", "wimbledon", "us open", "french open", "australian open",
+            "golf", "pga", "masters", "open championship",
+            "cricket", "ipl", "test cricket", "t20", "ashes",
+            "rugby", "six nations", "rugby world cup", "nrl",
+            "formula one", "f1", "grand prix", "racing", "motorsport", "nascar",
+            "hockey", "nhl", "ice hockey", "field hockey",
+            "olympics", "olympic", "olympic games", "paralympics",
+            "athletics", "track and field", "marathon", "running", "sprinter",
+            "swimming", "gymnastics", "boxing", "mma", "ufc", "wrestling",
+            "cycling", "tour de france", "giro d'italia", "vuelta",
+            "skiing", "snowboarding", "winter sports", "x games",
+            "esports", "gaming competition",
+            "score", "scored", "goal", "touchdown", "home run", "victory", "defeat",
+            "coach", "coaching", "manager", "referee", "umpire",
+            "transfer", "contract", "salary", "injury", "injured",
+            "stadium", "arena", "venue", "crowd", "fans"
+        ],
+        "entertainment": [
+            "entertainment", "entertain", "showbiz", "show business",
+            "movie", "movies", "film", "films", "cinema", "cinematic",
+            "actor", "actors", "actress", "actresses", "celebrity", "celebrities", "star", "stars",
+            "director", "directors", "producer", "producers", "filmmaker",
+            "hollywood", "bollywood", "nollywood", "blockbuster", "box office",
+            "premiere", "debut", "release", "screening",
+            "award", "awards", "oscar", "oscars", "emmy", "emmys", "grammy", "grammys", "golden globe",
+            "bafta", "festival", "cannes", "sundance", "tiff", "venice film festival",
+            "music", "musician", "musicians", "album", "albums", "single", "song", "songs",
+            "singer", "singers", "band", "bands", "artist", "artists", "rapper", "rappers",
+            "concert", "concert tour", "live performance", "gig", "festival",
+            "television", "tv", "tv show", "tv series", "show", "shows", "series",
+            "netflix", "streaming", "stream", "platform", "platforms", "episode", "season",
+            "reality tv", "reality show", "talent show", "documentary",
+            "theater", "theatre", "broadway", "west end", "play", "musical", "stage",
+            "book", "books", "novel", "novels", "author", "authors", "writer", "writers",
+            "bestseller", "publishing", "literature", "literary",
+            "art", "arts", "artist", "artwork", "painting", "sculpture", "gallery", "museum",
+            "culture", "cultural", "fashion", "style", "trend", "trends",
+            "design", "designer", "photography", "photo", "photos",
+            "gaming", "game", "games", "gamer", "gamers", "esports",
+            "social media", "influencer", "viral", "trending", "meme",
+            "gossip", "rumor", "scandal", "controversy", "relationship", "breakup", "wedding",
+            "travel", "tourism", "vacation", "holiday", "destination",
+            "food", "foodie", "restaurant", "dining", "chef", "cooking", "recipe", "recipes",
+            "lifestyle", "life style", "home", "decor", "garden",
+            "podcast", "podcasts", "radio", "broadcast", "media"
+        ]
     ]
 
     static func matches(_ article: Article, category: String) -> Bool {
         // First check if article has explicit category from API
         if let articleCategory = article.category?.lowercased() {
-            let normalizedCategory = categoryMappings[articleCategory] ?? articleCategory
-            if normalizedCategory == category {
+            // Direct match or mapped match
+            if let mappedCategory = categoryMappings[articleCategory] {
+                if mappedCategory == category {
+                    return true
+                }
+            } else if articleCategory == category {
+                // Direct match if no mapping needed
                 return true
             }
         }
         
-        // Fallback to keyword matching on title/description
+        // Fallback to comprehensive keyword matching on title/description/source
         guard let categoryKeywords = keywords[category] else { return true }
         let text = (article.title + " " + (article.description ?? "") + " " + article.sourceName).lowercased()
         return categoryKeywords.contains { text.contains($0) }
