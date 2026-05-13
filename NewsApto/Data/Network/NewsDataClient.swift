@@ -109,7 +109,7 @@ struct NewsDataArticle: Codable {
             url: link.flatMap { URL(string: $0) },
             sourceName: sourceName,
             apiSource: .newsdata,
-            contentSnippet: content?.prefix(300).description,
+            contentSnippet: content?.prefix(2000).description,
             category: primaryCategory,
             badges: [],
             curationReason: nil

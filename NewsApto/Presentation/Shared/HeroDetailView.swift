@@ -50,10 +50,27 @@ struct HeroDetailView: View {
                                 .padding(.vertical, 4)
                             }
                             if let snippet = article.distinctContentSnippet {
-                                Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.vertical, 4)
-                                Text("> ARTICLE CONTEXT").font(AppTypography.monoSmall).foregroundColor(AppPalette.accent)
-                                Text(snippet).font(AppTypography.body).foregroundColor(AppPalette.textPrimary).lineSpacing(5).padding(.leading, 12)
-                                    .overlay(Rectangle().fill(AppPalette.accent.opacity(0.3)).frame(width: 2), alignment: .leading)
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5)
+                                    
+                                    Text("> FULL ARTICLE")
+                                        .font(AppTypography.monoSmall)
+                                        .foregroundColor(AppPalette.accent)
+                                    
+                                    Text(snippet)
+                                        .font(AppTypography.body)
+                                        .foregroundColor(AppPalette.textPrimary)
+                                        .lineSpacing(6)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .padding(.leading, 12)
+                                        .overlay(
+                                            Rectangle()
+                                                .fill(AppPalette.accent.opacity(0.3))
+                                                .frame(width: 3),
+                                            alignment: .leading
+                                        )
+                                }
+                                .padding(.vertical, 8)
                             }
                             if article.url != nil {
                                 Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.vertical, 4)

@@ -110,7 +110,7 @@ struct GNewsArticle: Codable {
             url: URL(string: url),
             sourceName: source.name,
             apiSource: .gnews,
-            contentSnippet: content?.prefix(300).description,
+            contentSnippet: content?.prefix(2000).description,
             category: category?.lowercased(),
             badges: [],
             curationReason: nil
