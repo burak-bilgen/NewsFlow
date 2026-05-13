@@ -161,7 +161,7 @@ struct ShimmerEffect: ViewModifier {
                     endPoint: .bottomTrailing
                 ).scaleEffect(x: 2.5)
             }
-        ).clipShape(RoundedRectangle(cornerRadius: 4)).onAppear {
+        ).clipShape(Rectangle()).onAppear {
             withAnimation(.easeInOut(duration: duration).repeatForever(autoreverses: false)) { phase = 1.5 }
         }
     }
@@ -170,7 +170,7 @@ struct ShimmerEffect: ViewModifier {
 struct ShimmerLine: View {
     let w: CGFloat; let h: CGFloat
     var body: some View {
-        RoundedRectangle(cornerRadius: 4)
+        Rectangle()
             .fill(AppPalette.surface)
             .frame(maxWidth: w, minHeight: h, maxHeight: h)
             .modifier(ShimmerEffect())

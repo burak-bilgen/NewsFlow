@@ -15,16 +15,16 @@ struct StateMessageView: View {
         VStack(spacing: AppSpacing.lg) {
             Spacer()
 
-            // Animated illustration with bounce
+            // Animated illustration with bounce — sharp edges for terminal aesthetic
             ZStack {
-                // Outer pulsing ring
-                Circle()
+                // Outer pulsing frame
+                Rectangle()
                     .stroke(AppPalette.accent.opacity(0.15), lineWidth: 2)
                     .frame(width: isAnimating ? 120 : 100, height: isAnimating ? 120 : 100)
                     .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isAnimating)
 
-                // Middle ring
-                Circle()
+                // Middle frame
+                Rectangle()
                     .fill(AppPalette.accent.opacity(0.08))
                     .frame(width: 90, height: 90)
 
@@ -45,7 +45,7 @@ struct StateMessageView: View {
                     .foregroundColor(AppPalette.textPrimary)
 
                 Text(message)
-                    .font(.subheadline)
+                    .font(AppTypography.body)
                     .foregroundColor(AppPalette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
@@ -54,7 +54,7 @@ struct StateMessageView: View {
 
             if let retryTitle, let retryAction {
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
+                    withAnimation(AppAnimation.press) {
                         retryAction()
                     }
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -63,16 +63,13 @@ struct StateMessageView: View {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 14, weight: .semibold))
                         Text(retryTitle)
-                            .font(.subheadline.weight(.bold))
+                            .font(AppTypography.caption.weight(.bold))
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.vertical, AppSpacing.md)
-                    .background(
-                        Rectangle()
-                            .fill(AppPalette.accent)
-                            .shadow(color: AppPalette.accent.opacity(0.3), radius: 12, x: 0, y: 6)
-                    )
+                    .background(AppPalette.accent)
+                    .overlay(Rectangle().stroke(AppPalette.accent.opacity(0.5), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("state.retry.button")

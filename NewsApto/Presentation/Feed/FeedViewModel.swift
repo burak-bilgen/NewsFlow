@@ -1,5 +1,5 @@
 import Foundation
-
+import Combine
 @MainActor
 final class FeedViewModel: ObservableObject {
     enum State: Equatable {
@@ -31,13 +31,13 @@ final class FeedViewModel: ObservableObject {
         return result
     }
 
-    private let aggregator: NewsAggregatorService
+    private let aggregator: NewsAggregating
     private let readingListUseCase: ManageReadingListUseCaseProtocol
     private let pageSize: Int
     private var currentPage = 1
 
     init(
-        aggregator: NewsAggregatorService,
+        aggregator: NewsAggregating,
         readingListUseCase: ManageReadingListUseCaseProtocol,
         pageSize: Int = 30
     ) {

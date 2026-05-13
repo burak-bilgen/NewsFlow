@@ -69,12 +69,17 @@ actor ImageCache {
 
     private func cachedImage(key: String) -> UIImage? {
         if let entry = memoryCache.object(forKey: key as NSString) {
-            entry.lastAccessed = Date(); return entry.image
+            updateLastAccessed(entry)
+            return entry.image
         }
         if let diskImage = loadFromDisk(key: key) {
             storeInMemory(image: diskImage, key: key); return diskImage
         }
         return nil
+    }
+
+    private nonisolated func updateLastAccessed(_ entry: MemoryCacheEntry) {
+        entry.lastAccessed = Date()
     }
 
     private func store(image: UIImage, data: Data, key: String) {
@@ -105,10 +110,24 @@ actor ImageCache {
     }
 
     private func downsample(image: UIImage, to targetSize: CGSize) -> UIImage {
-        let format = UIGraphicsImageRendererFormat(); format.scale = 1.0
-        return UIGraphicsImageRenderer(size: targetSize, format: format).image { _ in
-            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        guard let data = image.jpegData(compressionQuality: 0.9),
+              let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            return image
         }
+
+        let maxDimension = max(targetSize.width, targetSize.height) * UIScreen.main.scale
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxDimension
+        ]
+
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return image
+        }
+
+        return UIImage(cgImage: cgImage)
     }
 
     private func cacheKey(for url: URL, size: CGSize?) -> String {

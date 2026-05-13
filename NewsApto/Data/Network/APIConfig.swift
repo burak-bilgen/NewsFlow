@@ -58,4 +58,9 @@ enum APIConfig {
 
         return KeychainAPIKeyStore.load(key: infoKey)
     }
+
+    /// Checks if API keys are configured
+    static var hasValidConfiguration: Bool {
+        apiKey != nil && guardian.apiKey != nil && nyt.apiKey != nil
+    }
 }

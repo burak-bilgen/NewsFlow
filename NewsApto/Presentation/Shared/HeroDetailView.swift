@@ -7,6 +7,11 @@ struct HeroDetailView: View {
     @State private var imageBlur: CGFloat = 8
     @State private var contentOffset: CGFloat = 24
     @State private var showSafari = false
+    @State private var dragOffset: CGFloat = 0
+    @State private var isDragging = false
+
+    private let swipeThreshold: CGFloat = 100
+    private let swipeVelocity: CGFloat = 500
 
     var body: some View {
         ZStack {
@@ -57,6 +62,54 @@ struct HeroDetailView: View {
                 }
             }
             .scrollIndicators(.hidden)
+            .offset(x: dragOffset)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        if value.translation.width > 0 {
+                            dragOffset = value.translation.width
+                            isDragging = true
+                        }
+                    }
+                    .onEnded { value in
+                        let velocity = value.predictedEndLocation.x - value.location.x
+                        let translation = value.translation.width
+
+                        if translation > swipeThreshold || velocity > swipeVelocity {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                dragOffset = UIScreen.main.bounds.width
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                onDismiss()
+                            }
+                        } else {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                dragOffset = 0
+                            }
+                        }
+                        isDragging = false
+                    }
+            )
+
+            // Swipe indicator on left edge
+            if isDragging && dragOffset > 20 {
+                HStack {
+                    VStack(spacing: 8) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(AppPalette.accent)
+                        Text("> SWIPE")
+                            .font(AppTypography.monoTiny)
+                            .foregroundColor(AppPalette.accent)
+                    }
+                    .frame(width: 60)
+                    .padding(.leading, 20)
+                    Spacer()
+                }
+                .padding(.top, 100)
+                .allowsHitTesting(false)
+            }
 
             VStack {
                 HStack(spacing: 8) {

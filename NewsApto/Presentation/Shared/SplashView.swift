@@ -36,7 +36,7 @@ struct SplashView: View {
                 Spacer()
 
                 Text("Powered by NewsAPI, The Guardian & NYT")
-                    .font(.system(size: 10))
+                    .font(AppTypography.monoTiny)
                     .foregroundColor(AppPalette.textTertiary)
                     .opacity(taglineOpacity)
                     .padding(.bottom, 40)
