@@ -120,7 +120,11 @@ struct FeedView: View {
                 let filterHash = "\(viewModel.selectedCategory ?? "all")-\(viewModel.searchQuery)"
 
                 Group {
-                    if let article = feedArticles.first {
+                    // Find first article with image for hero banner (skip HackerNews and image-less articles)
+                    let heroArticle = feedArticles.first { $0.imageURL != nil && $0.apiSource != .hackernews }
+                    let remainingArticles = heroArticle != nil ? feedArticles.filter { $0.id != heroArticle!.id } : feedArticles
+                    
+                    if let article = heroArticle {
                         VStack(alignment: .leading, spacing: 0) {
                             HeroCardView(
                                 article: article,
@@ -129,8 +133,8 @@ struct FeedView: View {
                                 isSaved: viewModel.isSaved(article)
                             )
 
-                            let featuredArticles = Array(feedArticles.dropFirst().prefix(4))
-                            let latestArticles = Array(feedArticles.dropFirst(5))
+                            let featuredArticles = Array(remainingArticles.prefix(4))
+                            let latestArticles = Array(remainingArticles.dropFirst(5))
 
                             if !featuredArticles.isEmpty {
                                 featuredGrid(featuredArticles)

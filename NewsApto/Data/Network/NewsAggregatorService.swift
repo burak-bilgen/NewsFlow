@@ -169,26 +169,21 @@ actor NewsAggregatorService: NewsAggregating {
         _ newsDataResult: NewsDataClient.NewsDataResult?,
         _ hnArticles: [Article]?
     ) async -> [Article] {
+        // Apply source caps for diversity (max articles per source)
+        let newsAPIItems = Array((newsResult?.items ?? []).prefix(8))
+        let guardianItems = Array((guardianArticles ?? []).prefix(6))
+        let nytItems = Array((nytResult?.articles ?? []).prefix(6))
+        let gnewsItems = Array((gnewsArticles ?? []).prefix(6))
+        let newsDataItems = Array((newsDataResult?.articles ?? []).prefix(6))
+        let hnItems = Array((hnArticles ?? []).prefix(5))  // HackerNews gets fewer slots
+        
         var allArticles: [Article] = []
-
-        if let paginated = newsResult {
-            allArticles.append(contentsOf: paginated.items)
-        }
-        if let articles = guardianArticles {
-            allArticles.append(contentsOf: articles)
-        }
-        if let result = nytResult {
-            allArticles.append(contentsOf: result.articles)
-        }
-        if let articles = gnewsArticles {
-            allArticles.append(contentsOf: articles)
-        }
-        if let result = newsDataResult {
-            allArticles.append(contentsOf: result.articles)
-        }
-        if let articles = hnArticles {
-            allArticles.append(contentsOf: articles)
-        }
+        allArticles.append(contentsOf: newsAPIItems)
+        allArticles.append(contentsOf: guardianItems)
+        allArticles.append(contentsOf: nytItems)
+        allArticles.append(contentsOf: gnewsItems)
+        allArticles.append(contentsOf: newsDataItems)
+        allArticles.append(contentsOf: hnItems)
 
         // Deduplicate by URL
         var seenURLs = Set<String>()
