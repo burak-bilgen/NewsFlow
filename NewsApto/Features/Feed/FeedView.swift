@@ -172,13 +172,14 @@ struct FeedView: View {
                         ],
                         spacing: 10
                     ) {
-                        ForEach(articles, id: \.id) { article in
+                        ForEach(articles) { article in
                             MagazineGridCard(
                                 article: article,
                                 isSaved: viewModel.isSaved(article),
                                 onToggle: { Task { await viewModel.toggleReadingList(for: article) } },
                                 onSelect: { selectedArticle = article }
                             )
+                            .id(article.id + "-grid")
                         }
                     }
                     .padding(.horizontal, 16)
@@ -195,13 +196,14 @@ struct FeedView: View {
                     sectionHeader("Latest")
 
                     LazyVStack(spacing: 0) {
-                        ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
+                        ForEach(Array(articles.enumerated()), id: \.offset) { i, article in
                             MagazineListCard(
                                 article: article,
                                 isSaved: viewModel.isSaved(article),
                                 onToggle: { Task { await viewModel.toggleReadingList(for: article) } },
                                 onSelect: { selectedArticle = article }
                             )
+                            .id(article.id + "-list-\(i)")
                             .onAppear { viewModel.prefetchIfNeeded(currentItem: article) }
 
                             if i < articles.count - 1 {
