@@ -433,20 +433,26 @@ enum CategoryMatcher {
     ]
 
     static func matches(_ article: Article, category: String) -> Bool {
-        // First check if article has explicit category from API
+        // PRIORITY 1: Use API-provided category if available
         if let articleCategory = article.category?.lowercased() {
-            // Direct match or mapped match
+            // Check if API category maps directly to our category
             if let mappedCategory = categoryMappings[articleCategory] {
+                // If mapping matches the requested category, use it
                 if mappedCategory == category {
                     return true
                 }
+                // API has a specific category that doesn't match requested category
+                // Don't guess with keywords - trust the API categorization
+                return false
             } else if articleCategory == category {
-                // Direct match if no mapping needed
+                // Direct match without mapping needed
                 return true
             }
+            // API category doesn't match any known mapping
+            // Fall through to keyword matching as last resort
         }
         
-        // Fallback to comprehensive keyword matching on title/description/source
+        // PRIORITY 2: Only use keyword matching when API provides NO category
         guard let categoryKeywords = keywords[category] else { return true }
         let text = (article.title + " " + (article.description ?? "") + " " + article.sourceName).lowercased()
         return categoryKeywords.contains { text.contains($0) }
