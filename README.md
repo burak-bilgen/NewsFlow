@@ -1,161 +1,141 @@
-# NewsApto
+<p align="center">
+  <img src="NewsApto/Assets.xcassets/AppIcon.appiconset/icon.png" width="120" alt="NewsApto Icon" />
+</p>
 
-A production-ready iOS 26 news reader built with **Clean Architecture**, **MVVM**, and native **Liquid Glass** surfaces.
+<h1 align="center">NewsApto</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/iOS-26.0+-blue" alt="iOS 26.0+">
-  <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
-  <img src="https://img.shields.io/badge/SwiftUI-Liquid%20Glass-green" alt="SwiftUI Liquid Glass">
-  <img src="https://img.shields.io/badge/100%25%20Native-OK-green" alt="Zero Dependencies">
+  <strong>The intelligent news reader that adapts to you.</strong><br/>
+  Multi-source aggregation · Smart scoring · Zero dependencies · Built for iOS 26
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/iOS-26+-007AFF?style=flat-square&logo=apple&logoColor=white" alt="iOS 26+">
+  <img src="https://img.shields.io/badge/Swift-5.9-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 5.9">
+  <img src="https://img.shields.io/badge/SwiftUI-Native-00C7BE?style=flat-square" alt="SwiftUI">
+  <img src="https://img.shields.io/badge/Dependencies-Zero-34C759?style=flat-square" alt="Zero Dependencies">
+  <img src="https://img.shields.io/badge/Architecture-Clean-8E8E93?style=flat-square" alt="Clean Architecture">
 </p>
 
 ---
 
-## About This Project
+## ✨ Why NewsApto?
 
-A production-ready iOS 26 news reader demonstrating **Clean Architecture**, **MVVM**, **modern Swift concurrency**, and SwiftUI Liquid Glass — built entirely with native frameworks, zero third-party dependencies.
+Most news apps are glorified RSS readers. **NewsApto** is different.
 
-**Key Architectural Decisions:**
+It aggregates live content from **three world-class sources** — NewsAPI, The Guardian, and The New York Times — then scores, deduplicates, and ranks every article using a custom **SmartArticleScorer** algorithm. The result? A single, intelligent feed that surfaces the most relevant stories first.
 
-- **Actor-based concurrency** — Thread-safe caches using Swift actors, no locks or race conditions
-- **Decorator pattern** — Network layer with transparent retry, error simulation, and auth decorators
-- **Two-tier caching** — Memory (50MB NSCache) + Disk (200MB, 7-day TTL) with graceful fallback
-- **Offline-first** — Disk persistence with seamless degradation when offline
-- **Full Apple ecosystem** — Spotlight indexing, Background Refresh, State Restoration
-- **Liquid Glass UI** — iOS 26-first custom glass cards, controls, and screen backgrounds
+No ads. No tracking. No third-party SDKs. Just you and the news.
 
-**TL;DR:** A production-grade codebase demonstrating senior-level iOS architecture patterns in action.
+### What Makes It Special
+
+| ✅ | Feature |
+|----|---------|
+| 🧠 | **Smart scoring** — Recency, content richness, and title quality determine article ranking |
+| 🌐 | **Multi-source aggregation** — NewsAPI + The Guardian + NYT in a unified feed |
+| ⚡ | **Actor-based concurrency** — Thread-safe caching and network deduplication with Swift actors |
+| 🎨 | **Terminal-inspired UI** — Dark matrix aesthetic with neon accents, glitch reveals, and code rain |
+| 📴 | **Offline-first** — Two-tier cache (50MB memory + 200MB disk) with seamless degradation |
+| 🔁 | **Smart pagination** — Auto-prefetch, deduplication, loading guards, and pull-to-refresh |
+| 🔒 | **Zero dependencies** — 100% native. No SPM. No CocoaPods. No black boxes. |
 
 ---
 
-## Architecture Overview
+## 🏗️ Architecture
+
+NewsApto follows **Clean Architecture** with strict dependency inversion:
 
 ```
-+------------------+
-| Presentation     |  <-- SwiftUI + @MainActor ViewModels
-+------------------+
-        |
-        v
-+------------------+
-| Domain          |  <-- Use Cases, Protocols, Entities
-+------------------+
-        |
-        v
-+------------------+
-| Data            |  <-- Repositories, NetworkClient, Cache
-+------------------+
+┌─────────────────────────────────────┐
+│          Presentation               │  SwiftUI Views + @MainActor ViewModels
+│  ┌───────────┐    ┌──────────────┐  │
+│  │ FeedView  │    │ HeroDetail   │  │
+│  │ ReadList  │    │ Attribution  │  │
+│  └─────┬─────┘    └──────┬───────┘  │
+│        │                 │          │
+│  ┌─────┴─────────────────┴───────┐  │
+│  │         ViewModels            │  │
+│  └─────────────┬─────────────────┘  │
+├────────────────┼────────────────────┤
+│        Domain  │                    │  Use Cases, Protocols, Entities
+│  ┌─────────────┴─────────────────┐  │
+│  │  ManageReadingListUseCase     │  │
+│  │  ArticlesRepositoryProtocol   │  │
+│  │  SmartArticleScorer           │  │
+│  └─────────────┬─────────────────┘  │
+├────────────────┼────────────────────┤
+│          Data  │                    │  Network, Persistence, Repositories
+│  ┌─────────────┴─────────────────┐  │
+│  │  NewsAggregatorService        │  │
+│  │  CachedArticlesRepository     │  │
+│  │  CoreDataReadingListRepo      │  │
+│  │  ImageCache (Actor)           │  │
+│  └───────────────────────────────┘  │
+└─────────────────────────────────────┘
 ```
 
-### Core Patterns in Action
+### Design Patterns Employed
 
-| Pattern | Where | Why |
-|---------|-------|-----|
-| **MVVM** | `*ViewModel.swift` | `@MainActor` isolates UI state; `@Published` drives SwiftUI |
-| **Repository** | `*Repository.swift` | Remote + cache layers with transparent fallback |
-| **Use Case** | `Fetch*, Toggle*UseCase` | Single-responsibility business logic |
-| **Decorator** | `*Decorator.swift` | Stack retry, error simulation without touching core client |
-| **Paginator** | `Paginator.swift` | Smart prefetch, deduplication, refresh-vs-append |
-| **Actor Isolation** | `ImageCache`, `CachedRepositories` | Thread-safe state without locks |
-
-### Advanced Techniques
-
-- **`async/await`** — All network/persistence ops are asynchronous
-- **`JSONDecoder`** — Type-safe DTO decoding with Codable
-- **Property Wrappers** — `@UserDefault` for type-safe, observable UserDefaults
-- **Keypath Navigation** — Type-safe SwiftUI `NavigationLink`
-- **Value Semantics** — Immutable models with functional `copy(_:)`
+| Pattern | Where | Purpose |
+|---------|-------|---------|
+| **MVVM** | ViewModels | `@MainActor` isolation, `@Published` state for reactive UI |
+| **Repository** | Data layer | Unified interface over remote + cache layers |
+| **Decorator** | `RetryingNewsAPIClientDecorator` | Transparent retry with exponential backoff |
+| **Actor** | `ImageCache`, `CachedArticlesRepository`, `NewsAggregatorService` | Thread-safe concurrency without locks |
+| **Factory** | `AppContainer` | Centralized dependency injection |
+| **Strategy** | `SmartArticleScorer` | Pluggable scoring algorithms |
+| **Property Wrapper** | `@UserDefault` | Type-safe, observable UserDefaults |
 
 ---
 
-## Key Features
+## 🎭 The UI
 
-### Core App
-- **Single Home Flow** — No tabs or onboarding; the app opens directly to the news feed
-- **Liquid Glass Cards** — Top story, latest stories, controls, and settings use native glass effects
-- **Search** — Filter the current feed instantly from the home screen
-- **Reading List** — Inline save/remove with Core Data persistence
-- **Pull-to-Refresh** + **Auto-Refresh** — 60s background timer with deduplication
-- **Prefetching** — Loads next page before user reaches the end
+NewsApto sports a **terminal-inspired cyberpunk aesthetic** — think Bloomberg Terminal meets The Matrix:
 
-### Quality & Reliability
-- **Debug Error Simulation** — Launch with `Debug.SimulateNetworkErrors` to test error UI
-- **Offline Mode** — Real-time banner, disk cache fallback
-- **Memory Pressure Handling** — Proactively clears caches before OS kills app
-- **Retry Policy** — Exponential backoff with jitter
-- **Stale Response Prevention** — Request nonce (`latestRequestID`) discards old responses
+- **Matrix Code Rain** loading animation with real-time Canvas rendering
+- **Glitch reveal** transitions on content load
+- **Terminal search bar** with blinking cursor
+- **Category ribbon** with glow-pulse active states
+- **Magazine-style layout** — hero card, editor's picks grid, latest articles list
+- **Full-screen detail view** with blur-to-focus image animation
+- **Status-bar-free** immersive experience
 
-### Apple Ecosystem
-- **Spotlight Search** — Articles indexable via Core Spotlight
-- **Background Refresh** — BGAppRefreshTask for fresh content
-- **State Restoration** — Returns to last screen via NSUserActivity
-
-### UX & Accessibility
-- **Localization** — English + Turkish, in-app switching
-- **Theming** — Light / Dark / System modes
-- **VoiceOver** — Full accessibility identifiers
-- **Haptics** — UIImpactFeedbackGenerator on every tap
-- **Reduce Motion** — Respects user accessibility settings
+Everything is hand-built in SwiftUI. No Storyboards. No UIKit escape hatches.
 
 ---
 
-## Tech Stack
+## 📦 Tech Stack
 
-| Component | Implementation |
-|-----------|--------------|
-| **Language** | Swift 5.9+ |
-| **UI** | SwiftUI (iOS 26+) |
+| Layer | Technology |
+|-------|------------|
+| **Language** | Swift 5.9 |
+| **UI Framework** | SwiftUI (iOS 26+) |
 | **Networking** | `URLSession` + `async/await` |
-| **Image Caching** | Custom `NSCache` (50MB) + Disk (200MB) |
-| **Persistence** | Core Data (reading list) + `FilePersistentStore` (disk cache) + UserDefaults |
-| **Testing** | XCTest + UITests |
-| **Automation** | Makefile (`make test`, `make lint`) |
+| **Image Pipeline** | Custom `NSCache` (50MB) + Disk (200MB) with downsampling |
+| **Persistence** | Core Data (reading list) + File-based disk cache + UserDefaults |
+| **Concurrency** | Swift Actors + structured concurrency |
+| **Logging** | Custom `NewsAptoLogger` → `os_log` unified logging |
+| **Testing** | XCTest (unit + UI) |
+| **Automation** | Makefile |
 
 ---
 
-## Project Structure
-
-```
-NewsApto/
- NewsApto.xcodeproj
- ├── NewsApto/                     # Main app target
- │   ├── App/                      # @main, DI, navigation
- │   ├── Domain/                   # Models, Protocols, Use Cases
- │   ├── Data/                    # Network, Persistence, Repositories
- │   ├── Infrastructure/          # Design system, L10n, utilities
- │   ├── Presentation/            # SwiftUI screens + ViewModels
- │   ├── Assets.xcassets/
- │   └── LaunchScreen.storyboard
- ├── Config/                       # Secrets configuration
- └── Makefile                      # Build commands
-```
-
----
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Xcode 15+
-- iOS 26+ Simulator or device
 
-### Run
+- **Xcode 26+** with iOS 26 SDK
+- iPhone Simulator or physical device
+
+### Setup
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/your-username/NewsApto.git
 cd NewsApto
-open NewsApto.xcodeproj
-```
-
-Select the **NewsApto** scheme and run on an iPhone simulator.
-
-### API Keys
-
-The app aggregates live news from [NewsAPI.org](https://newsapi.org), The Guardian Open Platform, and the New York Times Article Search API. Create `Config/Secrets.xcconfig`:
-
-```bash
 cp Config/Secrets.xcconfig.example Config/Secrets.xcconfig
 ```
 
-Add your provider keys to the file:
+Add your API keys to `Config/Secrets.xcconfig`:
 
 ```xcconfig
 NEWS_API_KEY = your_newsapi_key
@@ -163,92 +143,139 @@ GUARDIAN_API_KEY = your_guardian_key
 NYT_API_KEY = your_nyt_key
 ```
 
-The app can still run previews and UI-test mocks without live keys.
+Open `NewsApto.xcodeproj`, select the **NewsApto** scheme, and hit ▶.
 
-### Commands
+> **Note:** The app runs previews and UI tests without live API keys using built-in mock data.
+
+### Make Commands
 
 ```bash
-make build    # Build project for a generic iOS Simulator target
-make test     # Run unit tests on DESTINATION
+make build    # Build for iOS Simulator
+make test     # Run unit + UI tests
 make lint     # Run SwiftLint
 ```
 
-If your simulator name differs, override it:
+Override the simulator destination if needed:
 
 ```bash
 make test DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
 ```
 
-To test the error UI in Debug builds, launch with the `Debug.SimulateNetworkErrors` argument.
-
 ---
 
-## Testing
+## 🧪 Testing
 
-### Unit Tests (600+ assertions)
-- ViewModel state transitions
-- Repository caching (hit/miss/expiration)
-- Network client + decorators
-- Pagination + prefetch
-- Sorting + filtering
+### Unit Tests
+- ViewModel state machines and transitions
+- Repository cache hit/miss/expiration logic
+- Network client request building and error handling
+- Retry decorator with exponential backoff
+- Pagination guard and prefetch logic
+- Article sorting and deduplication
 
 ### UI Tests
-- Source selection → article screen
-- Reading list toggle
-- Category multi-select filtering
+- Full article browsing flow
+- Reading list save/remove cycle
+- Category filtering
 
 ```bash
-xcodebuild test -project NewsApto.xcodeproj -scheme NewsApto -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+make test
 ```
 
 ---
 
-## Design Patterns Table
+## 🔧 Key Engineering Decisions
 
-Enterprise patterns used in real production apps:
+### Why Zero Dependencies?
 
-| Pattern | Implementation | File |
-|---------|----------------|------|
-| **MVVM** | `@MainActor` ViewModels | `*.swift` |
-| **Repository** | Remote + cache layers | `*Repository.swift` |
-| **Use Case** | Business operation | `*UseCase.swift` |
-| **Factory** | `AppContainer` | `AppContainer.swift` |
-| **Decorator** | Stacked decorators | `*Decorator.swift` |
-| **Strategy** | Sorting algorithms | `ArticleSorting.swift` |
-| **Observer** | `@Published` | `*.swift` |
-| **Command** | `ToastAction` | `ToastManager.swift` |
-| **Adapter** | `ImageCacheAdapter` | `ImageCacheEnvironment.swift` |
-| **Facade** | `NewsAPIClientProtocol` | `NewsAPIClient.swift` |
-| **Builder** | Request builder | `NewsAPIEndpoint.swift` |
-| **Paginator** | Smart pagination | `Paginator.swift` |
-| **Property Wrapper** | `@UserDefault` | `UserDefaultWrapper.swift` |
-| **Service Locator** | `AppContainer.make()` | `AppContainer.swift` |
+| Concern | Our Approach |
+|---------|-------------|
+| **HTTP** | `URLSession` + `async/await` is already complete — Alamofire adds nothing |
+| **Images** | Custom cache gives full control over memory pressure and downsampling |
+| **JSON** | Native `Codable` with clean DTO → domain mapping |
+| **Binary size** | No SPM packages = ultra-fast builds, smaller app |
+| **Trust** | No macro trust prompts, no broken plugins, no supply-chain risk |
+
+### Why Actor-Based Concurrency?
+
+Traditional caching with `NSLock` or `DispatchQueue` is fragile and hard to test. Swift actors give us:
+- **Compile-time safety** — the compiler prevents data races
+- **Structured task deduplication** — in-flight request coalescing is trivial
+- **Natural async/await integration** — no callback hell
+
+### Smart Article Scoring
+
+Articles are ranked by a weighted formula:
+
+```
+Score = recencyScore(article) + contentScore(article) + titleScore(article)
+```
+
+- **Recency**: 40 points for <1h old → 2 points for >72h
+- **Content richness**: +15 for image, up to +10 for description length, +5 for content snippet
+- **Title quality**: Longer, more descriptive titles score higher
 
 ---
 
-## Why Zero Dependencies?
+## 📁 Project Structure
 
-1. **`URLSession` + `async/await`** — Already complete. Alamofire adds nothing.
-2. **Image Caching** — Custom implementation gives full control over memory pressure
-3. **Smaller Binary** — No SPM packages, ultra-fast builds
-4. **No Build Surprises** — No macro trust prompts, no broken plugins
-5. **Your Code, Your Control** — No black-box dependencies hiding bugs
+```
+NewsApto/
+├── NewsApto/
+│   ├── App/                          # @main entry, DI container, navigation
+│   ├── Domain/
+│   │   ├── Entities/                 # Article, ArticleScorer, APISource
+│   │   ├── RepositoryInterfaces/     # Protocols + PaginatedResult
+│   │   └── UseCases/                 # ManageReadingListUseCase
+│   ├── Data/
+│   │   ├── Network/                  # API clients, endpoints, DTOs, aggregator
+│   │   ├── Persistence/              # Core Data, file cache, cached repositories
+│   │   └── Repositories/             # NewsAPI + reading list implementations
+│   ├── Infrastructure/
+│   │   ├── DesignSystem/             # AppPalette, AppTypography, reusable components
+│   │   ├── Networking/               # ImageCache, RetryPolicy, NetworkMonitor
+│   │   ├── Notifications/           # SentinelNotificationService
+│   │   ├── Utilities/               # Logger, DateFormatter, ReadingTime
+│   │   ├── Localization/            # en/tr string catalogs
+│   │   └── PreviewSupport/          # Mock data + repositories
+│   └── Presentation/
+│       ├── Feed/                     # FeedView + FeedViewModel
+│       ├── Articles/                 # ArticleImageView, SafariView
+│       ├── ReadingList/              # ReadingListView + ViewModel
+│       └── Shared/                   # HeroDetail, Search, Splash, Attribution
+├── NewsAptoTests/                    # Unit tests
+├── NewsAptoUITests/                  # UI tests
+├── Config/                           # Secrets.xcconfig
+└── Makefile
+```
 
 ---
 
-## Performance
+## ⚡ Performance
 
 | Metric | Value |
 |--------|-------|
-| **Image Memory** | 50MB NSCache + downsampling |
-| **Disk Cache** | 200MB, 7-day TTL |
-| **Auto-Refresh** | 60s interval |
-| **Prefetch** | Triggers at last 3 items |
-| **Retry** | Exponential backoff with jitter |
-| **Spotlight** | Background batched indexing |
+| **Memory cache** | 50MB NSCache with automatic eviction |
+| **Disk cache** | 200MB with 7-day TTL |
+| **Image downsampling** | All images rendered at 400×400 max |
+| **Prefetch trigger** | Auto-loads next page at last 5 items |
+| **Request coalescing** | Actor-based in-flight deduplication |
+| **Retry** | Exponential backoff with jitter (max 3 attempts) |
 
 ---
 
-## License
+## 🌐 Localization
+
+NewsApto ships with **English** and **Turkish** localizations, switchable in-app.
+
+---
+
+## 📄 License
 
 MIT — See [LICENSE](LICENSE).
+
+---
+
+<p align="center">
+  <sub>Built with ❤️ using 100% native Apple frameworks. No third-party dependencies. Ever.</sub>
+</p>

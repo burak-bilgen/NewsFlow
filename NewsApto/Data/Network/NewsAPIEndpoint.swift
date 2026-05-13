@@ -10,6 +10,10 @@ enum NewsAPIEndpoint: Equatable {
         }
     }
 
+    private static let validCategories: Set<String> = [
+        "general", "business", "entertainment", "health", "science", "sports", "technology"
+    ]
+
     var queryItems: [URLQueryItem] {
         switch self {
         case let .topHeadlines(sourceID, page, pageSize):
@@ -19,6 +23,9 @@ enum NewsAPIEndpoint: Equatable {
             ]
             if sourceID == "all" {
                 items.append(URLQueryItem(name: "country", value: "us"))
+            } else if Self.validCategories.contains(sourceID) {
+                items.append(URLQueryItem(name: "country", value: "us"))
+                items.append(URLQueryItem(name: "category", value: sourceID))
             } else {
                 items.append(URLQueryItem(name: "sources", value: sourceID))
             }

@@ -36,6 +36,7 @@ struct ReadingListView: View {
             )
         }
         .task { await viewModel.load() }
+        .statusBarHidden(true)
     }
 
     @ViewBuilder

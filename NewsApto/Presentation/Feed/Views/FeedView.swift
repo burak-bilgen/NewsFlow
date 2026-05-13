@@ -23,9 +23,10 @@ struct FeedView: View {
             HeroDetailView(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onDismiss: { selectedArticle = nil })
         }
         .sheet(isPresented: $showAttribution) {
-            NavigationView { AttributionView().toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button { showAttribution = false } label: { Image(systemName: "xmark.circle.fill").font(.system(size: 20)).foregroundColor(AppPalette.textTertiary) } } } }
+            NavigationStack { AttributionView().toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button { showAttribution = false } label: { Image(systemName: "xmark.circle.fill").font(.system(size: 20)).foregroundColor(AppPalette.textTertiary) } } } }
         }
         .task { await viewModel.loadIfNeeded() }
+        .statusBarHidden(true)
         .accessibilityIdentifier("home.screen")
     }
 
@@ -54,6 +55,9 @@ struct FeedView: View {
                 
                 TerminalSearchBar(text: $terminalSearchText) { query in
                     viewModel.searchQuery = query
+                }
+                .onChange(of: terminalSearchText) { _, newValue in
+                    viewModel.searchQuery = newValue
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
@@ -168,6 +172,7 @@ struct FeedView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
                             MagazineListCard(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onSelect: { selectedArticle = article })
+                                .onAppear { viewModel.prefetchIfNeeded(currentItem: article) }
                             if i < articles.count - 1 { Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.leading, 100) }
                         }
                     }
@@ -177,14 +182,29 @@ struct FeedView: View {
     }
 
     private var loadMoreFooter: some View {
-        Button { Task { await viewModel.loadMore() } } label: {
-            Text("> LOAD.MORE")
-                .font(AppTypography.monoSmall)
-                .foregroundColor(AppPalette.accent)
+        Group {
+            if viewModel.isLoadingMore {
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: AppPalette.accent))
+                        .scaleEffect(0.8)
+                    Text("> LOADING...")
+                        .font(AppTypography.monoSmall)
+                        .foregroundColor(AppPalette.accent)
+                }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
+            } else {
+                Button { Task { await viewModel.loadMore() } } label: {
+                    Text("> LOAD.MORE")
+                        .font(AppTypography.monoSmall)
+                        .foregroundColor(AppPalette.accent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .buttonStyle(.plain)
     }
 
     private func sectionHeader(_ title: String) -> some View {

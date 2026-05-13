@@ -11,6 +11,7 @@ final class FeedViewModel: ObservableObject {
     @Published private(set) var articles: [Article] = []
     @Published private(set) var savedArticleIDs: Set<String> = []
     @Published private(set) var isRefreshing = false
+    @Published private(set) var isLoadingMore = false
     @Published private(set) var hasMorePages = true
     @Published var selectedCategory: String? = nil
     @Published var searchQuery: String = ""
@@ -53,12 +54,29 @@ final class FeedViewModel: ObservableObject {
     }
 
     func pullToRefresh() async {
-        isRefreshing = true; currentPage = 1; await fetch(); isRefreshing = false
+        isRefreshing = true
+        isLoadingMore = false
+        currentPage = 1
+        hasMorePages = true
+        await fetch()
+        isRefreshing = false
     }
 
     func loadMore() async {
-        guard hasMorePages else { return }
-        currentPage += 1; await fetch()
+        guard hasMorePages, !isLoadingMore else { return }
+        isLoadingMore = true
+        currentPage += 1
+        await fetch()
+        isLoadingMore = false
+    }
+
+    func prefetchIfNeeded(currentItem: Article) {
+        let items = filteredArticles
+        guard let index = items.firstIndex(where: { $0.id == currentItem.id }) else { return }
+        let threshold = items.count - 5
+        if index >= threshold {
+            Task { await loadMore() }
+        }
     }
 
     func isSaved(_ article: Article) -> Bool { savedArticleIDs.contains(article.id) }

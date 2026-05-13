@@ -42,6 +42,7 @@ struct SplashView: View {
                     .padding(.bottom, 40)
             }
         }
+        .statusBarHidden(true)
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 scale = 1.0

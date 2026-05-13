@@ -8,12 +8,11 @@ struct RootNavigationView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             FeedView(
                 viewModel: container.makeFeedViewModel(),
                 makeReadingListViewModel: { container.makeReadingListViewModel() }
             )
         }
-        .navigationViewStyle(.stack)
     }
 }

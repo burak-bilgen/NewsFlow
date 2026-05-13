@@ -90,5 +90,6 @@ struct HeroDetailView: View {
                 SafariView(url: url)
             }
         }
+        .statusBarHidden(true)
     }
 }

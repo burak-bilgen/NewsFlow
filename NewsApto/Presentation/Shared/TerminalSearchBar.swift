@@ -18,7 +18,7 @@ struct TerminalSearchBar: View {
                 .foregroundColor(AppPalette.textPrimary)
                 .focused($isFocused)
                 .tint(AppPalette.accent)
-                .autocapitalization(.none)
+                .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
                 .submitLabel(.search)
                 .onSubmit { onSubmit(text) }
@@ -49,8 +49,8 @@ struct TerminalSearchBar: View {
         .contentShape(Rectangle())
         .onTapGesture { isFocused = true }
         .onAppear {
-            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-                cursorVisible.toggle()
+            withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
+                cursorVisible = false
             }
         }
     }

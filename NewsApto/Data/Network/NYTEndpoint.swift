@@ -13,7 +13,7 @@ enum NYTEndpoint {
         switch self {
         case let .search(query, page, section):
             var items: [URLQueryItem] = [
-                URLQueryItem(name: "page", value: String(page)),
+                URLQueryItem(name: "page", value: String(max(0, page - 1))),
             ]
             if let query, !query.isEmpty {
                 items.append(URLQueryItem(name: "q", value: query))
