@@ -37,7 +37,17 @@ struct HeroDetailView: View {
                                 }
                             }
                             if let desc = article.description, !desc.isEmpty {
-                                Text(desc).font(AppTypography.body).foregroundColor(AppPalette.textSecondary).lineSpacing(5).fixedSize(horizontal: false, vertical: true)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("> SUMMARY")
+                                        .font(AppTypography.monoSmall)
+                                        .foregroundColor(AppPalette.accent)
+                                    Text(desc)
+                                        .font(AppTypography.body)
+                                        .foregroundColor(AppPalette.textSecondary)
+                                        .lineSpacing(5)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .padding(.vertical, 4)
                             }
                             if let snippet = article.distinctContentSnippet {
                                 Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.vertical, 4)

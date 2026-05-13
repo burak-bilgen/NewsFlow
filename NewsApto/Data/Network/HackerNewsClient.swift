@@ -86,17 +86,28 @@ actor HackerNewsClient {
         // Use HN URL as fallback
         let storyUrl = story.url ?? "https://news.ycombinator.com/item?id=\(id)"
         
+        // HN text only available for "self posts" - for link posts, create description from URL domain
+        let description: String?
+        if let text = story.text, !text.isEmpty {
+            description = text.strippingHTML.prefix(200).description
+        } else if let url = story.url, let urlObj = URL(string: url) {
+            let host = urlObj.host?.replacingOccurrences(of: "www.", with: "") ?? "external site"
+            description = "🔗 External link from \(host)"
+        } else {
+            description = nil
+        }
+        
         return Article(
             id: "hn-\(id)",
             sourceID: "hackernews",
             title: title,
-            description: story.text?.strippingHTML.prefix(200).description,
+            description: description,
             imageURL: nil, // HN doesn't provide images
             publishedAt: date,
             url: URL(string: storyUrl),
             sourceName: "Hacker News",
             apiSource: .hackernews,
-            contentSnippet: story.text?.strippingHTML.prefix(300).description,
+            contentSnippet: story.text?.strippingHTML.prefix(300).description ?? description,
             category: "technology", // HackerNews is always tech
             qualityScore: Double(story.score ?? 0),
             badges: [.highQuality],
