@@ -1,22 +1,7 @@
-import Combine
 import SwiftUI
-
-protocol AppRouterProtocol: AnyObject {
-    func navigateToArticles(for source: NewsSource)
-}
-
-@MainActor
-final class AppRouter: ObservableObject, AppRouterProtocol {
-    @Published var selectedSource: NewsSource?
-
-    func navigateToArticles(for source: NewsSource) {
-        selectedSource = source
-    }
-}
 
 struct RootNavigationView: View {
     @ObservedObject private var container: AppContainer
-    @StateObject private var router = AppRouter()
 
     init(container: AppContainer) {
         self.container = container
@@ -26,12 +11,9 @@ struct RootNavigationView: View {
         NavigationView {
             FeedView(
                 viewModel: container.makeFeedViewModel(),
-                makeSourcesViewModel: { container.makeSourcesViewModel() },
-                makeArticlesViewModel: { container.makeArticlesViewModel(source: $0) },
                 makeReadingListViewModel: { container.makeReadingListViewModel() }
             )
         }
         .navigationViewStyle(.stack)
-            .environmentObject(router)
     }
 }

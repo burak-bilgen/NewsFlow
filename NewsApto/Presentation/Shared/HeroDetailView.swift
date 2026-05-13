@@ -6,6 +6,7 @@ struct HeroDetailView: View {
     @State private var showContent = false
     @State private var imageBlur: CGFloat = 8
     @State private var contentOffset: CGFloat = 24
+    @State private var showSafari = false
 
     var body: some View {
         ZStack {
@@ -33,17 +34,17 @@ struct HeroDetailView: View {
                             if let desc = article.description, !desc.isEmpty {
                                 Text(desc).font(AppTypography.body).foregroundColor(AppPalette.textSecondary).lineSpacing(5).fixedSize(horizontal: false, vertical: true)
                             }
-                            if let snippet = article.contentSnippet, !snippet.isEmpty {
+                            if let snippet = article.distinctContentSnippet {
                                 Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.vertical, 4)
-                                Text("> AI ANALYSIS").font(AppTypography.monoSmall).foregroundColor(AppPalette.accent)
+                                Text("> ARTICLE CONTEXT").font(AppTypography.monoSmall).foregroundColor(AppPalette.accent)
                                 Text(snippet).font(AppTypography.body).foregroundColor(AppPalette.textPrimary).lineSpacing(5).padding(.leading, 12)
                                     .overlay(Rectangle().fill(AppPalette.accent.opacity(0.3)).frame(width: 2), alignment: .leading)
                             }
-                            if let url = article.url {
+                            if article.url != nil {
                                 Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.vertical, 4)
                                 HStack {
-                                    Button { UIApplication.shared.open(url) } label: {
-                                        HStack { Text("> OPEN IN BROWSER").font(AppTypography.monoSmall).foregroundColor(.black) }
+                                    Button { showSafari = true } label: {
+                                        HStack { Text("> READ ORIGINAL").font(AppTypography.monoSmall).foregroundColor(.black) }
                                             .padding(.horizontal, 16).padding(.vertical, 10).background(AppPalette.accent)
                                     }.buttonStyle(.plain)
                                     Spacer()
@@ -83,6 +84,11 @@ struct HeroDetailView: View {
         .onAppear {
             withAnimation(.easeOut(duration: 0.35)) { imageBlur = 0 }
             withAnimation(springAnimation().delay(0.15)) { showContent = true; contentOffset = 0 }
+        }
+        .sheet(isPresented: $showSafari) {
+            if let url = article.url {
+                SafariView(url: url)
+            }
         }
     }
 }

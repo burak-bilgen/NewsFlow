@@ -3,6 +3,7 @@ import SwiftUI
 @MainActor
 struct ReadingListView: View {
     @StateObject private var viewModel: ReadingListViewModel
+    @State private var selectedArticle: Article?
 
     init(viewModel: ReadingListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -21,6 +22,19 @@ struct ReadingListView: View {
                 Text("> READING.LIST").font(AppTypography.monoSmall).foregroundColor(AppPalette.accent)
             }
         }
+        .fullScreenCover(item: $selectedArticle) { article in
+            HeroDetailView(
+                article: article,
+                isSaved: true,
+                onToggle: {
+                    Task {
+                        await viewModel.remove(article)
+                        selectedArticle = nil
+                    }
+                },
+                onDismiss: { selectedArticle = nil }
+            )
+        }
         .task { await viewModel.load() }
     }
 
@@ -35,7 +49,7 @@ struct ReadingListView: View {
             } else {
                 articleList(articles: articles)
             }
-        case .error(let message):
+        case .error:
             emptyState
         }
     }
@@ -53,7 +67,11 @@ struct ReadingListView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
-                    ReadingListRow(article: article, onRemove: { Task { await viewModel.remove(article) } })
+                    ReadingListRow(
+                        article: article,
+                        onSelect: { selectedArticle = article },
+                        onRemove: { Task { await viewModel.remove(article) } }
+                    )
                     if i < articles.count - 1 {
                         Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.leading, 100)
                     }
@@ -67,24 +85,31 @@ struct ReadingListView: View {
 
 private struct ReadingListRow: View {
     let article: Article
+    let onSelect: () -> Void
     let onRemove: () -> Void
     @State private var isVisible = false
 
     var body: some View {
         HStack(spacing: 12) {
-            ArticleImageView(url: article.imageURL)
-                .frame(width: 72, height: 72).clipped()
-                .overlay(Rectangle().stroke(AppPalette.cardBorder, lineWidth: 0.5))
+            Button(action: onSelect) {
+                HStack(spacing: 12) {
+                    ArticleImageView(url: article.imageURL)
+                        .frame(width: 72, height: 72).clipped()
+                        .overlay(Rectangle().stroke(AppPalette.cardBorder, lineWidth: 0.5))
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(article.sourceName.uppercased())
-                    .font(AppTypography.small.weight(.bold)).foregroundColor(AppPalette.accent)
-                Text(article.title)
-                    .font(AppTypography.caption.weight(.semibold)).foregroundColor(AppPalette.textPrimary).lineLimit(2)
-                Text(article.displayDate)
-                    .font(AppTypography.small).foregroundColor(AppPalette.textTertiary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(article.sourceName.uppercased())
+                            .font(AppTypography.small.weight(.bold)).foregroundColor(AppPalette.accent)
+                        Text(article.title)
+                            .font(AppTypography.caption.weight(.semibold)).foregroundColor(AppPalette.textPrimary).lineLimit(2)
+                        Text(article.displayDate)
+                            .font(AppTypography.small).foregroundColor(AppPalette.textTertiary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .buttonStyle(.plain)
 
             Button(action: onRemove) {
                 Image(systemName: "trash")

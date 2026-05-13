@@ -19,7 +19,6 @@ struct NewsAptoApp: App {
                     RootNavigationView(container: container)
                         .environment(\.imageCache, imageCache)
                         .preferredColorScheme(.dark)
-                        .onOpenURL { _ = DeepLinkHandler.shared.handle($0) }
                         .transition(.opacity)
                 }
             }

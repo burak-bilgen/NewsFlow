@@ -89,7 +89,7 @@ final class RetryingNewsAPIClientDecorator: NewsAPIClientProtocol {
                 return true
             }
             return false
-        case .cancelled, .missingAPIKey, .invalidURL, .decoding, .searchNotSupported:
+        case .cancelled, .missingAPIKey, .invalidURL, .decoding:
             return false
         }
     }

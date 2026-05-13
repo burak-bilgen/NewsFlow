@@ -8,14 +8,6 @@
 		<string>$(GUARDIAN_API_KEY)</string>
 		<key>NYTAPIKey</key>
 		<string>$(NYT_API_KEY)</string>
-		<key>BGTaskSchedulerPermittedIdentifiers</key>
-		<array>
-			<string>burakbilgen.NewsApto.refresh</string>
-		</array>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>fetch</string>
-		</array>
 		<key>UISupportedInterfaceOrientations~iphone</key>
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
@@ -25,17 +17,6 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>burakbilgen.newsflow</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>newsflow</string>
-			</array>
-		</dict>
 	</array>
 </dict>
 </plist>

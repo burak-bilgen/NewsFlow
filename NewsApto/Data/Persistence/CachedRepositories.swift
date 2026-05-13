@@ -1,52 +1,5 @@
 import Foundation
 
-actor CachedSourcesRepository: SourcesRepositoryProtocol, SourcesCacheBypassing {
-    private let remoteRepository: SourcesRepositoryProtocol
-    private let store: PersistentStore
-    private let cacheDuration: TimeInterval
-    private var inflightFetch: Task<[NewsSource], Error>?
-
-    init(
-        remoteRepository: SourcesRepositoryProtocol,
-        store: PersistentStore,
-        cacheDuration: TimeInterval = 300
-    ) {
-        self.remoteRepository = remoteRepository
-        self.store = store
-        self.cacheDuration = cacheDuration
-    }
-
-    func fetchSources() async throws -> [NewsSource] {
-        if let cached: [NewsSource] = await store.load([NewsSource].self, forKey: "sources"),
-           let lastUpdated = await store.lastUpdated(forKey: "sources"),
-           Date().timeIntervalSince(lastUpdated) < cacheDuration {
-            return cached
-        }
-
-        if let existing = inflightFetch {
-            return try await existing.value
-        }
-
-        let task = Task<[NewsSource], Error> {
-            defer { inflightFetch = nil }
-            let sources = try await remoteRepository.fetchSources()
-            try? await store.save(sources, forKey: "sources")
-            return sources
-        }
-        inflightFetch = task
-        return try await task.value
-    }
-
-    func invalidateCache() async {
-        await store.remove(forKey: "sources")
-    }
-
-    func fetchSourcesBypassingCache() async throws -> [NewsSource] {
-        await store.remove(forKey: "sources")
-        return try await remoteRepository.fetchSources()
-    }
-}
-
 actor CachedArticlesRepository: ArticlesRepositoryProtocol, CacheBypassing {
     private let remoteRepository: ArticlesRepositoryProtocol
     private let store: PersistentStore

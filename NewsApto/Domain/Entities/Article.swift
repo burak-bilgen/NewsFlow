@@ -74,3 +74,23 @@ extension Article {
         try container.encodeIfPresent(contentSnippet, forKey: .contentSnippet)
     }
 }
+
+extension Article {
+    var distinctContentSnippet: String? {
+        guard let snippet = contentSnippet?.nilIfBlank else { return nil }
+
+        let snippetKey = snippet.detailComparisonKey
+        let duplicateKeys = [description, title].compactMap { $0?.nilIfBlank?.detailComparisonKey }
+
+        return duplicateKeys.contains(snippetKey) ? nil : snippet
+    }
+}
+
+private extension String {
+    var detailComparisonKey: String {
+        lowercased()
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+    }
+}

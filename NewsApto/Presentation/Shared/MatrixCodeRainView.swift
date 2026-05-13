@@ -21,7 +21,6 @@ struct MatrixCodeRainView: View {
                     for col in 0..<columns {
                         let seed = col * 17
                         let dropOffset = (seed + t / 2) % (rows + 8)
-                        let charSet = (col % 3 == 0) ? 0 : 1
 
                         for row in 0..<rows {
                             let y = CGFloat(row) * rowH

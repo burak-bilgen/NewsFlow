@@ -9,7 +9,6 @@ enum NewsAPIError: Error, Equatable {
     case decoding
     case apiStatus(code: String?, message: String?)
     case cancelled
-    case searchNotSupported
 
     var userMessage: String {
         switch self {
@@ -24,9 +23,6 @@ enum NewsAPIError: Error, Equatable {
 
         case .cancelled:
             return L10n.text("error.cancelled")
-
-        case .searchNotSupported:
-            return L10n.text("error.generic")
         }
     }
 
@@ -55,9 +51,6 @@ enum NewsAPIError: Error, Equatable {
 
         case .cancelled:
             return "Request cancelled."
-
-        case .searchNotSupported:
-            return "Search is not supported by this repository."
         }
     }
 }

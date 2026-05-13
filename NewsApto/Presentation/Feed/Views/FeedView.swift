@@ -2,17 +2,13 @@ import SwiftUI
 
 struct FeedView: View {
     @StateObject private var viewModel: FeedViewModel
-    let makeSourcesViewModel: () -> SourcesViewModel
-    let makeArticlesViewModel: (NewsSource) -> ArticlesViewModel
     let makeReadingListViewModel: () -> ReadingListViewModel
     @State private var showAttribution = false
     @State private var selectedArticle: Article?
     @State private var terminalSearchText = ""
 
-    init(viewModel: FeedViewModel, makeSourcesViewModel: @escaping () -> SourcesViewModel, makeArticlesViewModel: @escaping (NewsSource) -> ArticlesViewModel, makeReadingListViewModel: @escaping () -> ReadingListViewModel) {
+    init(viewModel: FeedViewModel, makeReadingListViewModel: @escaping () -> ReadingListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.makeSourcesViewModel = makeSourcesViewModel
-        self.makeArticlesViewModel = makeArticlesViewModel
         self.makeReadingListViewModel = makeReadingListViewModel
     }
 
@@ -23,18 +19,6 @@ struct FeedView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 2) {
-                    NavigationLink { ReadingListView(viewModel: makeReadingListViewModel()) } label: {
-                        Image(systemName: "text.book.closed").font(.system(size: 13, weight: .medium)).foregroundColor(AppPalette.textSecondary).frame(width: 34, height: 34).contentShape(Rectangle())
-                    }
-                    Button { showAttribution = true } label: {
-                        Image(systemName: "line.3.horizontal").font(.system(size: 13, weight: .medium)).foregroundColor(AppPalette.textSecondary).frame(width: 34, height: 34).contentShape(Rectangle())
-                    }
-                }
-            }
-        }
         .fullScreenCover(item: $selectedArticle) { article in
             HeroDetailView(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onDismiss: { selectedArticle = nil })
         }
@@ -90,9 +74,16 @@ struct FeedView: View {
                     if let article = feedArticles.first {
                         VStack(alignment: .leading, spacing: 0) {
                             heroSection(for: article)
-                            if feedArticles.count > 1 {
-                                featuredGrid(Array(feedArticles.dropFirst().prefix(4)))
-                                latestSection(Array(feedArticles.dropFirst(5)))
+                            let featuredArticles = Array(feedArticles.dropFirst().prefix(4))
+                            let latestArticles = Array(feedArticles.dropFirst(5))
+                            if !featuredArticles.isEmpty {
+                                featuredGrid(featuredArticles)
+                            }
+                            if !latestArticles.isEmpty {
+                                latestSection(latestArticles)
+                            }
+                            if viewModel.hasMorePages && viewModel.selectedCategory == nil {
+                                loadMoreFooter
                             }
                         }
                     } else if viewModel.state == .ready {
@@ -112,8 +103,30 @@ struct FeedView: View {
     }
 
     private var logoHeader: some View {
-        Image("logo").resizable().scaledToFit().frame(width: 60, height: 60)
-            .padding(.leading, 20).padding(.top, -45).padding(.bottom, 25)
+        HStack(alignment: .center, spacing: 14) {
+            Image("logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 48, height: 48)
+                .accessibilityHidden(true)
+
+            Spacer(minLength: 16)
+
+            HStack(spacing: 10) {
+                NavigationLink { ReadingListView(viewModel: makeReadingListViewModel()) } label: {
+                    HomeHeaderIcon(systemName: "bookmark", accessibilityLabel: "Reading list")
+                }
+                .buttonStyle(HomeHeaderButtonStyle())
+
+                Button { showAttribution = true } label: {
+                    HomeHeaderIcon(systemName: "info", accessibilityLabel: "About")
+                }
+                .buttonStyle(HomeHeaderButtonStyle())
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 18)
     }
 
     private func heroSection(for article: Article) -> some View {
@@ -133,31 +146,45 @@ struct FeedView: View {
     }
 
     private func featuredGrid(_ articles: [Article]) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            sectionHeader("Editor's Picks")
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
-                    MagazineGridCard(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onSelect: { selectedArticle = article })
+        Group {
+            if !articles.isEmpty {
+                VStack(alignment: .leading, spacing: 0) {
+                    sectionHeader("Editor's Picks")
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                        ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
+                            MagazineGridCard(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onSelect: { selectedArticle = article })
+                        }
+                    }.padding(.horizontal, 16).padding(.bottom, 20)
                 }
-            }.padding(.horizontal, 16).padding(.bottom, 20)
+            }
         }
     }
 
     private func latestSection(_ articles: [Article]) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            sectionHeader("Latest")
-            LazyVStack(spacing: 0) {
-                ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
-                    MagazineListCard(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onSelect: { selectedArticle = article })
-                    if i < articles.count - 1 { Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.leading, 100) }
-                }
-                if viewModel.hasMorePages && viewModel.selectedCategory == nil {
-                    Button { Task { await viewModel.loadMore() } } label: {
-                        Text("> LOAD.MORE").font(AppTypography.monoSmall).foregroundColor(AppPalette.accent).frame(maxWidth: .infinity).padding(.vertical, 14)
-                    }.buttonStyle(.plain)
+        Group {
+            if !articles.isEmpty {
+                VStack(alignment: .leading, spacing: 0) {
+                    sectionHeader("Latest")
+                    LazyVStack(spacing: 0) {
+                        ForEach(Array(articles.enumerated()), id: \.element.id) { i, article in
+                            MagazineListCard(article: article, isSaved: viewModel.isSaved(article), onToggle: { Task { await viewModel.toggleReadingList(for: article) } }, onSelect: { selectedArticle = article })
+                            if i < articles.count - 1 { Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.leading, 100) }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private var loadMoreFooter: some View {
+        Button { Task { await viewModel.loadMore() } } label: {
+            Text("> LOAD.MORE")
+                .font(AppTypography.monoSmall)
+                .foregroundColor(AppPalette.accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+        }
+        .buttonStyle(.plain)
     }
 
     private func sectionHeader(_ title: String) -> some View {
@@ -194,5 +221,35 @@ struct MagazineListCard: View {
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(.top, 2)
             }.padding(.vertical, 12).padding(.horizontal, 20).contentShape(Rectangle())
         }.buttonStyle(.plain)
+    }
+}
+
+private struct HomeHeaderIcon: View {
+    let systemName: String
+    let accessibilityLabel: String
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .strokeBorder(AppPalette.accent.opacity(0.32), lineWidth: 0.8)
+                .frame(width: 40, height: 40)
+
+            Image(systemName: systemName)
+                .font(.system(size: 16, weight: .semibold))
+                .symbolRenderingMode(.monochrome)
+                .foregroundStyle(AppPalette.textPrimary)
+        }
+            .frame(width: 46, height: 46)
+            .contentShape(Circle())
+            .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+private struct HomeHeaderButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.93 : 1)
+            .opacity(configuration.isPressed ? 0.72 : 1)
+            .animation(.spring(response: 0.22, dampingFraction: 0.78), value: configuration.isPressed)
     }
 }

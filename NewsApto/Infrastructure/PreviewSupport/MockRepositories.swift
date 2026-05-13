@@ -2,20 +2,6 @@ import Foundation
 
 #if DEBUG
 
-// MARK: - Mock Sources Repository
-
-final class MockSourcesRepository: SourcesRepositoryProtocol {
-    private let sources: [NewsSource]
-
-    init(sources: [NewsSource]) {
-        self.sources = sources
-    }
-
-    func fetchSources() async throws -> [NewsSource] {
-        sources
-    }
-}
-
 // MARK: - Mock Articles Repository
 
 final class MockArticlesRepository: ArticlesRepositoryProtocol {
