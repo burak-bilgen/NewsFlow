@@ -107,9 +107,6 @@ struct FeedView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
 
-                TerminalCategoryRibbon(selected: $viewModel.selectedCategory)
-                    .padding(.bottom, 24)
-
                 Rectangle()
                     .fill(AppPalette.accent.opacity(0.3))
                     .frame(height: 0.5)
@@ -117,7 +114,7 @@ struct FeedView: View {
                     .padding(.bottom, 16)
 
                 let feedArticles = viewModel.filteredArticles
-                let filterHash = "\(viewModel.selectedCategory ?? "all")-\(viewModel.searchQuery)"
+                let filterHash = viewModel.searchQuery
 
                 Group {
                     // Find first article with image for hero banner (skip HackerNews and image-less articles)
@@ -144,7 +141,7 @@ struct FeedView: View {
                                 latestSection(latestArticles)
                             }
 
-                            if viewModel.hasMorePages && viewModel.selectedCategory == nil {
+                            if viewModel.hasMorePages {
                                 loadMoreFooter
                             }
                         }
@@ -251,7 +248,7 @@ struct FeedView: View {
                 .font(AppTypography.monoSmall)
                 .foregroundColor(AppPalette.textTertiary)
 
-            Text("No articles match \(viewModel.selectedCategory?.uppercased() ?? "this filter").")
+            Text("No articles match your search.")
                 .font(AppTypography.caption)
                 .foregroundColor(AppPalette.textSecondary)
 

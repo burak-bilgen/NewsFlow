@@ -85,8 +85,7 @@ struct NYTArticleDTO: Decodable {
             url: webUrl.flatMap(URL.init(string:)),
             sourceName: source ?? "The New York Times",
             apiSource: .nyt,
-            contentSnippet: cleanSnippet,
-            category: sectionName?.lowercased()
+            contentSnippet: cleanSnippet
         )
     }
 }

@@ -76,9 +76,7 @@ actor TopicDiversityEngine {
             let currentCount = topicCounts[topicID, default: 0]
             
             if currentCount < maxPerTopic {
-                var diverseArticle = article
-                diverseArticle.topicID = topicID
-                diverseArticles.append(diverseArticle)
+                diverseArticles.append(article)
                 topicCounts[topicID] = currentCount + 1
             }
             // else: skip - too many articles on this topic

@@ -80,8 +80,7 @@ struct GuardianArticleDTO: Decodable {
             url: articleURL,
             sourceName: "The Guardian",
             apiSource: .guardian,
-            contentSnippet: cleanSnippet,
-            category: sectionId?.lowercased()
+            contentSnippet: cleanSnippet
         )
     }
 }

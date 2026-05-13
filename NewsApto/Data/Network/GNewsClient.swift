@@ -15,7 +15,6 @@ actor GNewsClient {
     }
     
     func fetchTopHeadlines(
-        category: String? = nil,
         country: String = "us",
         max: Int = 20,
         page: Int = 1
@@ -29,10 +28,6 @@ actor GNewsClient {
             URLQueryItem(name: "country", value: country),
             URLQueryItem(name: "lang", value: "en")
         ]
-        
-        if let category = category {
-            queryItems.append(URLQueryItem(name: "topic", value: category))
-        }
         
         components.queryItems = queryItems
         
@@ -89,7 +84,6 @@ struct GNewsArticle: Codable {
     let image: String?
     let publishedAt: String
     let source: GNewsSource
-    let category: String?  // GNews topic/category
     
     struct GNewsSource: Codable {
         let name: String
@@ -110,10 +104,7 @@ struct GNewsArticle: Codable {
             url: URL(string: url),
             sourceName: source.name,
             apiSource: .gnews,
-            contentSnippet: content?.prefix(2000).description,
-            category: category?.lowercased(),
-            badges: [],
-            curationReason: nil
+            contentSnippet: content?.prefix(2000).description
         )
     }
 }

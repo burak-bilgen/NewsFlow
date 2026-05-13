@@ -9,17 +9,9 @@ struct MagazineGridCard: View {
     var body: some View {
         Button(action: onSelect) {
             VStack(alignment: .leading, spacing: 0) {
-                ZStack(alignment: .topLeading) {
-                    ArticleImageView(url: article.imageURL)
-                        .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120)
-                        .clipped()
-                    
-                    // Badges overlay
-                    if !article.badges.isEmpty {
-                        ArticleBadgeView(badges: article.badges, size: .small)
-                            .padding(6)
-                    }
-                }
+                ArticleImageView(url: article.imageURL)
+                    .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120)
+                    .clipped()
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.sourceName.uppercased())

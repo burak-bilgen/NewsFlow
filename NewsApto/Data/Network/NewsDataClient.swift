@@ -73,7 +73,7 @@ struct NewsDataResponse: Codable {
 }
 
 struct NewsDataArticle: Codable {
-    let articleId: String
+    let articleId: String?
     let title: String
     let link: String?
     let keywords: [String]?
@@ -96,11 +96,11 @@ struct NewsDataArticle: Codable {
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let publishedDate = dateFormatter.date(from: pubDate)
         
-        // Map first category from array
-        let primaryCategory = category?.first?.lowercased()
+        // Generate fallback ID if articleId is missing from API response
+        let effectiveId = articleId ?? generateFallbackId()
         
         return Article(
-            id: articleId,
+            id: effectiveId,
             sourceID: sourceId,
             title: title,
             description: description,
@@ -109,10 +109,14 @@ struct NewsDataArticle: Codable {
             url: link.flatMap { URL(string: $0) },
             sourceName: sourceName,
             apiSource: .newsdata,
-            contentSnippet: content?.prefix(2000).description,
-            category: primaryCategory,
-            badges: [],
-            curationReason: nil
+            contentSnippet: content?.prefix(2000).description
         )
+    }
+    
+    private func generateFallbackId() -> String {
+        // Generate deterministic ID from title + source + date
+        let base = "\(title)_\(sourceName)_\(pubDate)"
+        let hash = base.hashValue.magnitude
+        return "newsdata-fallback-\(hash)"
     }
 }

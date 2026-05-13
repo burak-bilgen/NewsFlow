@@ -31,12 +31,6 @@ struct HeroCardView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    // Badges row at top
-                    if !article.badges.isEmpty {
-                        ArticleBadgeView(badges: article.badges, size: .medium)
-                            .padding(.bottom, 4)
-                    }
-                    
                     Text(article.sourceName.uppercased())
                         .font(AppTypography.small.weight(.bold))
                         .foregroundColor(AppPalette.accent)
@@ -53,15 +47,7 @@ struct HeroCardView: View {
                             .lineLimit(2)
                     }
                     
-                    // Curation reason
-                    if let reason = article.curationReason {
-                        Text(reason.reason)
-                            .font(AppTypography.monoSmall)
-                            .foregroundColor(AppPalette.accent)
-                            .padding(.top, 4)
-                    }
-                    
-                    // Score indicator
+                    // Quality score indicator
                     if let score = article.qualityScore {
                         HStack(spacing: 4) {
                             Text("> QUALITY: \(Int(score))/100")

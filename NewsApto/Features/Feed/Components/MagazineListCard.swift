@@ -14,39 +14,28 @@ struct MagazineListCard: View {
                     .clipped()
 
                 VStack(alignment: .leading, spacing: 4) {
-                    // Badges row
-                    if !article.badges.isEmpty {
-                        ArticleBadgeView(badges: article.badges, size: .small)
-                            .padding(.bottom, 2)
-                    }
-                    
                     Text(article.sourceName.uppercased())
                         .font(AppTypography.small.weight(.bold))
                         .foregroundColor(AppPalette.accent)
-
+                        .lineLimit(1)
+                    
                     Text(article.title)
-                        .font(AppTypography.caption.weight(.semibold))
+                        .font(AppTypography.headline)
                         .foregroundColor(AppPalette.textPrimary)
-                        .lineLimit(2)
-
-                    HStack(spacing: 8) {
-                        Text(article.displayDate)
-                            .font(AppTypography.small)
-                            .foregroundColor(AppPalette.textTertiary)
-                        
-                        if let score = article.qualityScore {
-                            Text("• \(Int(score))pt")
-                                .font(AppTypography.monoTiny)
-                                .foregroundColor(AppPalette.accent.opacity(0.7))
-                        }
+                        .lineLimit(3)
+                    
+                    if let desc = article.description, !desc.isEmpty {
+                        Text(desc)
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppPalette.textSecondary)
+                            .lineLimit(2)
                     }
                     
-                    // Curation reason
-                    if let reason = article.curationReason {
-                        Text(reason.reason)
+                    // Quality score indicator
+                    if let score = article.qualityScore {
+                        Text("Score: \(Int(score))")
                             .font(AppTypography.monoTiny)
-                            .foregroundColor(AppPalette.textTertiary.opacity(0.8))
-                            .lineLimit(1)
+                            .foregroundColor(AppPalette.accent.opacity(0.8))
                             .padding(.top, 2)
                     }
                 }
