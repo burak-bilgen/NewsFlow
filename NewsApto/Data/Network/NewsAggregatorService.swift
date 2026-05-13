@@ -63,9 +63,9 @@ actor NewsAggregatorService: NewsAggregating {
     }
 
     private func _fetchFeed(page: Int, pageSize: Int) async -> AggregatedResult {
-        // Fetch from all sources concurrently
-        async let newsResult = fetchNewsAPI(page: page, pageSize: pageSize)
-        async let guardianArticles = fetchGuardian(page: page, pageSize: pageSize)
+        // Fetch from all sources concurrently with larger initial fetch
+        async let newsResult = fetchNewsAPI(page: page, pageSize: pageSize * 2)
+        async let guardianArticles = fetchGuardian(page: page, pageSize: pageSize * 2)
         async let nytResult = fetchNYT(page: page)
         async let gnewsArticles = fetchGNews(page: page)
         async let newsDataResult = fetchNewsData(page: page)
@@ -82,8 +82,8 @@ actor NewsAggregatorService: NewsAggregating {
         // Apply smart scoring
         allArticles = await enhancedScorer.scoreAndEnrich(allArticles)
         
-        // Apply topic diversity (max 2 articles per topic)
-        allArticles = await topicDiversity.ensureDiversity(in: allArticles, maxPerTopic: 2)
+        // Apply topic diversity (max 5 articles per topic - more permissive)
+        allArticles = await topicDiversity.ensureDiversity(in: allArticles, maxPerTopic: 5)
         
         // Get user preferences for personalization boost
         let profile = await behaviorTracker.getUserProfile()
@@ -169,13 +169,13 @@ actor NewsAggregatorService: NewsAggregating {
         _ newsDataResult: NewsDataClient.NewsDataResult?,
         _ hnArticles: [Article]?
     ) async -> [Article] {
-        // Apply source caps for diversity (max articles per source)
-        let newsAPIItems = Array((newsResult?.items ?? []).prefix(8))
-        let guardianItems = Array((guardianArticles ?? []).prefix(6))
-        let nytItems = Array((nytResult?.articles ?? []).prefix(6))
-        let gnewsItems = Array((gnewsArticles ?? []).prefix(6))
-        let newsDataItems = Array((newsDataResult?.articles ?? []).prefix(6))
-        let hnItems = Array((hnArticles ?? []).prefix(5))  // HackerNews gets fewer slots
+        // Apply source caps for diversity (increased limits)
+        let newsAPIItems = Array((newsResult?.items ?? []).prefix(15))
+        let guardianItems = Array((guardianArticles ?? []).prefix(12))
+        let nytItems = Array((nytResult?.articles ?? []).prefix(12))
+        let gnewsItems = Array((gnewsArticles ?? []).prefix(12))
+        let newsDataItems = Array((newsDataResult?.articles ?? []).prefix(12))
+        let hnItems = Array((hnArticles ?? []).prefix(10))  // HackerNews gets fewer slots
         
         var allArticles: [Article] = []
         allArticles.append(contentsOf: newsAPIItems)
