@@ -97,6 +97,7 @@ actor HackerNewsClient {
             sourceName: "Hacker News",
             apiSource: .hackernews,
             contentSnippet: story.text?.strippingHTML.prefix(300).description,
+            category: "technology", // HackerNews is always tech
             qualityScore: Double(story.score ?? 0),
             badges: [.highQuality],
             curationReason: Article.CurationReason(

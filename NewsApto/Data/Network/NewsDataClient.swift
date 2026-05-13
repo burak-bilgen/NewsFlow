@@ -96,6 +96,9 @@ struct NewsDataArticle: Codable {
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let publishedDate = dateFormatter.date(from: pubDate)
         
+        // Map first category from array
+        let primaryCategory = category?.first?.lowercased()
+        
         return Article(
             id: articleId,
             sourceID: sourceId,
@@ -107,6 +110,7 @@ struct NewsDataArticle: Codable {
             sourceName: sourceName,
             apiSource: .newsdata,
             contentSnippet: content?.prefix(300).description,
+            category: primaryCategory,
             badges: [],
             curationReason: nil
         )
