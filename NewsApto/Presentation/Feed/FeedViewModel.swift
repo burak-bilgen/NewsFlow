@@ -115,180 +115,190 @@ final class FeedViewModel: ObservableObject {
 enum CategoryMatcher {
     // Map external API categories to our standard categories
     // Supports: Guardian (sectionId), NYT (sectionName), NewsData (category[]), GNews (topic), HN (hardcoded)
-    private static let categoryMappings: [String: String] = [
+    
+    // Using computed property instead of static let to avoid runtime dictionary literal crash
+    private static var categoryMappings: [String: String] {
+        var mappings: [String: String] = [:]
+        
         // ========== TECHNOLOGY ==========
-        "technology": "technology",
-        "tech": "technology",
-        "technology-science": "technology",
-        "science-and-technology": "technology",
-        "information-technology": "technology",
-        "computers": "technology",
-        "internet": "technology",
-        "gadgets": "technology",
-        "mobile": "technology",
-        "telecommunications": "technology",
-        "ai": "technology",
-        "artificial-intelligence": "technology",
-        "cyber-security": "technology",
-        "cybersecurity": "technology",
-        "programming": "technology",
-        "software": "technology",
-        "startups": "technology",
-        "innovation": "technology",
-        "scienceandtechnology": "technology",
+        mappings["technology"] = "technology"
+        mappings["tech"] = "technology"
+        mappings["technology-science"] = "technology"
+        mappings["science-and-technology"] = "technology"
+        mappings["information-technology"] = "technology"
+        mappings["computers"] = "technology"
+        mappings["internet"] = "technology"
+        mappings["gadgets"] = "technology"
+        mappings["mobile"] = "technology"
+        mappings["telecommunications"] = "technology"
+        mappings["ai"] = "technology"
+        mappings["artificial-intelligence"] = "technology"
+        mappings["cyber-security"] = "technology"
+        mappings["cybersecurity"] = "technology"
+        mappings["programming"] = "technology"
+        mappings["software"] = "technology"
+        mappings["startups"] = "technology"
+        mappings["innovation"] = "technology"
+        mappings["scienceandtechnology"] = "technology"
         // NewsData specific
-        "top": "technology", "technology-technology": "technology",
+        mappings["top"] = "technology"
+        mappings["technology-technology"] = "technology"
         
         // ========== BUSINESS ==========
-        "business": "business",
-        "economy": "business",
-        "finance": "business",
-        "financial": "business",
-        "money": "business",
-        "markets": "business",
-        "stock-market": "business",
-        "companies": "business",
-        "company": "business",
-        "corporate": "business",
-        "industry": "business",
-        "trade": "business",
-        "commercial": "business",
-        "us": "business", "uk": "business",  // Guardian US/UK news sections
-        "us-news": "business",
-        "uk-news": "business",
-        "world": "business",
-        "politics": "business",
-        "political": "business",
-        "government": "business",
-        "policy": "business",
-        "law": "business",
-        "legal": "business",
-        "international": "business",
-        "breaking": "business",
-        "general": "business",
-        "news": "business",
+        mappings["business"] = "business"
+        mappings["economy"] = "business"
+        mappings["finance"] = "business"
+        mappings["financial"] = "business"
+        mappings["money"] = "business"
+        mappings["markets"] = "business"
+        mappings["stock-market"] = "business"
+        mappings["companies"] = "business"
+        mappings["company"] = "business"
+        mappings["corporate"] = "business"
+        mappings["industry"] = "business"
+        mappings["trade"] = "business"
+        mappings["commercial"] = "business"
+        mappings["us"] = "business"
+        mappings["uk"] = "business"
+        mappings["us-news"] = "business"
+        mappings["uk-news"] = "business"
+        mappings["world"] = "business"
+        mappings["politics"] = "business"
+        mappings["political"] = "business"
+        mappings["government"] = "business"
+        mappings["policy"] = "business"
+        mappings["law"] = "business"
+        mappings["legal"] = "business"
+        mappings["international"] = "business"
+        mappings["breaking"] = "business"
+        mappings["general"] = "business"
+        mappings["news"] = "business"
         // NewsData specific
-        "business-business": "business", "business-us": "business",
+        mappings["business-business"] = "business"
+        mappings["business-us"] = "business"
         
         // ========== SCIENCE ==========
-        "science": "science",
-        "research": "science",
-        "space": "science",
-        "astronomy": "science",
-        "environment": "science",
-        "environmental": "science",
-        "climate": "science",
-        "climate-change": "science",
-        "nature": "science",
-        "earth": "science",
-        "physics": "science",
-        "chemistry": "science",
-        "biology": "science",
-        "genetics": "science",
-        "evolution": "science",
-        "energy": "science",
-        "renewable": "science",
-        "weather": "science",
-        "discovery": "science",
-        "laboratory": "science",
-        "scientific": "science",
-        "tech-and-science": "science",
+        mappings["science"] = "science"
+        mappings["research"] = "science"
+        mappings["space"] = "science"
+        mappings["astronomy"] = "science"
+        mappings["environment"] = "science"
+        mappings["environmental"] = "science"
+        mappings["climate"] = "science"
+        mappings["climate-change"] = "science"
+        mappings["nature"] = "science"
+        mappings["earth"] = "science"
+        mappings["physics"] = "science"
+        mappings["chemistry"] = "science"
+        mappings["biology"] = "science"
+        mappings["genetics"] = "science"
+        mappings["evolution"] = "science"
+        mappings["energy"] = "science"
+        mappings["renewable"] = "science"
+        mappings["weather"] = "science"
+        mappings["discovery"] = "science"
+        mappings["laboratory"] = "science"
+        mappings["scientific"] = "science"
+        mappings["tech-and-science"] = "science"
         // NewsData specific
-        "science-science": "science", "science-environment": "science",
+        mappings["science-science"] = "science"
+        mappings["science-environment"] = "science"
         
         // ========== HEALTH ==========
-        "health": "health",
-        "wellness": "health",
-        "medical": "health",
-        "medicine": "health",
-        "mental-health": "health",
-        "fitness": "health",
-        "nutrition": "health",
-        "diet": "health",
-        "disease": "health",
-        "psychology": "health",
-        "therapy": "health",
-        "treatment": "health",
-        "healthcare": "health",
-        "public-health": "health",
-        "life-and-style": "health",
-        "lifestyle": "health",
-        "lifeandstyle": "health",
-        "life": "health",
-        "society": "health",
-        "wellbeing": "health",
+        mappings["health"] = "health"
+        mappings["wellness"] = "health"
+        mappings["medical"] = "health"
+        mappings["medicine"] = "health"
+        mappings["mental-health"] = "health"
+        mappings["fitness"] = "health"
+        mappings["nutrition"] = "health"
+        mappings["diet"] = "health"
+        mappings["disease"] = "health"
+        mappings["psychology"] = "health"
+        mappings["therapy"] = "health"
+        mappings["treatment"] = "health"
+        mappings["healthcare"] = "health"
+        mappings["public-health"] = "health"
+        mappings["life-and-style"] = "health"
+        mappings["lifestyle"] = "health"
+        mappings["lifeandstyle"] = "health"
+        mappings["life"] = "health"
+        mappings["society"] = "health"
+        mappings["wellbeing"] = "health"
         // NewsData specific
-        "health-health": "health",
+        mappings["health-health"] = "health"
         
         // ========== SPORTS ==========
-        "sports": "sports",
-        "sport": "sports",
-        "football": "sports",
-        "soccer": "sports",
-        "basketball": "sports",
-        "tennis": "sports",
-        "baseball": "sports",
-        "cricket": "sports",
-        "rugby": "sports",
-        "golf": "sports",
-        "hockey": "sports",
-        "formula-one": "sports",
-        "f1": "sports",
-        "olympics": "sports",
-        "athletics": "sports",
-        "swimming": "sports",
-        "cycling": "sports",
-        "boxing": "sports",
-        "mma": "sports",
-        "ufc": "sports",
-        "racing": "sports",
-        "motorsport": "sports",
-        "skiing": "sports",
+        mappings["sports"] = "sports"
+        mappings["sport"] = "sports"
+        mappings["football"] = "sports"
+        mappings["soccer"] = "sports"
+        mappings["basketball"] = "sports"
+        mappings["tennis"] = "sports"
+        mappings["baseball"] = "sports"
+        mappings["cricket"] = "sports"
+        mappings["rugby"] = "sports"
+        mappings["golf"] = "sports"
+        mappings["hockey"] = "sports"
+        mappings["formula-one"] = "sports"
+        mappings["f1"] = "sports"
+        mappings["olympics"] = "sports"
+        mappings["athletics"] = "sports"
+        mappings["swimming"] = "sports"
+        mappings["cycling"] = "sports"
+        mappings["boxing"] = "sports"
+        mappings["mma"] = "sports"
+        mappings["ufc"] = "sports"
+        mappings["racing"] = "sports"
+        mappings["motorsport"] = "sports"
+        mappings["skiing"] = "sports"
         // NewsData specific
-        "sports-sports": "sports",
+        mappings["sports-sports"] = "sports"
         
         // ========== ENTERTAINMENT ==========
-        "entertainment": "entertainment",
-        "arts": "entertainment",
-        "culture": "entertainment",
-        "arts-and-culture": "entertainment",
-        "artanddesign": "entertainment",
-        "books": "entertainment",
-        "film": "entertainment",
-        "movies": "entertainment",
-        "music": "entertainment",
-        "television": "entertainment",
-        "tv": "entertainment",
-        "streaming": "entertainment",
-        "celebrity": "entertainment",
-        "celebrities": "entertainment",
-        "fashion": "entertainment",
-        "style": "entertainment",
-        "design": "entertainment",
-        "photography": "entertainment",
-        "gaming": "entertainment",
-        "games": "entertainment",
-        "theater": "entertainment",
-        "theatre": "entertainment",
-        "stage": "entertainment",
-        "radio": "entertainment",
-        "media": "entertainment",
-        "social-media": "entertainment",
-        "hollywood": "entertainment",
-        "bollywood": "entertainment",
-        "festival": "entertainment",
-        "events": "entertainment",
-        "gossip": "entertainment",
-        "travel": "entertainment",
-        "food": "entertainment",
-        "restaurant": "entertainment",
-        "recipes": "entertainment",
-        "tv-and-radio": "entertainment",
-        "culture-culture": "entertainment",
-        "lifeandstyle": "entertainment",
+        mappings["entertainment"] = "entertainment"
+        mappings["arts"] = "entertainment"
+        mappings["culture"] = "entertainment"
+        mappings["arts-and-culture"] = "entertainment"
+        mappings["artanddesign"] = "entertainment"
+        mappings["books"] = "entertainment"
+        mappings["film"] = "entertainment"
+        mappings["movies"] = "entertainment"
+        mappings["music"] = "entertainment"
+        mappings["television"] = "entertainment"
+        mappings["tv"] = "entertainment"
+        mappings["streaming"] = "entertainment"
+        mappings["celebrity"] = "entertainment"
+        mappings["celebrities"] = "entertainment"
+        mappings["fashion"] = "entertainment"
+        mappings["style"] = "entertainment"
+        mappings["design"] = "entertainment"
+        mappings["photography"] = "entertainment"
+        mappings["gaming"] = "entertainment"
+        mappings["games"] = "entertainment"
+        mappings["theater"] = "entertainment"
+        mappings["theatre"] = "entertainment"
+        mappings["stage"] = "entertainment"
+        mappings["radio"] = "entertainment"
+        mappings["media"] = "entertainment"
+        mappings["social-media"] = "entertainment"
+        mappings["hollywood"] = "entertainment"
+        mappings["bollywood"] = "entertainment"
+        mappings["festival"] = "entertainment"
+        mappings["events"] = "entertainment"
+        mappings["gossip"] = "entertainment"
+        mappings["travel"] = "entertainment"
+        mappings["food"] = "entertainment"
+        mappings["restaurant"] = "entertainment"
+        mappings["recipes"] = "entertainment"
+        mappings["tv-and-radio"] = "entertainment"
+        mappings["culture-culture"] = "entertainment"
+        mappings["lifeandstyle"] = "entertainment"
         // NewsData specific
-        "entertainment-entertainment": "entertainment",
-    ]
+        mappings["entertainment-entertainment"] = "entertainment"
+        
+        return mappings
+    }
     
     // Enhanced fallback keyword matching with more comprehensive terms
     private static let keywords: [String: [String]] = [
