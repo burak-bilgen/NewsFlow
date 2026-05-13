@@ -73,53 +73,101 @@ struct NewsDataResponse: Codable {
 }
 
 struct NewsDataArticle: Codable {
+    // ALL fields are optional to handle inconsistent API responses
     let articleId: String?
-    let title: String
+    let title: String?  // Made optional with fallback
     let link: String?
     let keywords: [String]?
     let creator: [String]?
     let videoUrl: String?
     let description: String?
     let content: String?
-    let pubDate: String
+    let pubDate: String?  // Made optional with fallback
     let imageUrl: String?
     let sourceId: String?
-    let sourceName: String
+    let sourceName: String?  // Made optional with fallback
     let sourceUrl: String?
     let sourceIcon: String?
-    let language: String
+    let language: String?
     let country: [String]?
     let category: [String]?
     
     func toArticle() -> Article {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let publishedDate = dateFormatter.date(from: pubDate)
+        // Robust fallback chain for title
+        let effectiveTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Untitled Article"
         
-        // Generate fallback ID if articleId is missing from API response
-        let effectiveId = articleId ?? generateFallbackId()
+        // Robust fallback for source name
+        let effectiveSourceName = sourceName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Unknown Source"
         
-        // Use sourceId if available, otherwise use lowercase sourceName
-        let effectiveSourceID = sourceId ?? sourceName.lowercased().replacingOccurrences(of: " ", with: "-")
+        // Parse date with multiple format fallbacks
+        let publishedDate = parseDate(pubDate)
+        
+        // Generate fallback ID using available data
+        let effectiveId = articleId?.trimmingCharacters(in: .whitespacesAndNewlines) ?? generateFallbackId(title: effectiveTitle, source: effectiveSourceName, date: pubDate)
+        
+        // Generate source ID with fallbacks
+        let effectiveSourceID = sourceId?.trimmingCharacters(in: .whitespacesAndNewlines) 
+            ?? effectiveSourceName.lowercased().replacingOccurrences(of: " ", with: "-").replacingOccurrences(of: "[^a-z0-9-]", with: "", options: .regularExpression)
+        
+        // Clean and validate URL
+        let articleURL: URL? = {
+            guard let link = link else { return nil }
+            let cleanUrl = link.trimmingCharacters(in: .whitespacesAndNewlines)
+            return URL(string: cleanUrl)
+        }()
+        let imageURL: URL? = {
+            guard let imageUrl = imageUrl else { return nil }
+            let cleanUrl = imageUrl.trimmingCharacters(in: .whitespacesAndNewlines)
+            return URL(string: cleanUrl)
+        }()
         
         return Article(
             id: effectiveId,
             sourceID: effectiveSourceID,
-            title: title,
-            description: description,
-            imageURL: imageUrl.flatMap { URL(string: $0) },
+            title: effectiveTitle,
+            description: description?.trimmingCharacters(in: .whitespacesAndNewlines),
+            imageURL: imageURL,
             publishedAt: publishedDate,
-            url: link.flatMap { URL(string: $0) },
-            sourceName: sourceName,
+            url: articleURL,
+            sourceName: effectiveSourceName,
             apiSource: .newsdata,
-            contentSnippet: content?.prefix(2000).description
+            contentSnippet: content.map { String($0.prefix(2000)) }
         )
     }
     
-    private func generateFallbackId() -> String {
-        // Generate deterministic ID from title + source + date
-        let base = "\(title)_\(sourceName)_\(pubDate)"
-        let hash = base.hashValue.magnitude
-        return "newsdata-fallback-\(hash)"
+    private func parseDate(_ dateString: String?) -> Date? {
+        guard let dateString = dateString?.trimmingCharacters(in: .whitespacesAndNewlines) else { return nil }
+        
+        let formatters = [
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd",
+            "dd-MM-yyyy HH:mm:ss",
+            "yyyy/MM/dd HH:mm:ss"
+        ]
+        
+        for format in formatters {
+            let formatter = DateFormatter()
+            formatter.dateFormat = format
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            if let date = formatter.date(from: dateString) {
+                return date
+            }
+        }
+        
+        // Try ISO8601 as last resort
+        if let date = ISO8601DateFormatter().date(from: dateString) {
+            return date
+        }
+        
+        return nil
+    }
+    
+    private func generateFallbackId(title: String, source: String, date: String?) -> String {
+        let dateStr = date?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "nodate"
+        let base = "\(title)_\(source)_\(dateStr)"
+        let hash = abs(base.hashValue)
+        return "newsdata-\(String(hash))"
     }
 }
