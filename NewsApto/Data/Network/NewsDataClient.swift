@@ -83,7 +83,7 @@ struct NewsDataArticle: Codable {
     let content: String?
     let pubDate: String
     let imageUrl: String?
-    let sourceId: String
+    let sourceId: String?
     let sourceName: String
     let sourceUrl: String?
     let sourceIcon: String?
@@ -99,9 +99,12 @@ struct NewsDataArticle: Codable {
         // Generate fallback ID if articleId is missing from API response
         let effectiveId = articleId ?? generateFallbackId()
         
+        // Use sourceId if available, otherwise use lowercase sourceName
+        let effectiveSourceID = sourceId ?? sourceName.lowercased().replacingOccurrences(of: " ", with: "-")
+        
         return Article(
             id: effectiveId,
-            sourceID: sourceId,
+            sourceID: effectiveSourceID,
             title: title,
             description: description,
             imageURL: imageUrl.flatMap { URL(string: $0) },
