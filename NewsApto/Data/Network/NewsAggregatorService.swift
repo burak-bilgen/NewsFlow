@@ -63,9 +63,9 @@ actor NewsAggregatorService: NewsAggregating {
     }
 
     private func _fetchFeed(page: Int, pageSize: Int) async -> AggregatedResult {
-        // Fetch from all sources concurrently with larger initial fetch
-        async let newsResult = fetchNewsAPI(page: page, pageSize: pageSize * 2)
-        async let guardianArticles = fetchGuardian(page: page, pageSize: pageSize * 2)
+        // Fetch from all sources concurrently
+        async let newsResult = fetchNewsAPI(page: page, pageSize: pageSize)
+        async let guardianArticles = fetchGuardian(page: page, pageSize: pageSize)
         async let nytResult = fetchNYT(page: page)
         async let gnewsArticles = fetchGNews(page: page)
         async let newsDataResult = fetchNewsData(page: page)
@@ -75,38 +75,24 @@ actor NewsAggregatorService: NewsAggregating {
             newsResult, guardianArticles, nytResult, gnewsArticles, newsDataResult, hnArticles
         )
         
-        var allArticles = await combineAllSources(
-            newsRes, guardianRes, nytRes, gnewsRes, newsDataRes, hnRes
-        )
+        // Collect ALL articles from all sources - NO FILTERING
+        var allArticles: [Article] = []
+        allArticles.append(contentsOf: newsRes?.items ?? [])
+        allArticles.append(contentsOf: guardianRes ?? [])
+        allArticles.append(contentsOf: nytRes?.articles ?? [])
+        allArticles.append(contentsOf: gnewsRes ?? [])
+        allArticles.append(contentsOf: newsDataRes?.articles ?? [])
+        allArticles.append(contentsOf: hnRes ?? [])
         
-        // Apply smart scoring
+        // Only sort by quality score - NO filtering, NO caps, NO diversity limits
         allArticles = await enhancedScorer.scoreAndEnrich(allArticles)
         
-        // Apply topic diversity (max 5 articles per topic - more permissive)
-        allArticles = await topicDiversity.ensureDiversity(in: allArticles, maxPerTopic: 5)
-        
-        // Get user preferences for personalization boost
-        let profile = await behaviorTracker.getUserProfile()
-        allArticles = applyPersonalizationBoost(articles: allArticles, profile: profile)
-        
         return AggregatedResult(
-            articles: Array(allArticles.prefix(pageSize)),
+            articles: allArticles,
             sourceCount: 6
         )
     }
     
-    private func applyPersonalizationBoost(articles: [Article], profile: UserBehaviorTracker.UserPreferenceProfile) -> [Article] {
-        return articles.map { article in
-            var boosted = article
-            if let sourceScore = profile.preferredSources[article.sourceName] {
-                // Boost quality score based on user preferences
-                let boost = sourceScore * 10
-                boosted.qualityScore = (boosted.qualityScore ?? 50) + boost
-            }
-            return boosted
-        }.sorted { ($0.qualityScore ?? 0) > ($1.qualityScore ?? 0) }
-    }
-
     private func fetchNewsAPI(page: Int, pageSize: Int) async -> PaginatedResult<Article>? {
         do {
             return try await newsAPIRepository.fetchAllArticles(page: page, pageSize: pageSize)
@@ -158,40 +144,6 @@ actor NewsAggregatorService: NewsAggregating {
         } catch {
             NewsAptoLogger.shared.error("HackerNews fetch failed: \(error)", category: "Network")
             return nil
-        }
-    }
-
-    private func combineAllSources(
-        _ newsResult: PaginatedResult<Article>?,
-        _ guardianArticles: [Article]?,
-        _ nytResult: NYTSearchResult?,
-        _ gnewsArticles: [Article]?,
-        _ newsDataResult: NewsDataClient.NewsDataResult?,
-        _ hnArticles: [Article]?
-    ) async -> [Article] {
-        // Apply source caps for diversity (increased limits)
-        let newsAPIItems = Array((newsResult?.items ?? []).prefix(15))
-        let guardianItems = Array((guardianArticles ?? []).prefix(12))
-        let nytItems = Array((nytResult?.articles ?? []).prefix(12))
-        let gnewsItems = Array((gnewsArticles ?? []).prefix(12))
-        let newsDataItems = Array((newsDataResult?.articles ?? []).prefix(12))
-        let hnItems = Array((hnArticles ?? []).prefix(10))  // HackerNews gets fewer slots
-        
-        var allArticles: [Article] = []
-        allArticles.append(contentsOf: newsAPIItems)
-        allArticles.append(contentsOf: guardianItems)
-        allArticles.append(contentsOf: nytItems)
-        allArticles.append(contentsOf: gnewsItems)
-        allArticles.append(contentsOf: newsDataItems)
-        allArticles.append(contentsOf: hnItems)
-
-        // Deduplicate by URL
-        var seenURLs = Set<String>()
-        return allArticles.filter { article in
-            guard let url = article.url?.absoluteString else { return true }
-            guard !seenURLs.contains(url) else { return false }
-            seenURLs.insert(url)
-            return true
         }
     }
 }
