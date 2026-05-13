@@ -35,7 +35,7 @@ struct SplashView: View {
 
                 Spacer()
 
-                Text("Powered by NewsAPI, The Guardian & NYT")
+                Text("6 Sources: NewsAPI · Guardian · NYT · GNews · NewsData · HN")
                     .font(AppTypography.monoTiny)
                     .foregroundColor(AppPalette.textTertiary)
                     .opacity(taglineOpacity)
