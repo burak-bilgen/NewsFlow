@@ -9,15 +9,26 @@ struct HeroCardView: View {
     var body: some View {
         Button { onSelect() } label: {
             ZStack(alignment: .bottomLeading) {
+                // Image section with Matrix loading/placeholder
                 ArticleImageView(url: article.imageURL)
                     .frame(height: 320)
                     .clipped()
 
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.8)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                // Gradient overlay only when image exists
+                if article.imageURL != nil {
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.8)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                } else {
+                    // Matrix overlay for no-image articles
+                    LinearGradient(
+                        colors: [AppPalette.surface, AppPalette.surface.opacity(0.95)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
 
                 VStack(alignment: .leading, spacing: 8) {
                     // Badges row at top
@@ -32,13 +43,13 @@ struct HeroCardView: View {
 
                     Text(article.title)
                         .font(AppTypography.largeTitle)
-                        .foregroundColor(.white)
+                        .foregroundColor(article.imageURL != nil ? .white : AppPalette.textPrimary)
                         .lineLimit(3)
 
                     if let desc = article.description, !desc.isEmpty {
                         Text(desc)
                             .font(AppTypography.body)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(article.imageURL != nil ? .white.opacity(0.8) : AppPalette.textSecondary)
                             .lineLimit(2)
                     }
                     
