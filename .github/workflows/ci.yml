@@ -22,7 +22,7 @@ jobs:
       - name: Build and Test
         run: |
           xcodebuild build test \
-            -project NewsFlow.xcodeproj \
-            -scheme NewsFlow \
+            -project NewsApto.xcodeproj \
+            -scheme NewsApto \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             CODE_SIGNING_ALLOWED=NO

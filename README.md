@@ -1,11 +1,11 @@
-# NewsFlow
+# NewsApto
 
-A production-ready iOS news reader built with **Clean Architecture**, **MVVM**, and **zero third-party dependencies** — demonstrating senior-level patterns used in Apple-focused apps at scale.
+A production-ready iOS 26 news reader built with **Clean Architecture**, **MVVM**, and native **Liquid Glass** surfaces.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/iOS-15.0+-blue" alt="iOS 15.0+">
+  <img src="https://img.shields.io/badge/iOS-26.0+-blue" alt="iOS 26.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
-  <img src="https://img.shields.io/badge/SwiftUI-3.0-green" alt="SwiftUI">
+  <img src="https://img.shields.io/badge/SwiftUI-Liquid%20Glass-green" alt="SwiftUI Liquid Glass">
   <img src="https://img.shields.io/badge/100%25%20Native-OK-green" alt="Zero Dependencies">
 </p>
 
@@ -13,7 +13,7 @@ A production-ready iOS news reader built with **Clean Architecture**, **MVVM**, 
 
 ## About This Project
 
-A production-ready iOS news reader demonstrating **Clean Architecture**, **MVVM**, and **modern Swift concurrency** — built entirely with native frameworks, zero third-party dependencies.
+A production-ready iOS 26 news reader demonstrating **Clean Architecture**, **MVVM**, **modern Swift concurrency**, and SwiftUI Liquid Glass — built entirely with native frameworks, zero third-party dependencies.
 
 **Key Architectural Decisions:**
 
@@ -22,6 +22,7 @@ A production-ready iOS news reader demonstrating **Clean Architecture**, **MVVM*
 - **Two-tier caching** — Memory (50MB NSCache) + Disk (200MB, 7-day TTL) with graceful fallback
 - **Offline-first** — Disk persistence with seamless degradation when offline
 - **Full Apple ecosystem** — Spotlight indexing, Background Refresh, State Restoration
+- **Liquid Glass UI** — iOS 26-first custom glass cards, controls, and screen backgrounds
 
 **TL;DR:** A production-grade codebase demonstrating senior-level iOS architecture patterns in action.
 
@@ -69,15 +70,15 @@ A production-ready iOS news reader demonstrating **Clean Architecture**, **MVVM*
 ## Key Features
 
 ### Core App
-- **Source Browser** — Horizontally scrolling category rows (Business, Tech, Sports...)
-- **Multi-Select Filtering** — Filter multiple categories client-side
-- **Hero Carousel** — Top 3 articles, auto-advances every 5s, pauses on interaction
+- **Single Home Flow** — No tabs or onboarding; the app opens directly to the news feed
+- **Liquid Glass Cards** — Top story, latest stories, controls, and settings use native glass effects
+- **Search** — Filter the current feed instantly from the home screen
 - **Reading List** — Inline save/remove with Core Data persistence
 - **Pull-to-Refresh** + **Auto-Refresh** — 60s background timer with deduplication
 - **Prefetching** — Loads next page before user reaches the end
 
 ### Quality & Reliability
-- **Error Simulation** — Every 3rd request fails (decorator) — tests your error UI
+- **Debug Error Simulation** — Launch with `Debug.SimulateNetworkErrors` to test error UI
 - **Offline Mode** — Real-time banner, disk cache fallback
 - **Memory Pressure Handling** — Proactively clears caches before OS kills app
 - **Retry Policy** — Exponential backoff with jitter
@@ -102,7 +103,7 @@ A production-ready iOS news reader demonstrating **Clean Architecture**, **MVVM*
 | Component | Implementation |
 |-----------|--------------|
 | **Language** | Swift 5.9+ |
-| **UI** | SwiftUI (iOS 15+) |
+| **UI** | SwiftUI (iOS 26+) |
 | **Networking** | `URLSession` + `async/await` |
 | **Image Caching** | Custom `NSCache` (50MB) + Disk (200MB) |
 | **Persistence** | Core Data (reading list) + `FilePersistentStore` (disk cache) + UserDefaults |
@@ -114,9 +115,9 @@ A production-ready iOS news reader demonstrating **Clean Architecture**, **MVVM*
 ## Project Structure
 
 ```
-NewsFlow/
- NewsFlow.xcodeproj
- ├── NewsFlow/                     # Main app target
+NewsApto/
+ NewsApto.xcodeproj
+ ├── NewsApto/                     # Main app target
  │   ├── App/                      # @main, DI, navigation
  │   ├── Domain/                   # Models, Protocols, Use Cases
  │   ├── Data/                    # Network, Persistence, Repositories
@@ -134,17 +135,17 @@ NewsFlow/
 
 ### Prerequisites
 - Xcode 15+
-- iOS 15+ Simulator or device
+- iOS 26+ Simulator or device
 
 ### Run
 
 ```bash
 git clone <this-repo>
-cd NewsFlow
-open NewsFlow.xcodeproj
+cd NewsApto
+open NewsApto.xcodeproj
 ```
 
-Select the **NewsFlow** scheme and run on an iPhone simulator.
+Select the **NewsApto** scheme and run on an iPhone simulator.
 
 ### API Keys
 
@@ -197,7 +198,7 @@ To test the error UI in Debug builds, launch with the `Debug.SimulateNetworkErro
 - Category multi-select filtering
 
 ```bash
-xcodebuild test -project NewsFlow.xcodeproj -scheme NewsFlow -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+xcodebuild test -project NewsApto.xcodeproj -scheme NewsApto -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
 ```
 
 ---

@@ -1,16 +1,16 @@
-# SwiftLint Configuration for NewsFlow
+# SwiftLint Configuration for NewsApto
 # iOS 15.0+ | Swift/SwiftUI | Portrait | Universal
 
 excluded:
-  - NewsFlowTests
-  - NewsFlowUITests
+  - NewsAptoTests
+  - NewsAptoUITests
   - DerivedData
   - ".build"
   - "*.generated.swift"
-  - NewsFlow/Core/Localization/L10n.swift
+  - NewsApto/Core/Localization/L10n.swift
 
 included:
-  - NewsFlow
+  - NewsApto
 
 # Disabled rules that conflict with SwiftUI idioms or project conventions
 disabled_rules:

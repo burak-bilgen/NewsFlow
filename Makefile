@@ -20,16 +20,16 @@ lint-fix: ## Run SwiftLint and auto-fix violations
 
 test: ## Run unit tests
 	@xcodebuild test \
-		-project NewsFlow.xcodeproj \
-		-scheme NewsFlow \
+		-project NewsApto.xcodeproj \
+		-scheme NewsApto \
 		-destination '$(DESTINATION)' \
 		-derivedDataPath DerivedData \
 		-quiet
 
 test-with-coverage: ## Run unit tests with code coverage
 	@xcodebuild test \
-		-project NewsFlow.xcodeproj \
-		-scheme NewsFlow \
+		-project NewsApto.xcodeproj \
+		-scheme NewsApto \
 		-destination '$(DESTINATION)' \
 		-derivedDataPath DerivedData \
 		-enableCodeCoverage YES \
@@ -37,8 +37,8 @@ test-with-coverage: ## Run unit tests with code coverage
 
 build: ## Build the project
 	@xcodebuild build \
-		-project NewsFlow.xcodeproj \
-		-scheme NewsFlow \
+		-project NewsApto.xcodeproj \
+		-scheme NewsApto \
 		-destination '$(BUILD_DESTINATION)' \
 		-derivedDataPath DerivedData \
 		CODE_SIGNING_ALLOWED=NO \
@@ -47,7 +47,7 @@ build: ## Build the project
 
 clean: ## Clean build artifacts
 	@rm -rf DerivedData
-	@xcodebuild clean -project NewsFlow.xcodeproj -scheme NewsFlow -quiet
+	@xcodebuild clean -project NewsApto.xcodeproj -scheme NewsApto -quiet
 
 pre-commit: lint test ## Run lint and tests before committing
 	@echo "✅ Pre-commit checks passed"

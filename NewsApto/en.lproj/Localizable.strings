@@ -1,0 +1,73 @@
+"sources.title" = "News Sources";
+"sources.loading" = "Loading sources...";
+"sources.empty.title" = "No sources found";
+"sources.empty.message" = "Try changing category filters or retry.";
+"source.description.missing" = "No description available.";
+"sources.mastheadSubtitle" = "Trusted Sources Worldwide";
+
+"articles.loading" = "Loading articles...";
+"articles.empty.title" = "No articles found";
+"articles.empty.message" = "There are no current headlines for this source.";
+"article.title.untitled" = "Untitled article";
+"article.date.unknown" = "No date";
+"article.image.placeholder" = "Article image placeholder";
+"article.readFull" = "Read Full Article";
+"articles.latest" = "Latest News";
+"articles.loadMore" = "Load More Articles";
+
+"readingList.title" = "Reading List";
+"readingList.empty.title" = "Your reading list is empty";
+"readingList.empty.message" = "Save articles to read later by tapping the bookmark icon.";
+"readingList.add" = "Add to Reading List";
+"readingList.remove" = "Remove from Reading List";
+
+"retry.button" = "Retry";
+"ok.button" = "OK";
+"warning.title" = "Warning";
+"error.title" = "Something went wrong";
+"error.generic" = "Could not retrieve information.";
+"error.network" = "Check your connection and try again.";
+"error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
+"error.rateLimit" = "Too many requests. Please try again later.";
+"error.cancelled" = "Request cancelled";
+
+"offline.banner" = "No internet connection";
+"offline.check" = "Check your connection";
+"search.placeholder" = "Search articles...";
+"home.title" = "Today";
+"home.subtitle" = "A clean, focused feed of the stories worth your attention.";
+"home.topStory" = "Top Story";
+
+"category.business" = "Business";
+"category.entertainment" = "Entertainment";
+"category.general" = "General";
+"category.health" = "Health";
+"category.science" = "Science";
+"category.sports" = "Sports";
+"category.technology" = "Technology";
+
+"tab.feed" = "Feed";
+"tab.sources" = "Sources";
+"tab.readingList" = "Reading List";
+
+"feed.accessibility.carousel" = "Featured stories";
+"feed.accessibility.carousel.hint" = "Swipe to browse top stories";
+"feed.breaking.prefix" = "Breaking:";
+"feed.breaking.action" = "Read";
+"feed.breaking.message" = "Breaking: %@";
+"feed.accessibility.featured" = "Featured story %lld of %lld";
+"feed.accessibility.featured.hint" = "Swipe to browse featured stories";
+"feed.accessibility.source.hint" = "Tap to browse articles from this source";
+
+"article.accessibility.read" = "Double tap to read. %@";
+"article.accessibility.saved" = "Saved.";
+"article.accessibility.save_hint" = "Tap bookmark to save.";
+"article.accessibility.source_hint" = "Tap to browse articles from this source";
+
+"reading.time.short" = "%lld min read";
+"reading.time.under1" = "<1 min";
+
+"state.handoff.title" = "Reading Article";
+
+"search.empty.title" = "No results found";
+"search.empty.message" = "Try a different search term.";

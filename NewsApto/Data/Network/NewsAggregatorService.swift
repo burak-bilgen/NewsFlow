@@ -1,0 +1,79 @@
+import Foundation
+
+actor NewsAggregatorService {
+    private let newsAPIRepository: ArticlesRepositoryProtocol
+    private let guardianClient: GuardianClientProtocol
+    private let nytClient: NYTClientProtocol
+    private let scorer = SmartArticleScorer()
+    private var inflightFeed: Task<AggregatedResult, Never>?
+
+    init(
+        newsAPIRepository: ArticlesRepositoryProtocol,
+        guardianClient: GuardianClientProtocol,
+        nytClient: NYTClientProtocol
+    ) {
+        self.newsAPIRepository = newsAPIRepository
+        self.guardianClient = guardianClient
+        self.nytClient = nytClient
+    }
+
+    struct AggregatedResult {
+        let articles: [Article]
+        let sourceCount: Int
+    }
+
+    func fetchFeed(page: Int = 1, pageSize: Int = 30) async -> AggregatedResult {
+        if page == 1, let existing = inflightFeed {
+            return await existing.value
+        }
+        if page == 1 {
+            let task = Task<AggregatedResult, Never> { [self] in
+                await self._fetchFeed(page: page, pageSize: pageSize)
+            }
+            inflightFeed = task
+            let result = await task.value
+            inflightFeed = nil
+            return result
+        }
+        return await _fetchFeed(page: page, pageSize: pageSize)
+    }
+
+    private func _fetchFeed(page: Int, pageSize: Int) async -> AggregatedResult {
+        async let newsAPI = try? newsAPIRepository.fetchAllArticles(page: page, pageSize: pageSize)
+        async let guardian = try? guardianClient.search(query: nil, page: page, pageSize: pageSize * 2, section: nil)
+        async let nyt = try? nytClient.search(query: nil, page: page, section: nil)
+
+        let (newsResult, guardianArticles, nytResult) = await (newsAPI, guardian, nyt)
+        return combine(newsResult, guardianArticles, nytResult)
+    }
+
+    func fetchArticles(sourceID: String, page: Int = 1, pageSize: Int = 20) async -> AggregatedResult {
+        async let newsAPI = try? newsAPIRepository.fetchArticles(sourceID: sourceID, page: page, pageSize: pageSize)
+        async let guardian = try? guardianClient.search(query: nil, page: page, pageSize: pageSize, section: sourceID == "all" ? nil : sourceID)
+        async let nyt = try? nytClient.search(query: nil, page: page, section: sourceID == "all" ? nil : sourceID)
+
+        let (newsResult, guardianArticles, nytResult) = await (newsAPI, guardian, nyt)
+        return combine(newsResult, guardianArticles, nytResult)
+    }
+
+    private func combine(_ newsResult: PaginatedResult<Article>?, _ guardianArticles: [Article]?, _ nytResult: NYTSearchResult?) -> AggregatedResult {
+        var allArticles: [Article] = []
+        var sourceCount = 0
+
+        if let paginated = newsResult {
+            allArticles.append(contentsOf: paginated.items)
+            sourceCount += 1
+        }
+        if let articles = guardianArticles {
+            allArticles.append(contentsOf: articles)
+            sourceCount += 1
+        }
+        if let result = nytResult {
+            allArticles.append(contentsOf: result.articles)
+            sourceCount += 1
+        }
+
+        let sorted = scorer.sortAndDeduplicate(allArticles)
+        return AggregatedResult(articles: sorted, sourceCount: sourceCount)
+    }
+}
