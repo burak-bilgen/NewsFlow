@@ -5,32 +5,35 @@ actor ReadArticlesTracker {
     private let defaults = UserDefaults.standard
     private let storageKey = "readArticles"
 
-    private var readIDs: Set<String> {
-        get { Set(defaults.stringArray(forKey: storageKey) ?? []) }
-        set { defaults.set(Array(newValue), forKey: storageKey) }
-    }
+    /// In-memory cache, populated lazily from UserDefaults
+    private lazy var cachedIDs: Set<String> = {
+        Set(defaults.stringArray(forKey: storageKey) ?? [])
+    }()
 
     func markAsRead(_ articleID: String) {
-        var ids = readIDs
-        ids.insert(articleID)
-        readIDs = ids
+        cachedIDs.insert(articleID)
+        flush()
     }
 
     func isRead(_ articleID: String) -> Bool {
-        readIDs.contains(articleID)
+        cachedIDs.contains(articleID)
     }
 
     func markAsUnread(_ articleID: String) {
-        var ids = readIDs
-        ids.remove(articleID)
-        readIDs = ids
+        cachedIDs.remove(articleID)
+        flush()
     }
 
     func clearAll() {
+        cachedIDs.removeAll()
         defaults.removeObject(forKey: storageKey)
     }
 
     nonisolated func markAsReadNonisolated(_ articleID: String) {
         Task { await markAsRead(articleID) }
+    }
+
+    private func flush() {
+        defaults.set(Array(cachedIDs), forKey: storageKey)
     }
 }

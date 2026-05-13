@@ -32,7 +32,7 @@ struct MatrixEmissionTransition: ViewModifier {
             glowOpacity = 0
         }
 
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.85).delay(0.08)) {
+        withAnimation(AppAnimation.reveal.delay(0.08)) {
             contentOpacity = 1
             verticalOffset = 0
         }
@@ -50,17 +50,16 @@ struct GlitchRevealModifier: ViewModifier {
             .opacity(opacity)
             .offset(x: offsetX)
             .onAppear {
-                let steps = 6
-                for i in 0..<steps {
-                    let delay = Double(i) * 0.03
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                Task { @MainActor in
+                    let steps = 6
+                    for i in 0..<steps {
+                        try? await Task.sleep(for: .milliseconds(30))
                         withAnimation(.easeOut(duration: 0.02)) {
                             offsetX = CGFloat.random(in: -3...3)
                             opacity = min(1.0, Double(i + 1) / Double(steps))
                         }
                     }
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(steps) * 0.03) {
+                    try? await Task.sleep(for: .milliseconds(30))
                     withAnimation(.easeOut(duration: 0.05)) { offsetX = 0; opacity = 1 }
                 }
             }
@@ -80,7 +79,7 @@ struct GlowPulseModifier: ViewModifier {
                     RoundedRectangle(cornerRadius: 0)
                     .stroke(AppPalette.accent.opacity(pulse ? 0.5 : 0.1), lineWidth: 2)
                     .padding(-2)
-                    .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: pulse)
+                    .animation(AppAnimation.pulse, value: pulse)
                     .onAppear { pulse = true }
                 : nil
             )

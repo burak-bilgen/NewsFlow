@@ -1,13 +1,16 @@
 import CoreData
 import Foundation
 
-final class CoreDataStack {
+final class CoreDataStack: @unchecked Sendable {
     static let shared = CoreDataStack()
 
     private var _container: NSPersistentContainer?
+    private let lock = NSLock()
     private init() {}
 
     var persistentContainer: NSPersistentContainer {
+        lock.lock()
+        defer { lock.unlock() }
         if let container = _container { return container }
         let container: NSPersistentContainer
         if let modelURL = Bundle.main.url(forResource: "NewsAptoModel", withExtension: "momd"),

@@ -40,7 +40,7 @@ struct StateMessageView: View {
 
             VStack(spacing: AppSpacing.sm) {
                 Text(title)
-                    .font(.system(size: 22, weight: .black, design: .serif))
+                    .font(AppTypography.stateTitle)
                     .multilineTextAlignment(.center)
                     .foregroundColor(AppPalette.textPrimary)
 
@@ -69,7 +69,7 @@ struct StateMessageView: View {
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.vertical, AppSpacing.md)
                     .background(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        Rectangle()
                             .fill(AppPalette.accent)
                             .shadow(color: AppPalette.accent.opacity(0.3), radius: 12, x: 0, y: 6)
                     )

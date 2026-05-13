@@ -112,11 +112,14 @@ private struct ReadingListRow: View {
             }
             .buttonStyle(.plain)
 
-            Button(action: onRemove) {
+            Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                onRemove()
+            } label: {
                 Image(systemName: "trash")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(AppPalette.accent)
-                    .frame(width: 32, height: 32)
+                    .frame(width: 44, height: 44)
                     .overlay(Rectangle().stroke(AppPalette.accent.opacity(0.3), lineWidth: 0.5))
             }
             .buttonStyle(.plain)
@@ -125,7 +128,7 @@ private struct ReadingListRow: View {
         .padding(.vertical, 12).padding(.horizontal, 16)
         .opacity(isVisible ? 1 : 0).offset(y: isVisible ? 0 : 8)
         .onAppear {
-            withAnimation(.easeOut(duration: 0.25).delay(Double(0))) { isVisible = true }
+            withAnimation(AppAnimation.reveal) { isVisible = true }
         }
     }
 }

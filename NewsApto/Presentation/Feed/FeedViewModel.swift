@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 
 @MainActor
@@ -107,15 +106,25 @@ final class FeedViewModel: ObservableObject {
     }
 
     private func matchesCategory(_ article: Article, _ category: String) -> Bool {
+        CategoryMatcher.matches(article, category: category)
+    }
+}
+
+// MARK: - Category Matcher (Data-Driven)
+
+enum CategoryMatcher {
+    private static let keywords: [String: [String]] = [
+        "technology": ["tech", "ai ", "digital", "computer", "software", "apple", "google", "microsoft", "crypto", "bitcoin", "quantum", "startup", "cybersecurity", "algorithm"],
+        "business": ["market", "economy", "stock", "finance", "bank", "trade", "merger", "investment", "earnings", "revenue", "profit"],
+        "science": ["science", "space", "research", "study", "climate", "gene", "quantum", "nasa", "dna", "species", "physics"],
+        "health": ["health", "medical", "drug", "hospital", "doctor", "vaccine", "mental", "wellness", "brain", "cancer", "disease"],
+        "sports": ["sport", "game", "match", "team", "league", "olympic", "champion", "football", "soccer", "basketball", "tennis"],
+        "entertainment": ["entertainment", "movie", "film", "music", "celebrity", "tv ", "streaming", "award", "actor", "artist", "netflix"]
+    ]
+
+    static func matches(_ article: Article, category: String) -> Bool {
+        guard let categoryKeywords = keywords[category] else { return true }
         let text = (article.title + " " + (article.description ?? "") + " " + article.sourceName).lowercased()
-        switch category {
-        case "technology": return text.contains("tech") || text.contains("ai ") || text.contains("digital") || text.contains("computer") || text.contains("software") || text.contains("apple") || text.contains("google") || text.contains("microsoft") || text.contains("crypto") || text.contains("bitcoin") || text.contains("quantum") || text.contains("startup")
-        case "business": return text.contains("market") || text.contains("economy") || text.contains("stock") || text.contains("finance") || text.contains("bank") || text.contains("trade") || text.contains("merger") || text.contains("investment") || text.contains("earnings")
-        case "science": return text.contains("science") || text.contains("space") || text.contains("research") || text.contains("study") || text.contains("climate") || text.contains("gene") || text.contains("quantum") || text.contains("nasa") || text.contains("dna") || text.contains("species")
-        case "health": return text.contains("health") || text.contains("medical") || text.contains("drug") || text.contains("hospital") || text.contains("doctor") || text.contains("vaccine") || text.contains("mental") || text.contains("wellness") || text.contains("brain") || text.contains("cancer")
-        case "sports": return text.contains("sport") || text.contains("game") || text.contains("match") || text.contains("team") || text.contains("league") || text.contains("olympic") || text.contains("champion") || text.contains("football") || text.contains("soccer") || text.contains("basketball")
-        case "entertainment": return text.contains("entertainment") || text.contains("movie") || text.contains("film") || text.contains("music") || text.contains("celebrity") || text.contains("tv ") || text.contains("streaming") || text.contains("award") || text.contains("actor") || text.contains("artist")
-        default: return true
-        }
+        return categoryKeywords.contains { text.contains($0) }
     }
 }

@@ -60,19 +60,25 @@ struct HeroDetailView: View {
 
             VStack {
                 HStack(spacing: 8) {
-                    Button { withAnimation(.easeOut(duration: 0.15)) { onDismiss() } } label: {
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        withAnimation(AppAnimation.reveal) { onDismiss() }
+                    } label: {
                         Image(systemName: "chevron.left").font(.system(size: 14, weight: .bold))
                             .foregroundColor(AppPalette.accent)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                             .background(AppPalette.background)
                             .overlay(Rectangle().stroke(AppPalette.accent, lineWidth: 1))
                     }
                     Spacer()
-                    Button(action: onToggle) {
+                    Button {
+                        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+                        onToggle()
+                    } label: {
                         Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(isSaved ? AppPalette.background : AppPalette.accent)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                             .background(isSaved ? AppPalette.accent : AppPalette.background)
                             .overlay(Rectangle().stroke(AppPalette.accent, lineWidth: 1))
                     }
@@ -82,8 +88,8 @@ struct HeroDetailView: View {
             }
         }
         .onAppear {
-            withAnimation(.easeOut(duration: 0.35)) { imageBlur = 0 }
-            withAnimation(springAnimation().delay(0.15)) { showContent = true; contentOffset = 0 }
+            withAnimation(AppAnimation.reveal) { imageBlur = 0 }
+            withAnimation(AppAnimation.transition.delay(0.15)) { showContent = true; contentOffset = 0 }
         }
         .sheet(isPresented: $showSafari) {
             if let url = article.url {

@@ -38,9 +38,9 @@ struct ArticleImageView: View {
     }
 
     private var loadingPlaceholder: some View {
-        Rectangle().fill(Color(.systemGray5))
+        Rectangle().fill(AppPalette.surface)
             .overlay(Rectangle().fill(
-                LinearGradient(colors: [.clear, Color.white.opacity(0.4), .clear], startPoint: .leading, endPoint: .trailing)
+                LinearGradient(colors: [.clear, AppPalette.accent.opacity(0.08), .clear], startPoint: .leading, endPoint: .trailing)
             ).modifier(ShimmerEffect()))
     }
 

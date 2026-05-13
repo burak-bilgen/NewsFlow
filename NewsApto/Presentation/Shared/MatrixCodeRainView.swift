@@ -51,8 +51,8 @@ struct MatrixCodeRainView: View {
             .opacity(isVisible ? 1 : 0)
         }
         .onAppear {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { scale = 1.0 }
-            withAnimation(.easeOut(duration: 0.5)) { isVisible = true }
+            withAnimation(AppAnimation.transition) { scale = 1.0 }
+            withAnimation(AppAnimation.reveal) { isVisible = true }
         }
     }
 }

@@ -146,7 +146,8 @@ struct FeedView: View {
                     }
                 }.padding(16)
             }
-        }.buttonStyle(.plain)
+        }.buttonStyle(.plain).contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded { UIImpactFeedbackGenerator(style: .light).impactOccurred() })
     }
 
     private func featuredGrid(_ articles: [Article]) -> some View {
@@ -184,23 +185,19 @@ struct FeedView: View {
     private var loadMoreFooter: some View {
         Group {
             if viewModel.isLoadingMore {
-                HStack(spacing: 10) {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: AppPalette.accent))
-                        .scaleEffect(0.8)
-                    Text("> LOADING...")
-                        .font(AppTypography.monoSmall)
-                        .foregroundColor(AppPalette.accent)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
+                TerminalLoadingIndicator()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
             } else {
-                Button { Task { await viewModel.loadMore() } } label: {
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    Task { await viewModel.loadMore() }
+                } label: {
                     Text("> LOAD.MORE")
                         .font(AppTypography.monoSmall)
                         .foregroundColor(AppPalette.accent)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .frame(minHeight: 44)
                 }
                 .buttonStyle(.plain)
             }
@@ -270,6 +267,34 @@ private struct HomeHeaderButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.93 : 1)
             .opacity(configuration.isPressed ? 0.72 : 1)
-            .animation(.spring(response: 0.22, dampingFraction: 0.78), value: configuration.isPressed)
+            .animation(AppAnimation.press, value: configuration.isPressed)
+    }
+}
+
+// MARK: - Terminal Loading Indicator
+
+private struct TerminalLoadingIndicator: View {
+    @State private var cursorVisible = true
+    @State private var dotCount = 0
+
+    private var dots: String {
+        String(repeating: ".", count: dotCount % 4)
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text("> LOADING\(dots)")
+                .font(AppTypography.monoSmall)
+                .foregroundColor(AppPalette.accent)
+            Text("_")
+                .font(AppTypography.monoSmall.weight(.bold))
+                .foregroundColor(cursorVisible ? AppPalette.accent : .clear)
+        }
+        .onAppear {
+            withAnimation(AppAnimation.blink) { cursorVisible = false }
+            Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
+                dotCount += 1
+            }
+        }
     }
 }

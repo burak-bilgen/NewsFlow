@@ -31,7 +31,7 @@ struct TerminalSearchBar: View {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 14))
                         .foregroundColor(AppPalette.textTertiary)
-                        .frame(width: 28, height: 28)
+                        .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -49,7 +49,7 @@ struct TerminalSearchBar: View {
         .contentShape(Rectangle())
         .onTapGesture { isFocused = true }
         .onAppear {
-            withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
+            withAnimation(AppAnimation.blink) {
                 cursorVisible = false
             }
         }

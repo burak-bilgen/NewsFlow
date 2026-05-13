@@ -1,7 +1,7 @@
 import Foundation
 import UserNotifications
 
-final class SentinelNotificationService {
+actor SentinelNotificationService {
     static let shared = SentinelNotificationService()
     private let center = UNUserNotificationCenter.current()
     private let defaults = UserDefaults.standard
@@ -9,9 +9,13 @@ final class SentinelNotificationService {
     private let sentinelKey = "sentinel.count"
     private let sentinelDateKey = "sentinel.date"
 
-    private init() {}
+    private static let dateKeyFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
 
-    var todayCount: Int {
+    private var todayCount: Int {
         let today = dateKey(Date())
         guard defaults.string(forKey: sentinelDateKey) == today else { return 0 }
         return defaults.integer(forKey: sentinelKey)
@@ -72,6 +76,6 @@ final class SentinelNotificationService {
     }
 
     private func dateKey(_ date: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; return f.string(from: date)
+        Self.dateKeyFormatter.string(from: date)
     }
 }

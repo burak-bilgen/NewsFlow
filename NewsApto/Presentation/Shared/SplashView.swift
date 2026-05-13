@@ -24,12 +24,12 @@ struct SplashView: View {
                     .opacity(opacity)
 
                 Text("NewsApto")
-                    .font(.system(size: 32, weight: .black, design: .serif))
+                    .font(AppTypography.splashTitle)
                     .foregroundColor(AppPalette.textPrimary)
                     .opacity(textOpacity)
 
                 Text("Smart. Adaptive. Personal.")
-                    .font(.system(size: 14, weight: .regular, design: .serif))
+                    .font(AppTypography.splashSubtitle)
                     .foregroundColor(AppPalette.accent)
                     .opacity(taglineOpacity)
 
@@ -44,18 +44,19 @@ struct SplashView: View {
         }
         .statusBarHidden(true)
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+            withAnimation(AppAnimation.transition) {
                 scale = 1.0
                 opacity = 1.0
             }
-            withAnimation(.easeOut(duration: 0.4).delay(0.3)) {
+            withAnimation(AppAnimation.reveal.delay(0.3)) {
                 textOpacity = 1.0
             }
-            withAnimation(.easeOut(duration: 0.5).delay(0.5)) {
+            withAnimation(AppAnimation.reveal.delay(0.5)) {
                 taglineOpacity = 1.0
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-                withAnimation(.easeIn(duration: 0.2)) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(1.8))
+                withAnimation(AppAnimation.press) {
                     isComplete = true
                 }
                 onComplete()

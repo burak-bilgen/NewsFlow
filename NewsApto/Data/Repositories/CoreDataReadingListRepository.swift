@@ -113,15 +113,6 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
         }
     }
 
-    func toggle(_ article: Article) async throws -> Bool {
-        if await isSaved(articleID: article.id) {
-            try await remove(articleID: article.id)
-            return false
-        }
-        try await add(article)
-        return true
-    }
-
     // MARK: - Private
 
     private func fetchItem(withID id: String) async -> ReadingListItem? {

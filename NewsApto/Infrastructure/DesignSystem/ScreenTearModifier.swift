@@ -17,8 +17,9 @@ struct ScreenTearModifier: ViewModifier {
                     .onChanged { _ in
                         tearOffset = CGFloat.random(in: -50...50)
                         tearOpacity = 0.3
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                            withAnimation(.easeOut(duration: 0.1)) {
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(50))
+                            withAnimation(AppAnimation.press) {
                                 tearOpacity = 0
                                 tearOffset = 0
                             }
