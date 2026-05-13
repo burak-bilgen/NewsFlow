@@ -41,12 +41,13 @@ struct AttributionView: View {
 
     private var apiCreditsSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            sectionTitle("DATA SOURCES")
+            sectionTitle("DATA SOURCES (6 TOTAL)")
 
             VStack(spacing: 0) {
+                // Tier 1: Original Sources
                 APITerminalRow(
                     name: "NewsAPI.org",
-                    description: "Top headlines from worldwide publishers. This product uses NewsAPI but is not endorsed or certified by NewsAPI.",
+                    description: "Top headlines from worldwide publishers. 10,000+ sources aggregated.",
                     urlString: "https://newsapi.org"
                 )
                 Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
@@ -60,6 +61,26 @@ struct AttributionView: View {
                     name: "The New York Times",
                     description: "Reporting and analysis from The New York Times Article Search API.",
                     urlString: "https://www.nytimes.com"
+                )
+                
+                // Tier 2: New Sources
+                Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
+                APITerminalRow(
+                    name: "GNews",
+                    description: "Google News aggregation. 10,000+ global news sources with real-time updates.",
+                    urlString: "https://gnews.io"
+                )
+                Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
+                APITerminalRow(
+                    name: "NewsData.io",
+                    description: "Comprehensive news aggregation from 10,000+ sources worldwide. Real-time breaking news coverage.",
+                    urlString: "https://newsdata.io"
+                )
+                Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
+                APITerminalRow(
+                    name: "HackerNews",
+                    description: "Tech and programming news curated by the global developer community. Free public API via Firebase.",
+                    urlString: "https://news.ycombinator.com"
                 )
             }
             .background(AppPalette.surface)
