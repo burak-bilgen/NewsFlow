@@ -50,14 +50,6 @@ struct HeroCardView: View {
                             .lineLimit(2)
                     }
                     
-                    // Quality score indicator
-                    if let score = article.qualityScore {
-                        HStack(spacing: 4) {
-                            Text(String(format: L10n.text("detail.quality"), Int(score)))
-                                .font(AppTypography.monoTiny)
-                                .foregroundColor(AppPalette.accent.opacity(0.9))
-                        }
-                    }
                 }
                 .padding(16)
             }

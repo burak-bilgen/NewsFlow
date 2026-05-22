@@ -12,9 +12,7 @@ struct RootNavigationView: View {
         TabView(selection: $selectedTab) {
             NavigationStack {
                 FeedView(
-                    viewModel: container.makeFeedViewModel(),
-                    makeReadingListViewModel: { container.makeReadingListViewModel() },
-                    selectedTab: $selectedTab
+                    viewModel: container.makeFeedViewModel()
                 )
             }
             .tabItem {

@@ -109,7 +109,7 @@
 "state.error.message" = "Unable to load articles.";
 "state.retry" = "> RETRY";
 
-"quality.score" = "%dpt";
+"quality.score" = "%d";
 "accessibility.reading_list" = "Reading list";
 "accessibility.about" = "About";
 

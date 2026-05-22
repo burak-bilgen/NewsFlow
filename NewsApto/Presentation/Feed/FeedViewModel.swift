@@ -114,6 +114,7 @@ final class FeedViewModel: ObservableObject {
     private let readingListUseCase: ManageReadingListUseCaseProtocol
     private let pageSize: Int
     private var currentPage = 1
+    private var allBuffered: [Article] = []
 
     func loadIfNeeded() async {
         guard case .idle = state else { return }
@@ -125,6 +126,7 @@ final class FeedViewModel: ObservableObject {
         isRefreshing = true
         isLoadingMore = false
         currentPage = 1
+        allBuffered = []
         hasMorePages = true
         await fetch()
         isRefreshing = false
@@ -133,6 +135,7 @@ final class FeedViewModel: ObservableObject {
     func loadMore() async {
         guard hasMorePages, !isLoadingMore else { return }
         isLoadingMore = true
+        if !allBuffered.isEmpty { defer { isLoadingMore = false }; flushBuffer(); return }
         currentPage += 1
         await fetch()
         isLoadingMore = false
@@ -155,6 +158,8 @@ final class FeedViewModel: ObservableObject {
         }
     }
 
+    private static let displayLimit = 40
+
     private func fetch() async {
         let result = await aggregator.fetchFeed(page: currentPage, pageSize: pageSize)
         async let savedIDs = readingListUseCase.savedArticleIDs()
@@ -168,13 +173,29 @@ final class FeedViewModel: ObservableObject {
             articles = scoredArticles
             if currentPage == 1 { Task { await SentinelNotificationService.shared.evaluateAndNotify(articles: scoredArticles) } }
         }
-        hasMorePages = result.articles.count >= pageSize
+        
+        let cappedArticles = Array(articles.prefix(Self.displayLimit))
+        allBuffered = Array(articles.dropFirst(Self.displayLimit))
+        articles = cappedArticles
+        hasMorePages = !allBuffered.isEmpty || result.articles.count >= pageSize
+        
         savedArticleIDs = await savedIDs
         if result.sourceCount == 0 && articles.isEmpty {
             state = .error(L10n.text("error.all_sources_unavailable"))
         } else {
             state = articles.isEmpty ? .empty : .ready
         }
+    }
+
+    private func flushBuffer() {
+        guard !allBuffered.isEmpty else { return }
+        var pending = articles
+        let existing = Set(pending.map(\.id))
+        let batch = Array(allBuffered.prefix(Self.displayLimit))
+        allBuffered = Array(allBuffered.dropFirst(Self.displayLimit))
+        pending.append(contentsOf: batch.filter { !existing.contains($0.id) })
+        articles = pending
+        hasMorePages = !allBuffered.isEmpty
     }
 
     private func appendUnique(_ newArticles: [Article]) {

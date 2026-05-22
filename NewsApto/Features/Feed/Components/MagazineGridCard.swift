@@ -30,12 +30,6 @@ struct MagazineGridCard: View {
                             .foregroundColor(AppPalette.textTertiary)
                         
                         Spacer()
-                        
-                        if let score = article.qualityScore {
-                            Text(String(format: L10n.text("quality.score"), Int(score)))
-                                .font(AppTypography.monoTiny)
-                                .foregroundColor(AppPalette.accent.opacity(0.7))
-                        }
                     }
                 }
                 .padding(8)

@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct AttributionView: View {
-    @Environment(\.dismiss) private var dismiss
-    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -15,21 +13,6 @@ struct AttributionView: View {
             .padding(.bottom, 28)
         }
         .background(AppPalette.background)
-        .overlay(alignment: .topTrailing) {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(AppPalette.textSecondary)
-                    .frame(width: 32, height: 32)
-                    .background(AppPalette.surface)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .padding(.top, 12)
-            .padding(.trailing, 16)
-        }
     }
 
     private var headerSection: some View {

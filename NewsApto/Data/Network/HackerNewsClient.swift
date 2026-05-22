@@ -91,7 +91,7 @@ actor HackerNewsClient {
         // HN text only available for "self posts" - for link posts, create description from URL domain
         let description: String?
         if let text = story.text, !text.isEmpty {
-            description = text.strippingHTML.prefix(200).description
+            description = text.htmlToPlainText.prefix(200).description
         } else if let url = story.url, let urlObj = URL(string: url) {
             let host = urlObj.host?.replacingOccurrences(of: "www.", with: "") ?? "external site"
             description = "🔗 External link from \(host)"
@@ -109,7 +109,7 @@ actor HackerNewsClient {
             url: URL(string: storyUrl),
             sourceName: "Hacker News",
             apiSource: .hackernews,
-            contentSnippet: story.text?.strippingHTML.prefix(2000).description ?? description,
+            contentSnippet: story.text?.htmlToPlainText.prefix(2000).description ?? description,
             qualityScore: Double(story.score ?? 0),
             engagementScore: Double(story.score ?? 0)
         )
@@ -128,10 +128,4 @@ struct HNStory: Codable {
     let score: Int?
     let title: String?
     let descendants: Int?
-}
-
-private extension String {
-    var strippingHTML: String {
-        self.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-    }
 }

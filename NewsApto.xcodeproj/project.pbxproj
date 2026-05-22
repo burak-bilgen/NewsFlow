@@ -52,15 +52,11 @@
 		};
 		675760802FA8DE1C003F06BE /* NewsAptoTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NewsAptoTests;
 			sourceTree = "<group>";
 		};
 		6757608A2FA8DE1C003F06BE /* NewsAptoUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NewsAptoUITests;
 			sourceTree = "<group>";
 		};

@@ -42,10 +42,10 @@ No ads. No tracking. No third-party SDKs. Just you and the news.
 | 📴 | **Offline-first** — Two-tier cache (50MB memory + 200MB disk) with seamless degradation |
 | 🔁 | **Smart pagination** — Auto-prefetch, deduplication, loading guards, and pull-to-refresh. Cursor/token-based for NewsData |
 | 🔒 | **Zero dependencies** — 100% native. No SPM. No CocoaPods. No black boxes. |
-| 🚀 | **3-page onboarding** — Welcome, feature highlights, and notification prompt at first launch |
-| ⚙️ | **Settings screen** — Notification toggle, cache management, source attribution, app info |
+| 🚀 | **Single-page onboarding** — Logo, features, and get-started in one view |
+| ⚙️ | **Settings screen** — Notification toggle, cache management, source attribution (with sheet), app info |
 | 🗂️ | **Tab navigation** — Feed, Reading List, and Settings in a bottom tab bar |
-| 🌍 | **Localized** — English + Turkish (126 strings) with in-app switching |
+| 🌍 | **Localized** — English + Turkish (132 keys) with in-app switching |
 | 🏗️ | **49 tests** — 48 unit + 1 UI, all passing with 0 build warnings |
 
 ---
@@ -104,18 +104,18 @@ NewsApto follows **Clean Architecture** with strict dependency inversion:
 NewsApto sports a **terminal-inspired cyberpunk aesthetic** — think Bloomberg Terminal meets The Matrix:
 
 ### Animations & Effects
-- **Matrix Code Rain** — Real-time Canvas rendering with 24×40 character grid, 50ms animation interval
+- **Matrix Code Rain** — Real-time Canvas rendering with 24×40 character grid, 100ms animation interval (battery-optimized)
 - **Glitch Reveal** — 6-step jitter animation (30ms per step, ±3px offset) on content load
 - **Matrix Emission** — Neon glow overlay with fade cycle for content transitions
 - **Glow Pulse** — Infinite 1.2s ease-in-out pulse on active category buttons
 
 ### UI Components
-- **Terminal search bar** — Blinking cursor, mono typography, instant filtering
+- **Terminal search bar** — Blinking cursor, mono typography, compact design (34pt height)
 - **Category ribbon** — 7 categories (All, Tech, Business, Science, Health, Sports, Entertainment) with glow-pulse active states
 - **Magazine-style layout** — Hero card (320pt image), editor's picks grid, latest articles list
-- **Hero detail view** — Full-screen with blur-to-focus image (8pt → 0pt), swipe-to-dismiss gesture, summary tab
-- **3-page onboarding** — Welcome screen, feature tour, and notification permissions
-- **Settings screen** — Notification toggle, cache management, source attribution, version info
+- **Hero detail view** — Full-screen with blur-to-focus image (8pt → 0pt), swipe-to-dismiss gesture
+- **Single-page onboarding** — Logo, features overview, and get-started button
+- **Settings screen** — Notification toggle, cache management, source attribution (sheet), version info
 - **Tab navigation** — Feed, Reading List, and Settings in a bottom tab bar
 - **Status-bar-free** — Immersive reading experience
 
@@ -315,17 +315,18 @@ NewsApto/
 | **Image downsampling** | All images rendered at 400×400 max |
 | **Content limit** | 2000 chars per article for detail view |
 | **Category mappings** | 150+ API mappings, 300+ keywords |
-| **Prefetch trigger** | Auto-loads next page at last 5 items |
+| **Display limit** | 40 articles per batch, buffered locally for smooth loading |
+| **Prefetch trigger** | Auto-loads next 40 from buffer at last 5 items |
 | **Request coalescing** | Actor-based in-flight deduplication |
 | **Retry** | Exponential backoff with jitter (max 3 attempts) |
-| **Localizations** | 2 (English + Turkish, 126 strings each) |
+| **Localizations** | 2 (English + Turkish, 132 keys each) |
 | **Matrix rain FPS** | 10fps (optimized from 20fps for battery) |
 
 ---
 
 ## 🌐 Localization
 
-NewsApto ships with **English** and **Turkish** localizations (126 keys each), switchable in-app via system language settings. All UI strings, onboarding, settings, and error messages are fully translated with human-curated text.
+NewsApto ships with **English** and **Turkish** localizations (132 keys each), switchable in-app via system language settings. All UI strings, onboarding, settings, and error messages are fully translated with human-curated text.
 
 ---
 

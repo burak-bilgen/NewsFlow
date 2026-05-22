@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var notificationsEnabled = false
     @State private var showingClearCacheAlert = false
     @State private var cacheSize = ""
+    @State private var showAttribution = false
 
     var body: some View {
         ZStack {
@@ -24,6 +25,9 @@ struct SettingsView: View {
             .scrollIndicators(.hidden)
         }
         .statusBarHidden(true)
+        .sheet(isPresented: $showAttribution) {
+            AttributionView()
+        }
         .onAppear {
             checkNotificationStatus()
             updateCacheSize()
@@ -90,7 +94,21 @@ struct SettingsView: View {
             sectionHeader("settings.about")
             aboutRow(label: "settings.version", value: versionString)
             aboutRow(label: "settings.build", value: buildString)
-            aboutRow(label: "settings.sources", value: L10n.text("settings.sources_count"))
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                showAttribution = true
+            } label: {
+                HStack {
+                    Text(L10n.text("settings.sources")).font(AppTypography.body).foregroundColor(AppPalette.textPrimary)
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Text(L10n.text("settings.sources_count")).font(AppTypography.monoTiny).foregroundColor(AppPalette.textTertiary)
+                        Image(systemName: "chevron.right").font(.system(size: 11)).foregroundColor(AppPalette.textTertiary)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .buttonStyle(.plain)
             Text(L10n.text("settings.disclaimer")).font(AppTypography.monoTiny).foregroundColor(AppPalette.textTertiary).padding(.top, 8)
         }
         .padding(.vertical, 12)

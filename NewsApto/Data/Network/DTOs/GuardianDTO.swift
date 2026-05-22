@@ -70,7 +70,7 @@ struct GuardianArticleDTO: Decodable {
     func domainModel() -> Article {
         let date = ArticleDateFormatter.parse(webPublicationDate)
         let snippet = fields?.trailText?.nilIfBlank ?? fields?.bodyText?.nilIfBlank
-        let cleanSnippet = snippet?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+        let cleanSnippet = snippet?.htmlToPlainText
 
         return Article(
             id: "guardian-\(id)",

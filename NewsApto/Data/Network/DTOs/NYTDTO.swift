@@ -73,7 +73,7 @@ struct NYTArticleDTO: Decodable {
 
     func domainModel() -> Article {
         let date = ArticleDateFormatter.parse(pubDate)
-        let cleanSnippet = snippet?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+        let cleanSnippet = snippet?.htmlToPlainText
 
         return Article(
             id: "nyt-\(_id ?? UUID().uuidString)",

@@ -119,7 +119,7 @@
 "state.error.message" = "Makaleler yüklenemedi.";
 "state.retry" = "> TEKRAR.DENE";
 
-"quality.score" = "%dpt";
+"quality.score" = "%d";
 "accessibility.reading_list" = "Okuma listesi";
 "accessibility.about" = "Hakkında";
 

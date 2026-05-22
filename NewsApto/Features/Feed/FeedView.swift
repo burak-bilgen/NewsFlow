@@ -2,16 +2,11 @@ import SwiftUI
 
 struct FeedView: View {
     @StateObject private var viewModel: FeedViewModel
-    let makeReadingListViewModel: () -> ReadingListViewModel
-    @Binding var selectedTab: Int
-    @State private var showAttribution = false
     @State private var selectedArticle: Article?
     @State private var terminalSearchText = ""
 
-    init(viewModel: FeedViewModel, makeReadingListViewModel: @escaping () -> ReadingListViewModel, selectedTab: Binding<Int>) {
+    init(viewModel: FeedViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.makeReadingListViewModel = makeReadingListViewModel
-        _selectedTab = selectedTab
     }
 
     var body: some View {
@@ -28,27 +23,6 @@ struct FeedView: View {
                 onToggle: { Task { await viewModel.toggleReadingList(for: article) } },
                 onDismiss: { selectedArticle = nil }
             )
-        }
-        .sheet(isPresented: $showAttribution) {
-            NavigationStack {
-                AttributionView()
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                showAttribution = false
-                            } label: {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(AppPalette.accent)
-                                    .frame(width: 44, height: 44)
-                                    .background(AppPalette.background)
-                                    .overlay(Rectangle().stroke(AppPalette.accent, lineWidth: 1))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-            }
         }
         .task { await viewModel.loadIfNeeded() }
         .statusBarHidden(true)
@@ -126,10 +100,21 @@ struct FeedView: View {
                         ))
                 }
 
-                FeedHeaderView(
-                    onAttributionTap: { showAttribution = true },
-                    selectedTab: $selectedTab
-                )
+                categoryRibbon
+
+                let feedArticles = viewModel.filteredByCategory
+                let hero = feedArticles.first { $0.imageURL != nil } ?? feedArticles.first
+                let rest = feedArticles.filter { article in hero.map { $0.id != article.id } ?? true }
+
+                if let heroArticle = hero {
+                    HeroCardView(
+                        article: heroArticle,
+                        onSelect: { selectedArticle = heroArticle },
+                        onToggle: { Task { await viewModel.toggleReadingList(for: heroArticle) } },
+                        isSaved: viewModel.isSaved(heroArticle)
+                    )
+                    .padding(.vertical, 15)
+                }
 
                 TerminalSearchBar(text: $terminalSearchText) { query in
                     viewModel.searchQuery = query
@@ -138,7 +123,7 @@ struct FeedView: View {
                     viewModel.searchQuery = newValue
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 20)
+                .padding(.bottom, 16)
 
                 Rectangle()
                     .fill(AppPalette.accent.opacity(0.3))
@@ -146,40 +131,17 @@ struct FeedView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
 
-                categoryRibbon
-                    .padding(.bottom, 12)
-
-                let feedArticles = viewModel.filteredByCategory
-                let filterHash = viewModel.searchQuery
-
-                Group {
-                    let hero = feedArticles.first { $0.imageURL != nil } ?? feedArticles.first
-                    let rest = feedArticles.filter { article in hero.map { $0.id != article.id } ?? true }
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        if let heroArticle = hero {
-                            HeroCardView(
-                                article: heroArticle,
-                                onSelect: { selectedArticle = heroArticle },
-                                onToggle: { Task { await viewModel.toggleReadingList(for: heroArticle) } },
-                                isSaved: viewModel.isSaved(heroArticle)
-                            )
-                        }
-
-                        if !rest.isEmpty {
-                            featuredGrid(Array(rest.prefix(4)))
-                            let latest = Array(rest.dropFirst(4))
-                            if !latest.isEmpty {
-                                latestSection(latest)
-                            }
-                        }
-
-                        if viewModel.hasMorePages {
-                            loadMoreFooter
-                        }
+                if !rest.isEmpty {
+                    featuredGrid(Array(rest.prefix(4)))
+                    let latest = Array(rest.dropFirst(4))
+                    if !latest.isEmpty {
+                        latestSection(latest)
                     }
                 }
-                .matrixEmission(trigger: filterHash)
+
+                if viewModel.hasMorePages {
+                    loadMoreFooter
+                }
             }
         }
         .refreshable { await viewModel.pullToRefresh() }
