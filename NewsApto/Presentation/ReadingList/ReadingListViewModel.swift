@@ -1,5 +1,4 @@
 import Combine
-import Foundation
 @MainActor
 final class ReadingListViewModel: ObservableObject {
     enum State {

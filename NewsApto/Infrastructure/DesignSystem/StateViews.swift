@@ -82,6 +82,7 @@ struct StateMessageView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(AppSpacing.xl)
         .onAppear { isAnimating = true }
+        .onDisappear { isAnimating = false }
     }
 }
 

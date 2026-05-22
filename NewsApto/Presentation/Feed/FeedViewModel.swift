@@ -171,7 +171,7 @@ final class FeedViewModel: ObservableObject {
         hasMorePages = result.articles.count >= pageSize
         savedArticleIDs = await savedIDs
         if result.sourceCount == 0 && articles.isEmpty {
-            state = .error("All news sources are currently unavailable")
+            state = .error(L10n.text("error.all_sources_unavailable"))
         } else {
             state = articles.isEmpty ? .empty : .ready
         }

@@ -150,17 +150,15 @@ struct ShimmerEffect: ViewModifier {
     let duration: Double = 1.8
     func body(content: Content) -> some View {
         content.overlay(
-            GeometryReader { _ in
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: phase - 0.3),
-                        .init(color: AppPalette.accent.opacity(0.06), location: phase),
-                        .init(color: .clear, location: phase + 0.3)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ).scaleEffect(x: 2.5)
-            }
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: phase - 0.3),
+                    .init(color: AppPalette.accent.opacity(0.06), location: phase),
+                    .init(color: .clear, location: phase + 0.3)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ).scaleEffect(x: 2.5)
         ).clipShape(Rectangle()).onAppear {
             withAnimation(.easeInOut(duration: duration).repeatForever(autoreverses: false)) { phase = 1.5 }
         }

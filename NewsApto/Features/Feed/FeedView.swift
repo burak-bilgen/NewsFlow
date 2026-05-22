@@ -221,7 +221,7 @@ struct FeedView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     sectionHeader(L10n.text("feed.latest"))
 
-                    LazyVStack(spacing: 0) {
+                    VStack(spacing: 0) {
                         ForEach(Array(articles.enumerated()), id: \.offset) { i, article in
                             MagazineListCard(
                                 article: article,
@@ -275,7 +275,7 @@ struct FeedView: View {
                     viewModel.selectedCategory = nil
                 }
                 ForEach(viewModel.availableCategories, id: \.self) { category in
-                    categoryChip(title: category, isSelected: viewModel.selectedCategory == category) {
+                    categoryChip(title: L10n.text("category.\(category)"), isSelected: viewModel.selectedCategory == category) {
                         viewModel.selectedCategory = category
                     }
                 }

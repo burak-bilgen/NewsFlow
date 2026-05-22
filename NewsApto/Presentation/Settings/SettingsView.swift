@@ -90,7 +90,7 @@ struct SettingsView: View {
             sectionHeader("settings.about")
             aboutRow(label: "settings.version", value: versionString)
             aboutRow(label: "settings.build", value: buildString)
-            aboutRow(label: "settings.sources", value: "6 APIs")
+            aboutRow(label: "settings.sources", value: L10n.text("settings.sources_count"))
             Text(L10n.text("settings.disclaimer")).font(AppTypography.monoTiny).foregroundColor(AppPalette.textTertiary).padding(.top, 8)
         }
         .padding(.vertical, 12)

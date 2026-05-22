@@ -23,7 +23,7 @@ struct SplashView: View {
                     .scaleEffect(scale)
                     .opacity(opacity)
 
-                Text("NewsApto")
+                Text(L10n.text("app.name"))
                     .font(AppTypography.splashTitle)
                     .foregroundColor(AppPalette.textPrimary)
                     .opacity(textOpacity)

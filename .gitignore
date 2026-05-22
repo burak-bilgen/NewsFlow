@@ -71,6 +71,9 @@ Config/Secrets.xcconfig
 # Environment variables
 .env
 
+# macOS
+.DS_Store
+
 # Internal planning documents (not for public review)
 PROFESSIONALIZATION_PLAN.md
 

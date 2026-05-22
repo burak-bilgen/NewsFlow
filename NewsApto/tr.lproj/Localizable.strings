@@ -15,20 +15,23 @@
 "articles.latest" = "Son Haberler";
 "articles.loadMore" = "Daha Fazla Yükle";
 
-"readingList.empty.title" = "Okuma listen boş";
-"readingList.empty.message" = "Makaleleri kaydetmek için yer imine dokun.";
-"readingList.add" = "Okuma Listene Ekle";
-"readingList.remove" = "Okuma Listenden Çıkar";
+"error.all_sources_unavailable" = "Tüm haber kaynakları şu anda kullanılamıyor.";
+"loading.image" = "> YÜKLENİYOR...";
+"placeholder.no_image" = "> GÖRSEL.YOK";
+"onboarding.feature.sources.title" = "6 Haber Kaynağı";
+"settings.sources_count" = "6 API";
 
 "retry.button" = "Tekrar Dene";
 "ok.button" = "Tamam";
 "warning.title" = "Uyarı";
-"error.title" = "Bir şey ters gitti";
+"error.title" = "Bir şey ters gitti.";
 "error.generic" = "Bilgiler alınamadı.";
 "error.network" = "İnternet bağlantını kontrol edip tekrar dene.";
 "error.missingApiKey" = "NewsAPI anahtarı eksik. Kurulum adımlarını kontrol et.";
 "error.rateLimit" = "Çok fazla istek gönderildi. Biraz bekle ve tekrar dene.";
 "error.cancelled" = "İstek iptal edildi";
+
+"app.name" = "NewsApto";
 
 "offline.banner" = "İnternet yok";
 "offline.check" = "Bağlantını kontrol et";
@@ -61,7 +64,7 @@
 "article.accessibility.source_hint" = "Bu kaynaktan haberlere göz atmak için dokun";
 
 "reading.time.short" = "%lld dk okuma";
-"reading.time.under1" = "1 dk'dan az";
+"reading.time.under1" = "1 dakikadan az";
 
 "state.handoff.title" = "Makale Okunuyor";
 
@@ -94,7 +97,7 @@
 "attribution.description" = "Bağımsız haber okuyucu";
 "attribution.body" = "NewsApto, birden çok kaynaktan beslenen bağımsız bir haber toplayıcıdır.";
 "attribution.subtitle" = "Bağımsız haber okuyucu";
-"attribution.data_sources" = "VERİ KAYNAKLARI (6 ADET)";
+"attribution.data_sources" = "VERİ KAYNAKLARI (6)";
 "attribution.newsapi.desc" = "Dünyanın dört bir yanından yayıncılardan manşetler. 10.000+ kaynak.";
 "attribution.guardian.desc" = "Guardian Open Platform sayesinde küresel haberler.";
 "attribution.nyt.desc" = "New York Times Makale Arama API'si ile derinlemesine analiz.";
@@ -135,7 +138,7 @@
 
 "settings.title" = "> AYARLAR";
 "settings.notifications" = "> BİLDİRİMLER";
-"settings.notifications.breaking" = "Bildirimler";
+"settings.notifications.breaking" = "Son Dakika Bildirimleri";
 "settings.notifications.description" = "Önemli haberler için bildirim al";
 "settings.data" = "> VERİ";
 "settings.clear_cache" = "Önbelleği Temizle";
@@ -145,7 +148,7 @@
 "settings.clear" = "Temizle";
 "settings.about" = "> HAKKINDA";
 "settings.version" = "Sürüm";
-"settings.build" = "Yapı Numarası";
+"settings.build" = "Derleme";
 "settings.sources" = "Haber Kaynakları";
 "settings.disclaimer" = "NewsApto bağımsız bir toplayıcıdır. İçerikler orijinal yayıncılara aittir.";
 

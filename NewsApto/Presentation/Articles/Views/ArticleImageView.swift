@@ -72,7 +72,7 @@ struct ArticleImageView: View {
                         .foregroundColor(AppPalette.accent)
                 }
                 
-                Text("> LOADING...")
+                Text(L10n.text("loading.image"))
                     .font(AppTypography.monoTiny)
                     .foregroundColor(AppPalette.accent.opacity(0.7))
             }
@@ -136,7 +136,7 @@ struct ArticleImageView: View {
                         )
                 }
                 
-                Text("> NO_IMAGE_DATA")
+                Text(L10n.text("placeholder.no_image"))
                     .font(AppTypography.monoTiny)
                     .foregroundColor(AppPalette.accent.opacity(0.5))
             }

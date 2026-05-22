@@ -16,10 +16,11 @@
 "articles.loadMore" = "Load More Articles";
 
 
-"readingList.empty.title" = "Your reading list is empty";
-"readingList.empty.message" = "Save articles to read later by tapping the bookmark icon.";
-"readingList.add" = "Add to Reading List";
-"readingList.remove" = "Remove from Reading List";
+"error.all_sources_unavailable" = "All news sources are currently unavailable.";
+"loading.image" = "> LOADING...";
+"placeholder.no_image" = "> NO_IMAGE_DATA";
+"onboarding.feature.sources.title" = "6 News Sources";
+"settings.sources_count" = "6 APIs";
 
 "retry.button" = "Retry";
 "ok.button" = "OK";
@@ -30,6 +31,8 @@
 "error.missingApiKey" = "NewsAPI key is missing. Check setup steps.";
 "error.rateLimit" = "Too many requests. Please try again later.";
 "error.cancelled" = "Request cancelled";
+
+"app.name" = "NewsApto";
 
 "offline.banner" = "No internet connection";
 "offline.check" = "Check your connection";

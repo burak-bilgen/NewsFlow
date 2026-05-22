@@ -33,7 +33,7 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Spacer()
             Image("logo").resizable().scaledToFit().frame(width: 100, height: 100)
-            Text("NewsApto").font(AppTypography.splashTitle).foregroundColor(AppPalette.textPrimary)
+            Text(L10n.text("app.name")).font(AppTypography.splashTitle).foregroundColor(AppPalette.textPrimary)
             Text(L10n.text("splash.tagline")).font(AppTypography.monoSmall).foregroundColor(AppPalette.accent)
             Text(L10n.text("onboarding.welcome.message"))
                 .font(AppTypography.body).foregroundColor(AppPalette.textSecondary).multilineTextAlignment(.center)
@@ -47,7 +47,7 @@ struct OnboardingView: View {
             Spacer()
             Text(L10n.text("onboarding.features.title"))
                 .font(AppTypography.title).foregroundColor(AppPalette.textPrimary).padding(.bottom, 8)
-            featureRow(icon: "newspaper", title: "6 News Sources", description: L10n.text("onboarding.feature.sources"))
+            featureRow(icon: "newspaper", title: L10n.text("onboarding.feature.sources.title"), description: L10n.text("onboarding.feature.sources"))
             featureRow(icon: "brain.head.profile", title: L10n.text("onboarding.feature.scoring"), description: L10n.text("onboarding.feature.scoring.desc"))
             featureRow(icon: "magnifyingglass", title: L10n.text("onboarding.feature.search"), description: L10n.text("onboarding.feature.search.desc"))
             featureRow(icon: "bookmark", title: L10n.text("readinglist.title"), description: L10n.text("onboarding.feature.readinglist"))
