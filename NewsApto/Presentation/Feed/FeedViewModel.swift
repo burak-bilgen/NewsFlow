@@ -125,25 +125,24 @@ final class FeedViewModel: ObservableObject {
     }
 
     private func fetch() async {
-        do {
-            let result = await aggregator.fetchFeed(page: currentPage, pageSize: pageSize)
-            async let savedIDs = readingListUseCase.savedArticleIDs()
-            
-            // Apply advanced scoring with duplicate detection
-            let scorer = EnhancedArticleScorer()
-            let scoredArticles = await scorer.scoreAndEnrichWithDuplicates(result.articles)
-            
-            if currentPage > 1 {
-                appendUnique(scoredArticles)
-            } else {
-                articles = scoredArticles
-                if currentPage == 1 { Task { await SentinelNotificationService.shared.evaluateAndNotify(articles: scoredArticles) } }
-            }
-            hasMorePages = result.articles.count >= pageSize
-            savedArticleIDs = await savedIDs
+        let result = await aggregator.fetchFeed(page: currentPage, pageSize: pageSize)
+        async let savedIDs = readingListUseCase.savedArticleIDs()
+        
+        let scorer = EnhancedArticleScorer()
+        let scoredArticles = await scorer.scoreAndEnrichWithDuplicates(result.articles)
+        
+        if currentPage > 1 {
+            appendUnique(scoredArticles)
+        } else {
+            articles = scoredArticles
+            if currentPage == 1 { Task { await SentinelNotificationService.shared.evaluateAndNotify(articles: scoredArticles) } }
+        }
+        hasMorePages = result.articles.count >= pageSize
+        savedArticleIDs = await savedIDs
+        if result.sourceCount == 0 && articles.isEmpty {
+            state = .error("All news sources are currently unavailable")
+        } else {
             state = articles.isEmpty ? .empty : .ready
-        } catch {
-            state = .error(error.localizedDescription)
         }
     }
 

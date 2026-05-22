@@ -7,7 +7,7 @@ excluded:
   - DerivedData
   - ".build"
   - "*.generated.swift"
-  - NewsApto/Core/Localization/L10n.swift
+  - NewsApto/Infrastructure/Localization/L10n.swift
 
 included:
   - NewsApto
