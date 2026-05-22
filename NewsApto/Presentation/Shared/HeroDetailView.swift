@@ -23,6 +23,7 @@ struct HeroDetailView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         ArticleImageView(url: article.imageURL)
                             .frame(height: 320).clipped().blur(radius: imageBlur)
+                            .padding(.top, 60)
 
                         if showContent {
                             VStack(alignment: .leading, spacing: 16) {
@@ -185,12 +186,12 @@ struct HeroDetailView: View {
                 withAnimation(AppAnimation.transition.delay(0.15)) { showContent = true; contentOffset = 0 }
             }
         }
+        .statusBarHidden(true)
         .ignoresSafeArea()
         .sheet(isPresented: $showSafari) {
             if let url = article.url {
                 SafariView(url: url)
             }
         }
-        .statusBarHidden(true)
     }
 }

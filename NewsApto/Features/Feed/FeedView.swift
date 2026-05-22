@@ -123,13 +123,13 @@ struct FeedView: View {
                     viewModel.searchQuery = newValue
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.vertical, 12)
 
                 Rectangle()
                     .fill(AppPalette.accent.opacity(0.3))
                     .frame(height: 0.5)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 24)
 
                 if !rest.isEmpty {
                     featuredGrid(Array(rest.prefix(4)))
