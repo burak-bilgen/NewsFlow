@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/SwiftUI-Native-00C7BE?style=flat-square" alt="SwiftUI">
   <img src="https://img.shields.io/badge/Dependencies-Zero-34C759?style=flat-square" alt="Zero Dependencies">
   <img src="https://img.shields.io/badge/Architecture-Clean-8E8E93?style=flat-square" alt="Clean Architecture">
+  <img src="https://img.shields.io/badge/Localization-2_Languages-8E8E93?style=flat-square" alt="2 Languages">
 </p>
 
 ---
@@ -39,7 +40,7 @@ No ads. No tracking. No third-party SDKs. Just you and the news.
 | ⚡ | **Actor-based concurrency** — Thread-safe caching and network deduplication with Swift actors |
 | 🎨 | **Terminal-inspired UI** — Dark matrix aesthetic with neon accents, glitch reveals, and code rain |
 | 📴 | **Offline-first** — Two-tier cache (50MB memory + 200MB disk) with seamless degradation |
-| 🔁 | **Smart pagination** — Auto-prefetch, deduplication, loading guards, and pull-to-refresh |
+| 🔁 | **Smart pagination** — Auto-prefetch, deduplication, loading guards, and pull-to-refresh. Cursor/token-based for NewsData |
 | 🔒 | **Zero dependencies** — 100% native. No SPM. No CocoaPods. No black boxes. |
 | 🚀 | **3-page onboarding** — Welcome, feature highlights, and notification prompt at first launch |
 | ⚙️ | **Settings screen** — Notification toggle, cache management, source attribution, app info |
@@ -93,6 +94,8 @@ NewsApto follows **Clean Architecture** with strict dependency inversion:
 | **Factory** | `AppContainer` | Centralized dependency injection |
 | **Strategy** | `SmartArticleScorer` | Pluggable scoring algorithms |
 | **Property Wrapper** | `@UserDefault` | Type-safe, observable UserDefaults |
+| **Environment** | `ImageCacheKey` via `EnvironmentValues` | Dependency injection for image caching in SwiftUI |
+| **Actor** | `NewsDataClient`, `GNewsClient` | Per-client pagination state (cursor tokens) |
 
 ---
 
@@ -108,9 +111,12 @@ NewsApto sports a **terminal-inspired cyberpunk aesthetic** — think Bloomberg 
 
 ### UI Components
 - **Terminal search bar** — Blinking cursor, mono typography, instant filtering
-- **Category ribbon** — 6 categories (Tech, Business, Science, Health, Sports, Entertainment) with glow-pulse active states
+- **Category ribbon** — 7 categories (All, Tech, Business, Science, Health, Sports, Entertainment) with glow-pulse active states
 - **Magazine-style layout** — Hero card (320pt image), editor's picks grid, latest articles list
-- **Hero detail view** — Full-screen with blur-to-focus image (8pt → 0pt), swipe-to-dismiss gesture
+- **Hero detail view** — Full-screen with blur-to-focus image (8pt → 0pt), swipe-to-dismiss gesture, summary tab
+- **3-page onboarding** — Welcome screen, feature tour, and notification permissions
+- **Settings screen** — Notification toggle, cache management, source attribution, version info
+- **Tab navigation** — Feed, Reading List, and Settings in a bottom tab bar
 - **Status-bar-free** — Immersive reading experience
 
 Everything is hand-built in SwiftUI. No Storyboards. No UIKit escape hatches.
@@ -125,7 +131,8 @@ Everything is hand-built in SwiftUI. No Storyboards. No UIKit escape hatches.
 | **UI Framework** | SwiftUI (iOS 26+) |
 | **Networking** | `URLSession` + `async/await` |
 | **Image Pipeline** | Custom `NSCache` (50MB) + Disk (200MB) with downsampling |
-| **Persistence** | Core Data (reading list) + File-based disk cache + UserDefaults |
+| **Persistence** | Core Data (reading list) + File-based disk cache (200MB with eviction) + UserDefaults |
+| **Localization** | `.strings` files (English + Turkish, 126 keys each) with `L10n` wrapper |
 | **Concurrency** | Swift Actors + structured concurrency |
 | **Logging** | Custom `NewsAptoLogger` → `os_log` unified logging |
 | **Testing** | XCTest (unit + UI) |
@@ -143,7 +150,7 @@ Everything is hand-built in SwiftUI. No Storyboards. No UIKit escape hatches.
 ### Setup
 
 ```bash
-git clone https://github.com/your-username/NewsApto.git
+git clone https://github.com/burak-bilgen/NewsApto.git
 cd NewsApto
 cp Config/Secrets.xcconfig.example Config/Secrets.xcconfig
 ```
@@ -289,6 +296,7 @@ NewsApto/
 ├── NewsAptoTests/                    # Unit tests
 ├── NewsAptoUITests/                  # UI tests
 ├── Config/                           # Secrets.xcconfig
+├── AppStore/                         # App Store metadata (description, privacy, screenshots)
 └── Makefile
 ```
 
@@ -298,8 +306,10 @@ NewsApto/
 
 | Metric | Value |
 |--------|-------|
-| **Build warnings** | 0 (Swift), 0 (zero-warning policy) |
-| **Tests** | 49 total (48 unit + 1 UI), all passing |
+| **Build warnings** | 0 — zero-warning policy enforced |
+| **Tests** | 49 total (48 unit + 1 UI), all passing with 0 failures |
+| **App binary** | ~4MB, no third-party SDKs |
+| **API sources** | 6 (NewsAPI, Guardian, NYT, GNews, NewsData, HN), dynamic active count |
 | **Memory cache** | 50MB NSCache with automatic eviction |
 | **Disk cache** | 200MB with age + size-based eviction |
 | **Image downsampling** | All images rendered at 400×400 max |
@@ -315,7 +325,7 @@ NewsApto/
 
 ## 🌐 Localization
 
-NewsApto ships with **English** and **Turkish** localizations, switchable in-app.
+NewsApto ships with **English** and **Turkish** localizations (126 keys each), switchable in-app via system language settings. All UI strings, onboarding, settings, and error messages are fully translated with human-curated text.
 
 ---
 
