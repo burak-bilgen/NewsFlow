@@ -5,6 +5,7 @@ struct TerminalSearchBar: View {
     var onSubmit: (String) -> Void
 
     @State private var cursorVisible = true
+    @State private var blinkTimer: Timer?
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -49,9 +50,15 @@ struct TerminalSearchBar: View {
         .contentShape(Rectangle())
         .onTapGesture { isFocused = true }
         .onAppear {
-            withAnimation(AppAnimation.blink) {
-                cursorVisible = false
+            let t = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                cursorVisible.toggle()
             }
+            blinkTimer = t
+            RunLoop.current.add(t, forMode: .common)
+        }
+        .onDisappear {
+            blinkTimer?.invalidate()
+            blinkTimer = nil
         }
     }
 }

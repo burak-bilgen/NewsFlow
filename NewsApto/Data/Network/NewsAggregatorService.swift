@@ -19,9 +19,9 @@ actor NewsAggregatorService: NewsAggregating {
     private let newsAPIRepository: ArticlesRepositoryProtocol
     private let guardianClient: GuardianClientProtocol
     private let nytClient: NYTClientProtocol
-    private let gnewsClient: GNewsClient
-    private let newsDataClient: NewsDataClient
-    private let hackerNewsClient: HackerNewsClient
+    private let gnewsClient: GNewsClient?
+    private let newsDataClient: NewsDataClient?
+    private let hackerNewsClient: HackerNewsClient?
     private let enhancedScorer: EnhancedArticleScorer
     private let topicDiversity: TopicDiversityEngine
     private let behaviorTracker: UserBehaviorTracker
@@ -31,9 +31,9 @@ actor NewsAggregatorService: NewsAggregating {
         newsAPIRepository: ArticlesRepositoryProtocol,
         guardianClient: GuardianClientProtocol,
         nytClient: NYTClientProtocol,
-        gnewsClient: GNewsClient = GNewsClient(),
-        newsDataClient: NewsDataClient = NewsDataClient(),
-        hackerNewsClient: HackerNewsClient = HackerNewsClient()
+        gnewsClient: GNewsClient? = nil,
+        newsDataClient: NewsDataClient? = nil,
+        hackerNewsClient: HackerNewsClient? = nil
     ) {
         self.newsAPIRepository = newsAPIRepository
         self.guardianClient = guardianClient
@@ -121,8 +121,9 @@ actor NewsAggregatorService: NewsAggregating {
     }
     
     private func fetchGNews(page: Int) async -> [Article]? {
+        guard let client = gnewsClient else { return nil }
         do {
-            return try await gnewsClient.fetchTopHeadlines(max: 20, page: page)
+            return try await client.fetchTopHeadlines(max: 20, page: page)
         } catch {
             NewsAptoLogger.shared.error("GNews fetch failed: \(error)", category: "Network")
             return nil
@@ -130,8 +131,9 @@ actor NewsAggregatorService: NewsAggregating {
     }
     
     private func fetchNewsData(page: Int) async -> NewsDataClient.NewsDataResult? {
+        guard let client = newsDataClient else { return nil }
         do {
-            return try await newsDataClient.fetchLatestNews(page: page > 1 ? String(page) : nil)
+            return try await client.fetchLatestNews(page: page > 1 ? String(page) : nil)
         } catch {
             NewsAptoLogger.shared.error("NewsData fetch failed: \(error)", category: "Network")
             return nil
@@ -139,8 +141,9 @@ actor NewsAggregatorService: NewsAggregating {
     }
     
     private func fetchHackerNews() async -> [Article]? {
+        guard let client = hackerNewsClient else { return nil }
         do {
-            return try await hackerNewsClient.fetchTopStories(limit: 15)
+            return try await client.fetchTopStories(limit: 15)
         } catch {
             NewsAptoLogger.shared.error("HackerNews fetch failed: \(error)", category: "Network")
             return nil

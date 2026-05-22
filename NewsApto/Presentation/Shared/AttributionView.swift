@@ -44,7 +44,7 @@ struct AttributionView: View {
                 .font(AppTypography.largeTitle)
                 .foregroundColor(AppPalette.textPrimary)
 
-            Text("Independent news reader")
+            Text(L10n.text("attribution.subtitle"))
                 .font(AppTypography.body)
                 .foregroundColor(AppPalette.textSecondary)
 
@@ -59,45 +59,44 @@ struct AttributionView: View {
 
     private var apiCreditsSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            sectionTitle("DATA SOURCES (6 TOTAL)")
+            sectionTitle(L10n.text("attribution.data_sources"))
 
             VStack(spacing: 0) {
                 // Tier 1: Original Sources
                 APITerminalRow(
                     name: "NewsAPI.org",
-                    description: "Top headlines from worldwide publishers. 10,000+ sources aggregated.",
+                    description: L10n.text("attribution.newsapi.desc"),
                     urlString: "https://newsapi.org"
                 )
                 Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
                 APITerminalRow(
                     name: "The Guardian",
-                    description: "Global reporting across news, politics, culture, and more. Data provided by The Guardian Open Platform.",
+                    description: L10n.text("attribution.guardian.desc"),
                     urlString: "https://www.theguardian.com"
                 )
                 Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
                 APITerminalRow(
                     name: "The New York Times",
-                    description: "Reporting and analysis from The New York Times Article Search API.",
+                    description: L10n.text("attribution.nyt.desc"),
                     urlString: "https://www.nytimes.com"
                 )
                 
-                // Tier 2: New Sources
                 Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
                 APITerminalRow(
                     name: "GNews",
-                    description: "Google News aggregation. 10,000+ global news sources with real-time updates.",
+                    description: L10n.text("attribution.gnews.desc"),
                     urlString: "https://gnews.io"
                 )
                 Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
                 APITerminalRow(
                     name: "NewsData.io",
-                    description: "Comprehensive news aggregation from 10,000+ sources worldwide. Real-time breaking news coverage.",
+                    description: L10n.text("attribution.newsdata.desc"),
                     urlString: "https://newsdata.io"
                 )
                 Divider().overlay(AppPalette.dividerBorder).padding(.leading, 20)
                 APITerminalRow(
                     name: "HackerNews",
-                    description: "Tech and programming news curated by the global developer community. Free public API via Firebase.",
+                    description: L10n.text("attribution.hn.desc"),
                     urlString: "https://news.ycombinator.com"
                 )
             }
@@ -108,8 +107,8 @@ struct AttributionView: View {
 
     private var disclaimerSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("DISCLOSURE")
-            Text("NewsApto is an independent news aggregator and is not affiliated with the listed publishers. Article content belongs to the original publishers and is provided by third-party APIs under their own terms.")
+            sectionTitle(L10n.text("attribution.disclosure.section"))
+            Text(L10n.text("attribution.disclosure.text"))
                 .font(AppTypography.caption)
                 .foregroundColor(AppPalette.textSecondary.opacity(0.82))
                 .lineSpacing(4)
@@ -128,7 +127,7 @@ struct AttributionView: View {
     private var versionDisplay: String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
-        return "> VERSION \(version) (\(build))"
+        return String(format: L10n.text("attribution.version"), version, build)
     }
 }
 
@@ -165,7 +164,7 @@ private struct APITerminalRow: View {
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("> VISIT SOURCE")
+                Text(L10n.text("attribution.visit_source"))
                     .font(AppTypography.monoSmall)
                     .foregroundColor(AppPalette.accent)
             }

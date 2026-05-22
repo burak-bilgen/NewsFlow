@@ -6,12 +6,18 @@ import Foundation
 
 actor GNewsClient {
     private let apiKey: String
-    private let baseURL = URL(string: "https://gnews.io/api/v4")!
+    private let baseURL: URL
     private let session: URLSession
     
     init(apiKey: String = APIConfig.gnews.apiKey ?? "") {
+        guard let url = URL(string: "https://gnews.io/api/v4") else {
+            fatalError("Invalid GNews base URL")
+        }
+        self.baseURL = url
         self.apiKey = apiKey
-        self.session = URLSession.shared
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        self.session = URLSession(configuration: config)
     }
     
     func fetchTopHeadlines(
@@ -19,9 +25,11 @@ actor GNewsClient {
         max: Int = 20,
         page: Int = 1
     ) async throws -> [Article] {
-        var components = URLComponents(url: baseURL.appendingPathComponent("top-headlines"), resolvingAgainstBaseURL: false)!
+        guard var components = URLComponents(url: baseURL.appendingPathComponent("top-headlines"), resolvingAgainstBaseURL: false) else {
+            throw NewsAPIError.invalidURL
+        }
         
-        var queryItems: [URLQueryItem] = [
+        let queryItems: [URLQueryItem] = [
             URLQueryItem(name: "token", value: apiKey),
             URLQueryItem(name: "max", value: String(max)),
             URLQueryItem(name: "page", value: String(page)),
@@ -31,7 +39,11 @@ actor GNewsClient {
         
         components.queryItems = queryItems
         
-        let (data, response) = try await session.data(from: components.url!)
+        guard let requestURL = components.url else {
+            throw NewsAPIError.invalidURL
+        }
+        
+        let (data, response) = try await session.data(from: requestURL)
         
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
@@ -47,7 +59,9 @@ actor GNewsClient {
         max: Int = 20,
         page: Int = 1
     ) async throws -> [Article] {
-        var components = URLComponents(url: baseURL.appendingPathComponent("search"), resolvingAgainstBaseURL: false)!
+        guard var components = URLComponents(url: baseURL.appendingPathComponent("search"), resolvingAgainstBaseURL: false) else {
+            throw NewsAPIError.invalidURL
+        }
         
         components.queryItems = [
             URLQueryItem(name: "token", value: apiKey),
@@ -57,7 +71,11 @@ actor GNewsClient {
             URLQueryItem(name: "lang", value: "en")
         ]
         
-        let (data, response) = try await session.data(from: components.url!)
+        guard let requestURL = components.url else {
+            throw NewsAPIError.invalidURL
+        }
+        
+        let (data, response) = try await session.data(from: requestURL)
         
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
@@ -101,7 +119,7 @@ struct GNewsArticle: Codable {
         let publishedDate = parseDate(publishedAt)
         
         // Generate stable ID
-        let effectiveId = effectiveURL.isEmpty ? "gnews-\(abs(effectiveTitle.hashValue))" : effectiveURL.md5Hash
+        let effectiveId = effectiveURL.isEmpty ? "gnews-\(abs(effectiveTitle.hashValue % 1_000_000))" : effectiveURL.md5Hash
         
         // Clean and validate URLs
         let imageURL: URL? = {
@@ -160,7 +178,9 @@ struct GNewsArticle: Codable {
 
 private extension String {
     var md5Hash: String {
-        // Simple hash for demo - use CryptoKit in production
-        return self.data(using: .utf8)!.base64EncodedString().prefix(16).description
+        guard let data = self.data(using: .utf8) else {
+            return String(self.prefix(16))
+        }
+        return data.base64EncodedString().prefix(16).description
     }
 }

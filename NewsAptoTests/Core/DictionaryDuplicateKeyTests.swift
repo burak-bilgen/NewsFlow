@@ -70,7 +70,7 @@ final class DictionaryDuplicateKeyTests: XCTestCase {
             "events": "entertainment", "gossip": "entertainment", "travel": "entertainment",
             "food": "entertainment", "restaurant": "entertainment", "recipes": "entertainment",
             "tv-and-radio": "entertainment", "culture-culture": "entertainment",
-            "lifeandstyle": "entertainment", "entertainment-entertainment": "entertainment",
+            "entertainment-entertainment": "entertainment",
         ]
         
         // If we reach here, no duplicates exist

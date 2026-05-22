@@ -4,6 +4,7 @@ import SwiftUI
 struct ReadingListView: View {
     @StateObject private var viewModel: ReadingListViewModel
     @State private var selectedArticle: Article?
+    @State private var cursorVisible = true
 
     init(viewModel: ReadingListViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -19,7 +20,7 @@ struct ReadingListView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text("> READING.LIST")
+                Text(L10n.text("readinglist.title"))
                     .font(AppTypography.monoSmall)
                     .foregroundColor(AppPalette.accent)
             }
@@ -61,26 +62,28 @@ struct ReadingListView: View {
         VStack {
             Spacer()
             HStack(spacing: 6) {
-                Text("> LOADING")
+                Text(L10n.text("readinglist.loading"))
                     .font(AppTypography.monoSmall)
                     .foregroundColor(AppPalette.accent)
                 Text("_")
                     .font(AppTypography.monoSmall.weight(.bold))
                     .foregroundColor(AppPalette.accent)
-                    .opacity(0.6)
-                    .animation(AppAnimation.blink, value: true)
+                    .opacity(cursorVisible ? 1 : 0.3)
             }
             Spacer()
+        }
+        .onAppear {
+            withAnimation(AppAnimation.blink) { cursorVisible = false }
         }
     }
 
     private var emptyState: some View {
         VStack(spacing: 12) {
             Spacer()
-            Text("> EMPTY")
+            Text(L10n.text("readinglist.empty.title"))
                 .font(AppTypography.monoSmall)
                 .foregroundColor(AppPalette.textTertiary)
-            Text("No saved articles")
+            Text(L10n.text("readinglist.empty.message"))
                 .font(AppTypography.body)
                 .foregroundColor(AppPalette.textSecondary)
             Spacer()

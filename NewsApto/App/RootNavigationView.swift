@@ -14,5 +14,6 @@ struct RootNavigationView: View {
                 makeReadingListViewModel: { container.makeReadingListViewModel() }
             )
         }
+        .offlineAware()
     }
 }

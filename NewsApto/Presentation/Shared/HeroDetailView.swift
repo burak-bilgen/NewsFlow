@@ -38,9 +38,9 @@ struct HeroDetailView: View {
                             }
                             if let desc = article.description, !desc.isEmpty {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("> SUMMARY")
-                                        .font(AppTypography.monoSmall)
-                                        .foregroundColor(AppPalette.accent)
+                                Text(L10n.text("detail.summary"))
+                                    .font(AppTypography.monoSmall)
+                                    .foregroundColor(AppPalette.accent)
                                     Text(desc)
                                         .font(AppTypography.body)
                                         .foregroundColor(AppPalette.textSecondary)
@@ -53,7 +53,7 @@ struct HeroDetailView: View {
                                 VStack(alignment: .leading, spacing: 12) {
                                     Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5)
                                     
-                                    Text("> FULL ARTICLE")
+                                    Text(L10n.text("detail.full_article"))
                                         .font(AppTypography.monoSmall)
                                         .foregroundColor(AppPalette.accent)
                                     
@@ -76,7 +76,7 @@ struct HeroDetailView: View {
                                 Rectangle().fill(AppPalette.dividerBorder).frame(height: 0.5).padding(.vertical, 4)
                                 HStack {
                                     Button { showSafari = true } label: {
-                                        HStack { Text("> READ ORIGINAL").font(AppTypography.monoSmall).foregroundColor(.black) }
+                                        HStack { Text(L10n.text("detail.read_original")).font(AppTypography.monoSmall).foregroundColor(.black) }
                                             .padding(.horizontal, 16).padding(.vertical, 10).background(AppPalette.accent)
                                     }.buttonStyle(.plain)
                                     Spacer()
@@ -126,7 +126,7 @@ struct HeroDetailView: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(AppPalette.accent)
-                        Text("> SWIPE")
+                        Text(L10n.text("detail.swipe"))
                             .font(AppTypography.monoTiny)
                             .foregroundColor(AppPalette.accent)
                     }
@@ -161,6 +161,17 @@ struct HeroDetailView: View {
                             .frame(width: 44, height: 44)
                             .background(isSaved ? AppPalette.accent : AppPalette.background)
                             .overlay(Rectangle().stroke(AppPalette.accent, lineWidth: 1))
+                    }
+                    if let shareURL = article.url {
+                        ShareLink(item: shareURL) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(AppPalette.accent)
+                                .frame(width: 44, height: 44)
+                                .background(AppPalette.background)
+                                .overlay(Rectangle().stroke(AppPalette.accent, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 12).padding(.top, 56)

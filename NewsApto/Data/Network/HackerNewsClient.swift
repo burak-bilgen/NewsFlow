@@ -6,11 +6,17 @@ import Foundation
 // Docs: https://github.com/HackerNews/API
 
 actor HackerNewsClient {
-    private let baseURL = URL(string: "https://hacker-news.firebaseio.com/v0")!
+    private let baseURL: URL
     private let session: URLSession
     
     init() {
-        self.session = URLSession.shared
+        guard let url = URL(string: "https://hacker-news.firebaseio.com/v0") else {
+            fatalError("Invalid HackerNews base URL")
+        }
+        self.baseURL = url
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        self.session = URLSession(configuration: config)
     }
     
     // MARK: - Fetch Methods
@@ -31,15 +37,19 @@ actor HackerNewsClient {
     }
     
     func fetchStories(ids: [Int]) async throws -> [Article] {
-        try await withTaskGroup(of: Article?.self) { group in
+        try await withThrowingTaskGroup(of: Article?.self) { group in
+            var articles: [Article] = []
             for id in ids {
                 group.addTask {
                     try? await self.fetchStory(id: id)
                 }
+                if articles.count > 5 {
+                    if let article = try await group.next() as? Article {
+                        articles.append(article)
+                    }
+                }
             }
-            
-            var articles: [Article] = []
-            for await article in group {
+            for try await article in group {
                 if let article = article {
                     articles.append(article)
                 }

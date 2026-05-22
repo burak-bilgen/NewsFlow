@@ -79,25 +79,6 @@ final class DelayedArticlesRepositorySpy: ArticlesRepositoryProtocol {
     }
 }
 
-// MARK: - Delayed Sources Repository
-
-final class DelayedSourcesRepositorySpy: SourcesRepositoryProtocol {
-    var result: Result<[NewsSource], Error>
-    var delayNanoseconds: UInt64
-    private(set) var requestCount = 0
-
-    init(result: Result<[NewsSource], Error>, delayNanoseconds: UInt64 = 100_000_000) {
-        self.result = result
-        self.delayNanoseconds = delayNanoseconds
-    }
-
-    func fetchSources() async throws -> [NewsSource] {
-        requestCount += 1
-        try await Task.sleep(nanoseconds: delayNanoseconds)
-        return try result.get()
-    }
-}
-
 // MARK: - Throwing On Specific Page Repository
 
 final class ThrowingOnPageArticlesRepositorySpy: ArticlesRepositoryProtocol {
@@ -148,5 +129,37 @@ final class StubNewsAPIClient: NewsAPIClientProtocol {
             return response
         }
         throw NewsAPIError.network
+    }
+}
+
+// MARK: - Mock URLSession
+
+actor MockURLSession: URLSessionProtocol {
+    var result: Result<(Data, URLResponse), Error>
+
+    init(result: Result<(Data, URLResponse), Error>) {
+        self.result = result
+    }
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        try result.get()
+    }
+}
+
+// MARK: - Stub Clients
+
+struct StubGuardianClient: GuardianClientProtocol {
+    let result: Result<[Article], Error>
+
+    func search(query: String?, page: Int, pageSize: Int, section: String?) async throws -> [Article] {
+        try result.get()
+    }
+}
+
+struct StubNYTClient: NYTClientProtocol {
+    let result: Result<NYTSearchResult, Error>
+
+    func search(query: String?, page: Int, section: String?) async throws -> NYTSearchResult {
+        try result.get()
     }
 }

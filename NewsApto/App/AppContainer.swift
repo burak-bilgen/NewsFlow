@@ -27,7 +27,10 @@ final class AppContainer: ObservableObject {
             let aggregator = NewsAggregatorService(
                 newsAPIRepository: mockArticlesRepo,
                 guardianClient: MockGuardianClient(),
-                nytClient: MockNYTClient()
+                nytClient: MockNYTClient(),
+                gnewsClient: nil,
+                newsDataClient: nil,
+                hackerNewsClient: nil
             )
             return AppContainer(
                 readingListUseCase: readingListUseCase,
@@ -58,7 +61,10 @@ final class AppContainer: ObservableObject {
         let aggregator = NewsAggregatorService(
             newsAPIRepository: cachedNewsAPIArticles,
             guardianClient: guardianClient,
-            nytClient: nytClient
+            nytClient: nytClient,
+            gnewsClient: GNewsClient(),
+            newsDataClient: NewsDataClient(),
+            hackerNewsClient: HackerNewsClient()
         )
 
         return AppContainer(

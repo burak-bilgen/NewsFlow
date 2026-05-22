@@ -60,19 +60,50 @@ struct FeedView: View {
         case .loading: MatrixCodeRainView().transition(.opacity)
         case .ready: magazineContent.transition(.opacity).glitchReveal()
         case .empty: emptyState.transition(.opacity)
+        case .error(let message): errorState(message).transition(.opacity)
         }
     }
 
     private var emptyState: some View {
         VStack(spacing: 12) {
             Spacer()
-            Text("> NO.DATA")
+            Text(L10n.text("feed.empty.title"))
                 .font(AppTypography.monoSmall)
                 .foregroundColor(AppPalette.textTertiary)
-            Text("No articles match your filter.")
+            Text(L10n.text("feed.empty.message"))
                 .font(AppTypography.body)
                 .foregroundColor(AppPalette.textSecondary)
                 .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
+    private func errorState(_ message: String) -> some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "wifi.slash")
+                .font(.system(size: 36))
+                .foregroundColor(AppPalette.error)
+            Text(L10n.text("feed.error.title"))
+                .font(AppTypography.monoSmall)
+                .foregroundColor(AppPalette.error)
+            Text(message)
+                .font(AppTypography.body)
+                .foregroundColor(AppPalette.textSecondary)
+                .multilineTextAlignment(.center)
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                Task { await viewModel.pullToRefresh() }
+            } label: {
+                Text(L10n.text("state.retry"))
+                    .font(AppTypography.monoSmall)
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(AppPalette.accent)
+            }
+            .buttonStyle(.plain)
             Spacer()
         }
         .padding(.horizontal, 32)
@@ -117,40 +148,30 @@ struct FeedView: View {
                 let filterHash = viewModel.searchQuery
 
                 Group {
-                    // Find first article with image for hero banner (skip HackerNews and image-less articles)
-                    let heroArticle = feedArticles.first { $0.imageURL != nil && $0.apiSource != .hackernews }
-                    let remainingArticles = if let hero = heroArticle {
-                        feedArticles.filter { $0.id != hero.id }
-                    } else {
-                        feedArticles
-                    }
-                    
-                    if let article = heroArticle {
-                        VStack(alignment: .leading, spacing: 0) {
+                    let hero = feedArticles.first { $0.imageURL != nil } ?? feedArticles.first
+                    let rest = feedArticles.filter { article in hero.map { $0.id != article.id } ?? true }
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        if let heroArticle = hero {
                             HeroCardView(
-                                article: article,
-                                onSelect: { selectedArticle = article },
-                                onToggle: { Task { await viewModel.toggleReadingList(for: article) } },
-                                isSaved: viewModel.isSaved(article)
+                                article: heroArticle,
+                                onSelect: { selectedArticle = heroArticle },
+                                onToggle: { Task { await viewModel.toggleReadingList(for: heroArticle) } },
+                                isSaved: viewModel.isSaved(heroArticle)
                             )
+                        }
 
-                            let featuredArticles = Array(remainingArticles.prefix(4))
-                            let latestArticles = Array(remainingArticles.dropFirst(5))
-
-                            if !featuredArticles.isEmpty {
-                                featuredGrid(featuredArticles)
-                            }
-
-                            if !latestArticles.isEmpty {
-                                latestSection(latestArticles)
-                            }
-
-                            if viewModel.hasMorePages {
-                                loadMoreFooter
+                        if !rest.isEmpty {
+                            featuredGrid(Array(rest.prefix(4)))
+                            let latest = Array(rest.dropFirst(4))
+                            if !latest.isEmpty {
+                                latestSection(latest)
                             }
                         }
-                    } else if viewModel.state == .ready {
-                        categoryEmptyState
+
+                        if viewModel.hasMorePages {
+                            loadMoreFooter
+                        }
                     }
                 }
                 .matrixEmission(trigger: filterHash)
@@ -163,7 +184,7 @@ struct FeedView: View {
         Group {
             if !articles.isEmpty {
                 VStack(alignment: .leading, spacing: 0) {
-                    sectionHeader("Editor's Picks")
+                    sectionHeader(L10n.text("feed.editors_picks"))
 
                     LazyVGrid(
                         columns: [
@@ -193,7 +214,7 @@ struct FeedView: View {
         Group {
             if !articles.isEmpty {
                 VStack(alignment: .leading, spacing: 0) {
-                    sectionHeader("Latest")
+                    sectionHeader(L10n.text("feed.latest"))
 
                     LazyVStack(spacing: 0) {
                         ForEach(Array(articles.enumerated()), id: \.offset) { i, article in
@@ -231,7 +252,7 @@ struct FeedView: View {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     Task { await viewModel.loadMore() }
                 } label: {
-                    Text("> LOAD.MORE")
+                    Text(L10n.text("feed.load_more"))
                         .font(AppTypography.monoSmall)
                         .foregroundColor(AppPalette.accent)
                         .frame(maxWidth: .infinity)
@@ -240,27 +261,6 @@ struct FeedView: View {
                 .buttonStyle(.plain)
             }
         }
-    }
-
-    private var categoryEmptyState: some View {
-        VStack(spacing: 12) {
-            Spacer().frame(height: 40)
-
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 32))
-                .foregroundColor(AppPalette.textTertiary)
-
-            Text("> CATEGORY: EMPTY")
-                .font(AppTypography.monoSmall)
-                .foregroundColor(AppPalette.textTertiary)
-
-            Text("No articles match your search.")
-                .font(AppTypography.caption)
-                .foregroundColor(AppPalette.textSecondary)
-
-            Spacer().frame(height: 40)
-        }
-        .frame(maxWidth: .infinity)
     }
 
     private func sectionHeader(_ title: String) -> some View {

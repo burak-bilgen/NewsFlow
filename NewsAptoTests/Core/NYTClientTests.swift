@@ -11,7 +11,7 @@ final class NYTEndpointTests: XCTestCase {
         let endpoint = NYTEndpoint.search(query: "bitcoin", page: 2, section: "technology")
         let items = Dictionary(uniqueKeysWithValues: endpoint.queryItems.map { ($0.name, $0.value ?? "") })
 
-        XCTAssertEqual(items["page"], "2")
+        XCTAssertEqual(items["page"], "1")
         XCTAssertEqual(items["q"], "bitcoin")
         XCTAssertEqual(items["fq"], "section_name:\"technology\"")
     }

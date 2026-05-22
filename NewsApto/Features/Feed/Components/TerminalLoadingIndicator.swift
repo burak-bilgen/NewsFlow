@@ -3,6 +3,7 @@ import SwiftUI
 struct TerminalLoadingIndicator: View {
     @State private var cursorVisible = true
     @State private var dotCount = 0
+    @State private var timer: Timer?
 
     private var dots: String {
         String(repeating: ".", count: dotCount % 4)
@@ -10,7 +11,7 @@ struct TerminalLoadingIndicator: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text("> LOADING\(dots)")
+            Text("\(L10n.text("loading.text"))\(dots)")
                 .font(AppTypography.monoSmall)
                 .foregroundColor(AppPalette.accent)
 
@@ -20,9 +21,15 @@ struct TerminalLoadingIndicator: View {
         }
         .onAppear {
             withAnimation(AppAnimation.blink) { cursorVisible = false }
-            Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
+            let t = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
                 dotCount += 1
             }
+            timer = t
+            RunLoop.current.add(t, forMode: .common)
+        }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
         }
     }
 }

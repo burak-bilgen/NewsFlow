@@ -53,7 +53,7 @@ final class FeedViewModel: ObservableObject {
         searchResults = []
     }
     enum State: Equatable {
-        case idle, loading, ready, empty
+        case idle, loading, ready, empty, error(String)
     }
 
     @Published private(set) var state: State = .idle
@@ -65,6 +65,7 @@ final class FeedViewModel: ObservableObject {
     @Published var searchQuery: String = ""
     @Published private(set) var searchResults: [ArticleSearchService.SearchResult] = []
     @Published private(set) var isSearching = false
+    @Published private(set) var errorMessage: String?
     
     var filteredArticles: [Article] {
         let query = searchQuery.trimmingCharacters(in: .whitespaces)
@@ -124,22 +125,26 @@ final class FeedViewModel: ObservableObject {
     }
 
     private func fetch() async {
-        let result = await aggregator.fetchFeed(page: currentPage, pageSize: pageSize)
-        async let savedIDs = readingListUseCase.savedArticleIDs()
-        
-        // Apply advanced scoring with duplicate detection
-        let scorer = EnhancedArticleScorer()
-        let scoredArticles = await scorer.scoreAndEnrichWithDuplicates(result.articles)
-        
-        if currentPage > 1 {
-            appendUnique(scoredArticles)
-        } else {
-            articles = scoredArticles
-            if currentPage == 1 { Task { await SentinelNotificationService.shared.evaluateAndNotify(articles: scoredArticles) } }
+        do {
+            let result = await aggregator.fetchFeed(page: currentPage, pageSize: pageSize)
+            async let savedIDs = readingListUseCase.savedArticleIDs()
+            
+            // Apply advanced scoring with duplicate detection
+            let scorer = EnhancedArticleScorer()
+            let scoredArticles = await scorer.scoreAndEnrichWithDuplicates(result.articles)
+            
+            if currentPage > 1 {
+                appendUnique(scoredArticles)
+            } else {
+                articles = scoredArticles
+                if currentPage == 1 { Task { await SentinelNotificationService.shared.evaluateAndNotify(articles: scoredArticles) } }
+            }
+            hasMorePages = result.articles.count >= pageSize
+            savedArticleIDs = await savedIDs
+            state = articles.isEmpty ? .empty : .ready
+        } catch {
+            state = .error(error.localizedDescription)
         }
-        hasMorePages = result.articles.count >= pageSize
-        savedArticleIDs = await savedIDs
-        state = articles.isEmpty ? .empty : .ready
     }
 
     private func appendUnique(_ newArticles: [Article]) {

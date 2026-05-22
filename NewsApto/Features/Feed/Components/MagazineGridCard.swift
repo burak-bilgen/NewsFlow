@@ -32,7 +32,7 @@ struct MagazineGridCard: View {
                         Spacer()
                         
                         if let score = article.qualityScore {
-                            Text("\(Int(score))pt")
+                            Text(String(format: L10n.text("quality.score"), Int(score)))
                                 .font(AppTypography.monoTiny)
                                 .foregroundColor(AppPalette.accent.opacity(0.7))
                         }

@@ -24,5 +24,5 @@ jobs:
           xcodebuild build test \
             -project NewsApto.xcodeproj \
             -scheme NewsApto \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
             CODE_SIGNING_ALLOWED=NO

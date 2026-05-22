@@ -19,7 +19,7 @@ struct FeedHeaderView: View {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     onReadingListTap()
                 } label: {
-                    HomeHeaderIcon(systemName: "bookmark", accessibilityLabel: "Reading list")
+                    HomeHeaderIcon(systemName: "bookmark", accessibilityLabel: L10n.text("accessibility.reading_list"))
                 }
                 .buttonStyle(HomeHeaderButtonStyle())
 
@@ -27,7 +27,7 @@ struct FeedHeaderView: View {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     onAttributionTap()
                 } label: {
-                    HomeHeaderIcon(systemName: "info", accessibilityLabel: "About")
+                    HomeHeaderIcon(systemName: "info", accessibilityLabel: L10n.text("accessibility.about"))
                 }
                 .buttonStyle(HomeHeaderButtonStyle())
             }

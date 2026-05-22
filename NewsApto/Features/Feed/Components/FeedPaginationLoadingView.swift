@@ -4,6 +4,7 @@ struct FeedPaginationLoadingView: View {
     @State private var cursorVisible = true
     @State private var dotCount = 0
     @State private var lineOffset: CGFloat = 0
+    @State private var timer: Timer?
 
     private var dots: String {
         String(repeating: ".", count: dotCount % 4)
@@ -11,7 +12,6 @@ struct FeedPaginationLoadingView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // Animated code lines effect
             HStack(spacing: 4) {
                 ForEach(0..<5) { index in
                     Rectangle()
@@ -29,9 +29,8 @@ struct FeedPaginationLoadingView: View {
             .frame(height: 20)
             .clipShape(Rectangle())
 
-            // Terminal text with blinking cursor
             HStack(spacing: 6) {
-                Text("> LOADING.MORE\(dots)")
+                Text("\(L10n.text("loading.more"))\(dots)")
                     .font(AppTypography.monoSmall)
                     .foregroundColor(AppPalette.accent)
 
@@ -40,7 +39,6 @@ struct FeedPaginationLoadingView: View {
                     .foregroundColor(cursorVisible ? AppPalette.accent : .clear)
             }
 
-            // Progress bar
             ZStack(alignment: .leading) {
                 Rectangle()
                     .fill(AppPalette.surfaceElevated)
@@ -67,12 +65,18 @@ struct FeedPaginationLoadingView: View {
             withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
                 cursorVisible = false
             }
-            Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
+            let t = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
                 dotCount += 1
             }
+            timer = t
+            RunLoop.current.add(t, forMode: .common)
             withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: true)) {
                 lineOffset = 8
             }
+        }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
         }
     }
 }

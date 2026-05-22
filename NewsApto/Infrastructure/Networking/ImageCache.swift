@@ -18,7 +18,10 @@ actor ImageCache {
     init(configuration: Configuration = Configuration()) {
         self.configuration = configuration
         let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        self.diskCacheURL = caches[0].appendingPathComponent("NewsAptoImageCache", isDirectory: true)
+        guard let cacheDir = caches.first else {
+            fatalError("Caches directory not available")
+        }
+        self.diskCacheURL = cacheDir.appendingPathComponent("NewsAptoImageCache", isDirectory: true)
         try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
         memoryCache.totalCostLimit = configuration.memoryCostLimitMB * 1024 * 1024
     }
@@ -37,11 +40,12 @@ actor ImageCache {
             do {
                 let (data, response) = try await URLSession.shared.data(from: url)
                 guard let httpResponse = response as? HTTPURLResponse,
-                      (200...299).contains(httpResponse.statusCode),
-                      let image = UIImage(data: data) else { return nil }
+                      (200...299).contains(httpResponse.statusCode) else { return nil }
 
-                let finalImage = downsample(image: image, to: targetSize ?? configuration.defaultTargetSize)
-                store(image: finalImage, data: data, key: key)
+                let finalImage = downsample(data: data, to: targetSize ?? configuration.defaultTargetSize)
+                if let image = finalImage {
+                    store(image: image, data: data, key: key)
+                }
                 return finalImage
             } catch { return nil }
         }
@@ -109,11 +113,8 @@ actor ImageCache {
         return image
     }
 
-    private func downsample(image: UIImage, to targetSize: CGSize) -> UIImage {
-        guard let data = image.jpegData(compressionQuality: 0.9),
-              let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-            return image
-        }
+    func downsample(data: Data, to targetSize: CGSize) -> UIImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
 
         let maxDimension = max(targetSize.width, targetSize.height) * UIScreen.main.scale
         let options: [CFString: Any] = [
@@ -124,7 +125,7 @@ actor ImageCache {
         ]
 
         guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return image
+            return UIImage(data: data)
         }
 
         return UIImage(cgImage: cgImage)

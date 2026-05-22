@@ -2,7 +2,7 @@
 
 # Override when your local simulator name differs, for example:
 # make test DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
-DESTINATION ?= platform=iOS Simulator,name=iPhone 16 Pro
+DESTINATION ?= platform=iOS Simulator,name=iPhone 17 Pro Max
 BUILD_DESTINATION ?= generic/platform=iOS Simulator
 
 help: ## Show this help

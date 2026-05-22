@@ -28,14 +28,14 @@ struct SplashView: View {
                     .foregroundColor(AppPalette.textPrimary)
                     .opacity(textOpacity)
 
-                Text("Smart. Adaptive. Personal.")
+                Text(L10n.text("splash.tagline"))
                     .font(AppTypography.splashSubtitle)
                     .foregroundColor(AppPalette.accent)
                     .opacity(taglineOpacity)
 
                 Spacer()
 
-                Text("6 Sources: NewsAPI · Guardian · NYT · GNews · NewsData · HN")
+                Text(L10n.text("splash.sources"))
                     .font(AppTypography.monoTiny)
                     .foregroundColor(AppPalette.textTertiary)
                     .opacity(taglineOpacity)

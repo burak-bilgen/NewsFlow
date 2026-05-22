@@ -4,11 +4,11 @@ actor ReadArticlesTracker {
     static let shared = ReadArticlesTracker()
     private let defaults = UserDefaults.standard
     private let storageKey = "readArticles"
+    private var cachedIDs: Set<String>
 
-    /// In-memory cache, populated lazily from UserDefaults
-    private lazy var cachedIDs: Set<String> = {
-        Set(defaults.stringArray(forKey: storageKey) ?? [])
-    }()
+    init() {
+        self.cachedIDs = Set(defaults.stringArray(forKey: storageKey) ?? [])
+    }
 
     func markAsRead(_ articleID: String) {
         cachedIDs.insert(articleID)

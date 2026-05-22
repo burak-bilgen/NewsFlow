@@ -52,11 +52,15 @@
 		};
 		675760802FA8DE1C003F06BE /* NewsAptoTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NewsAptoTests;
 			sourceTree = "<group>";
 		};
 		6757608A2FA8DE1C003F06BE /* NewsAptoUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NewsAptoUITests;
 			sourceTree = "<group>";
 		};
@@ -145,8 +149,6 @@
 				6757606D2FA8DE1B003F06BE /* NewsApto */,
 			);
 			name = NewsApto;
-			packageProductDependencies = (
-			);
 			productName = NewsApto;
 			productReference = 6757606B2FA8DE1B003F06BE /* NewsApto.app */;
 			productType = "com.apple.product-type.application";
@@ -167,8 +169,6 @@
 				675760802FA8DE1C003F06BE /* NewsAptoTests */,
 			);
 			name = NewsAptoTests;
-			packageProductDependencies = (
-			);
 			productName = NewsAptoTests;
 			productReference = 6757607D2FA8DE1C003F06BE /* NewsAptoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -189,8 +189,6 @@
 				6757608A2FA8DE1C003F06BE /* NewsAptoUITests */,
 			);
 			name = NewsAptoUITests;
-			packageProductDependencies = (
-			);
 			productName = NewsAptoUITests;
 			productReference = 675760872FA8DE1C003F06BE /* NewsAptoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -228,8 +226,6 @@
 			);
 			mainGroup = 675760622FA8DE1B003F06BE;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6757606C2FA8DE1B003F06BE /* Products */;
 			projectDirPath = "";

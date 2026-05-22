@@ -1,22 +1,6 @@
 import Foundation
 @testable import NewsApto
 
-// MARK: - Sources Repository Spy
-
-final class SourcesRepositorySpy: SourcesRepositoryProtocol {
-    var result: Result<[NewsSource], Error>
-    private(set) var requestCount = 0
-
-    init(result: Result<[NewsSource], Error>) {
-        self.result = result
-    }
-
-    func fetchSources() async throws -> [NewsSource] {
-        requestCount += 1
-        return try result.get()
-    }
-}
-
 // MARK: - Articles Repository Spy
 
 final class ArticlesRepositorySpy: ArticlesRepositoryProtocol {
@@ -113,15 +97,6 @@ actor InMemoryReadingListRepositorySpy: ReadingListRepositoryProtocol {
 // MARK: - Test Factory
 
 enum TestFactory {
-    static let source = NewsSource(
-        id: "bbc-news",
-        name: "BBC News",
-        description: "News source",
-        category: "general",
-        language: "en",
-        url: "https://www.bbc.co.uk/news"
-    )
-
     static func article(id: String, title: String, publishedAt: Date?) -> Article {
         Article(
             id: id,

@@ -33,7 +33,7 @@ struct MagazineListCard: View {
                     
                     // Quality score indicator
                     if let score = article.qualityScore {
-                        Text("Score: \(Int(score))")
+                        Text(String(format: L10n.text("score.label"), Int(score)))
                             .font(AppTypography.monoTiny)
                             .foregroundColor(AppPalette.accent.opacity(0.8))
                             .padding(.top, 2)

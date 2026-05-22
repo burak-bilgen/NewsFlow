@@ -7,13 +7,19 @@ import Foundation
 
 actor NewsDataClient {
     private let apiKey: String
-    private let baseURL = URL(string: "https://newsdata.io/api/1")!
+    private let baseURL: URL
     private let session: URLSession
     private var nextPageToken: String?
     
     init(apiKey: String = APIConfig.newsdata.apiKey ?? "") {
+        guard let url = URL(string: "https://newsdata.io/api/1") else {
+            fatalError("Invalid NewsData base URL")
+        }
+        self.baseURL = url
         self.apiKey = apiKey
-        self.session = URLSession.shared
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        self.session = URLSession(configuration: config)
     }
     
     func fetchLatestNews(
@@ -21,7 +27,9 @@ actor NewsDataClient {
         category: String? = nil,
         page: String? = nil
     ) async throws -> NewsDataResult {
-        var components = URLComponents(url: baseURL.appendingPathComponent("news"), resolvingAgainstBaseURL: false)!
+        guard var components = URLComponents(url: baseURL.appendingPathComponent("news"), resolvingAgainstBaseURL: false) else {
+            throw NewsAPIError.invalidURL
+        }
         
         var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "apikey", value: apiKey),
@@ -42,7 +50,11 @@ actor NewsDataClient {
         
         components.queryItems = queryItems
         
-        let (data, response) = try await session.data(from: components.url!)
+        guard let requestURL = components.url else {
+            throw NewsAPIError.invalidURL
+        }
+        
+        let (data, response) = try await session.data(from: requestURL)
         
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
@@ -167,7 +179,7 @@ struct NewsDataArticle: Codable {
     private func generateFallbackId(title: String, source: String, date: String?) -> String {
         let dateStr = date?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "nodate"
         let base = "\(title)_\(source)_\(dateStr)"
-        let hash = abs(base.hashValue)
+        let hash = abs(base.hashValue % 1_000_000)
         return "newsdata-\(String(hash))"
     }
 }

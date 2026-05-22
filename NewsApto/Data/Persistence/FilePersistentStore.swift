@@ -17,7 +17,10 @@ actor FilePersistentStore: PersistentStore {
             self.baseURL = baseURL
         } else {
             let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-            self.baseURL = urls[0].appendingPathComponent("NewsAptoCache", isDirectory: true)
+            guard let cacheDir = urls.first else {
+                throw NewsAPIError.invalidURL
+            }
+            self.baseURL = cacheDir.appendingPathComponent("NewsAptoCache", isDirectory: true)
         }
         try fileManager.createDirectory(at: self.baseURL, withIntermediateDirectories: true)
     }

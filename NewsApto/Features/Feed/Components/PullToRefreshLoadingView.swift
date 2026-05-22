@@ -7,7 +7,6 @@ struct PullToRefreshLoadingView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // Matrix-style code rain effect
             HStack(spacing: 6) {
                 ForEach(0..<7) { index in
                     VStack(spacing: 3) {
@@ -24,7 +23,6 @@ struct PullToRefreshLoadingView: View {
             .frame(height: 30)
             .clipShape(Rectangle())
 
-            // Rotating bracket indicator
             HStack(spacing: 12) {
                 Text("[")
                     .font(.system(size: 24, weight: .bold, design: .monospaced))
@@ -32,12 +30,12 @@ struct PullToRefreshLoadingView: View {
                     .rotationEffect(.degrees(rotation))
 
                 VStack(spacing: 4) {
-                    Text("REFRESHING")
+                    Text(L10n.text("refreshing.text"))
                         .font(AppTypography.monoSmall)
                         .foregroundColor(AppPalette.accent)
 
                     HStack(spacing: 2) {
-                        Text("SYSTEM")
+                        Text(L10n.text("refreshing.system"))
                             .font(AppTypography.monoTiny)
                             .foregroundColor(AppPalette.textSecondary)
                         Text("_")
@@ -52,7 +50,6 @@ struct PullToRefreshLoadingView: View {
                     .rotationEffect(.degrees(-rotation))
             }
 
-            // Progress lines
             HStack(spacing: 4) {
                 ForEach(0..<8) { index in
                     Rectangle()
@@ -82,6 +79,13 @@ struct PullToRefreshLoadingView: View {
             }
             withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
                 rotation = 360
+            }
+        }
+        .onDisappear {
+            withAnimation(nil) {
+                cursorVisible = true
+                lineOffset = 0
+                rotation = 0
             }
         }
     }

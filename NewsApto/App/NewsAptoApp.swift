@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 @main
 struct NewsAptoApp: App {
@@ -7,7 +8,13 @@ struct NewsAptoApp: App {
     @State private var showSplash = true
 
     init() {
-        Task { await SentinelNotificationService.shared.requestAuthorization() }
+        Task {
+            let center = UNUserNotificationCenter.current()
+            let settings = await center.notificationSettings()
+            if settings.authorizationStatus == .notDetermined {
+                _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            }
+        }
     }
 
     var body: some Scene {

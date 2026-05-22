@@ -7,7 +7,10 @@ struct HeroCardView: View {
     let isSaved: Bool
 
     var body: some View {
-        Button { onSelect() } label: {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            onSelect()
+        } label: {
             ZStack(alignment: .bottomLeading) {
                 // Image section with Matrix loading/placeholder
                 ArticleImageView(url: article.imageURL)
@@ -50,7 +53,7 @@ struct HeroCardView: View {
                     // Quality score indicator
                     if let score = article.qualityScore {
                         HStack(spacing: 4) {
-                            Text("> QUALITY: \(Int(score))/100")
+                            Text(String(format: L10n.text("detail.quality"), Int(score)))
                                 .font(AppTypography.monoTiny)
                                 .foregroundColor(AppPalette.accent.opacity(0.9))
                         }
@@ -61,11 +64,6 @@ struct HeroCardView: View {
         }
         .buttonStyle(.plain)
         .contentShape(Rectangle())
-        .simultaneousGesture(
-            TapGesture().onEnded {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            }
-        )
     }
 }
 
