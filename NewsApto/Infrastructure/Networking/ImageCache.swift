@@ -12,6 +12,7 @@ actor ImageCache {
     private let memoryCache = NSCache<NSString, MemoryCacheEntry>()
     private let fileManager = FileManager.default
     private let diskCacheURL: URL
+    private let screenScale: CGFloat = 3.0
     private var configuration: Configuration
     private var activeTasks: [String: Task<UIImage?, Never>] = [:]
 
@@ -116,7 +117,7 @@ actor ImageCache {
     func downsample(data: Data, to targetSize: CGSize) -> UIImage? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
 
-        let maxDimension = max(targetSize.width, targetSize.height) * UIScreen.main.scale
+        let maxDimension = max(targetSize.width, targetSize.height) * screenScale
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceShouldCacheImmediately: true,

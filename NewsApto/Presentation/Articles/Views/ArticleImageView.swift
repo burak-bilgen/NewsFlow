@@ -164,7 +164,7 @@ private struct MatrixRainPattern: View {
                     let chars = ["0", "1", "│", "║", "▌", "▐"]
                     let char = chars.randomElement()!
                     
-                    var text = Text(char)
+                    let text = Text(char)
                         .font(.system(size: 8, weight: .medium, design: .monospaced))
                         .foregroundColor(AppPalette.accent.opacity(opacity))
                     
