@@ -13,13 +13,6 @@ enum ArticleDateFormatter {
         return formatter
     }()
 
-    static let displayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-
     static func parse(_ value: String?) -> Date? {
         guard let value else { return nil }
         return isoFormatter.date(from: value) ?? isoFormatterWithoutFractions.date(from: value)
@@ -27,6 +20,9 @@ enum ArticleDateFormatter {
 
     static func displayString(from date: Date?) -> String {
         guard let date else { return L10n.text("article.date.unknown") }
-        return displayFormatter.string(from: date)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }

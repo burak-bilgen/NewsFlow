@@ -12,7 +12,7 @@ struct MatrixCodeRainView: View {
         ZStack {
             AppPalette.background.ignoresSafeArea()
 
-            TimelineView(.animation(minimumInterval: 0.05)) { timeline in
+            TimelineView(.animation(minimumInterval: 0.1)) { timeline in
                 Canvas { context, size in
                     let colW = size.width / CGFloat(columns)
                     let rowH = size.height / CGFloat(rows)

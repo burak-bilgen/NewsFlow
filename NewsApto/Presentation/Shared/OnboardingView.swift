@@ -18,8 +18,8 @@ struct OnboardingView: View {
                 Button {
                     withAnimation { if currentPage < 2 { currentPage += 1 } else { onComplete() } }
                 } label: {
-                    Text(currentPage < 2 ? "> NEXT" : "> GET STARTED")
-                        .font(AppTypography.monoSmall).foregroundColor(.black)
+                Text(currentPage < 2 ? L10n.text("onboarding.next") : L10n.text("onboarding.get_started"))
+                    .font(AppTypography.monoSmall).foregroundColor(.black)
                         .frame(maxWidth: .infinity).frame(height: 50).background(AppPalette.accent)
                         .padding(.horizontal, 32)
                 }

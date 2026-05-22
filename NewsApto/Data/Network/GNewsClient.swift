@@ -10,10 +10,7 @@ actor GNewsClient {
     private let session: URLSession
     
     init(apiKey: String = APIConfig.gnews.apiKey ?? "") {
-        guard let url = URL(string: "https://gnews.io/api/v4") else {
-            fatalError("Invalid GNews base URL")
-        }
-        self.baseURL = url
+        self.baseURL = URL(string: "https://gnews.io/api/v4")!
         self.apiKey = apiKey
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
@@ -146,32 +143,29 @@ struct GNewsArticle: Codable {
         )
     }
     
-    private func parseDate(_ dateString: String?) -> Date? {
-        guard let dateString = dateString?.trimmingCharacters(in: .whitespacesAndNewlines) else { return nil }
-        
-        // Try ISO8601 first
-        if let date = ISO8601DateFormatter().date(from: dateString) {
-            return date
-        }
-        
-        // Try common formats
-        let formatters = [
+    private static let iso8601Formatter = ISO8601DateFormatter()
+    private static let dateFormatters: [DateFormatter] = {
+        let formats = [
             "yyyy-MM-dd'T'HH:mm:ss'Z'",
             "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd"
         ]
-        
-        for format in formatters {
-            let formatter = DateFormatter()
-            formatter.dateFormat = format
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.timeZone = TimeZone(secondsFromGMT: 0)
-            if let date = formatter.date(from: dateString) {
-                return date
-            }
+        return formats.map { format in
+            let f = DateFormatter()
+            f.dateFormat = format
+            f.locale = Locale(identifier: "en_US_POSIX")
+            f.timeZone = TimeZone(secondsFromGMT: 0)
+            return f
         }
-        
+    }()
+
+    private func parseDate(_ dateString: String?) -> Date? {
+        guard let dateString = dateString?.trimmingCharacters(in: .whitespacesAndNewlines) else { return nil }
+        if let date = Self.iso8601Formatter.date(from: dateString) { return date }
+        for formatter in Self.dateFormatters {
+            if let date = formatter.date(from: dateString) { return date }
+        }
         return nil
     }
 }

@@ -75,7 +75,6 @@ actor NewsAggregatorService: NewsAggregating {
             newsResult, guardianArticles, nytResult, gnewsArticles, newsDataResult, hnArticles
         )
         
-        // Collect ALL articles from all sources - NO FILTERING
         var allArticles: [Article] = []
         allArticles.append(contentsOf: newsRes?.items ?? [])
         allArticles.append(contentsOf: guardianRes ?? [])
@@ -84,15 +83,14 @@ actor NewsAggregatorService: NewsAggregating {
         allArticles.append(contentsOf: newsDataRes?.articles ?? [])
         allArticles.append(contentsOf: hnRes ?? [])
         
-        // Score articles
-        allArticles = await enhancedScorer.scoreAndEnrich(allArticles)
+        let activeSources = [newsRes, guardianRes, nytRes, gnewsRes, newsDataRes, hnRes].compactMap { $0 }.count
         
-        // Apply topic diversity: max 2 articles per topic to prevent feed flooding
+        allArticles = await enhancedScorer.scoreAndEnrich(allArticles)
         let diverseArticles = await topicDiversity.ensureDiversity(in: allArticles, maxPerTopic: 2)
         
         return AggregatedResult(
             articles: diverseArticles,
-            sourceCount: 6
+            sourceCount: activeSources
         )
     }
     
@@ -136,7 +134,8 @@ actor NewsAggregatorService: NewsAggregating {
     private func fetchNewsData(page: Int) async -> NewsDataClient.NewsDataResult? {
         guard let client = newsDataClient else { return nil }
         do {
-            return try await client.fetchLatestNews(page: page > 1 ? String(page) : nil)
+            let pageParam = page > 1 ? String(page) : nil
+            return try await client.fetchLatestNews(page: pageParam)
         } catch {
             NewsAptoLogger.shared.error("NewsData fetch failed: \(error)", category: "Network")
             return nil

@@ -396,12 +396,6 @@ actor EnhancedArticleScorer {
         return Set(words)
     }
     
-    /// Estimates reading time in minutes
-    func estimateReadingTime(_ article: Article) -> Int {
-        let text = (article.title + " " + (article.description ?? "") + " " + (article.contentSnippet ?? ""))
-        let wordCount = text.split(separator: " ").count
-        return max(1, wordCount / 200) // 200 words per minute
-    }
 }
 
 // MARK: - Batch Scoring with Advanced Features

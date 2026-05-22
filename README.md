@@ -31,17 +31,21 @@ No ads. No tracking. No third-party SDKs. Just you and the news.
 
 | ✅ | Feature |
 |----|---------|
-| 🧠 | **Smart scoring** | Recency, content richness, source authority, and title quality determine article ranking |
-| **Source authority** | Tier-based scoring (BBC/Reuters: 15pts, NYT: 14pts, HN: 11pts) |
-| **Topic diversity** | NLP-based deduplication prevents feed flooding |
+| 🧠 | **Smart scoring** — Recency, content richness, source authority, and title quality determine article ranking |
+| 🔀 | **Topic diversity** — Cross-source deduplication prevents feed flooding (15-article threshold) |
 | 🌐 | **Multi-source aggregation** — 6 sources (NewsAPI, Guardian, NYT, GNews, NewsData, HN) in a unified feed |
-| 🏷️ | **Smart categorization** — API-provided categories with 150+ mappings and keyword fallback |
+| 🏷️ | **Smart categorization** — 7 categories with 150+ API mappings and 300+ keyword fallback |
 | 🎭 | **Rich article detail** — Full content (2000 chars), descriptions, and immersive reading experience |
 | ⚡ | **Actor-based concurrency** — Thread-safe caching and network deduplication with Swift actors |
 | 🎨 | **Terminal-inspired UI** — Dark matrix aesthetic with neon accents, glitch reveals, and code rain |
 | 📴 | **Offline-first** — Two-tier cache (50MB memory + 200MB disk) with seamless degradation |
 | 🔁 | **Smart pagination** — Auto-prefetch, deduplication, loading guards, and pull-to-refresh |
 | 🔒 | **Zero dependencies** — 100% native. No SPM. No CocoaPods. No black boxes. |
+| 🚀 | **3-page onboarding** — Welcome, feature highlights, and notification prompt at first launch |
+| ⚙️ | **Settings screen** — Notification toggle, cache management, source attribution, app info |
+| 🗂️ | **Tab navigation** — Feed, Reading List, and Settings in a bottom tab bar |
+| 🌍 | **Localized** — English + Turkish (126 strings) with in-app switching |
+| 🏗️ | **49 tests** — 48 unit + 1 UI, all passing with 0 build warnings |
 
 ---
 
@@ -50,12 +54,12 @@ No ads. No tracking. No third-party SDKs. Just you and the news.
 NewsApto follows **Clean Architecture** with strict dependency inversion:
 
 ```
-┌─────────────────────────────────────┐
-│          Presentation               │  SwiftUI Views + @MainActor ViewModels
-│  ┌───────────┐    ┌──────────────┐  │
-│  │ FeedView  │    │ HeroDetail   │  │
-│  │ ReadList  │    │ Attribution  │  │
-│  └─────┬─────┘    └──────┬───────┘  │
+┌────────────────────────────────────────┐
+│            Presentation                │  SwiftUI Views + @MainActor ViewModels
+│  ┌───────────┐ ┌──────────┐ ┌───────┐ │
+│  │ FeedView  │ │ Settings │ │HeroDet│ │
+│  │ ReadList  │ │Onboarding│ │Attrib │ │
+│  └─────┬─────┘ └─────┬────┘ └───┬───┘ │
 │        │                 │          │
 │  ┌─────┴─────────────────┴───────┐  │
 │  │         ViewModels            │  │
@@ -237,7 +241,7 @@ Score = recencyScore(40pts max)
 
 ### Category System
 
-**6 Standard Categories** with intelligent mapping:
+**7 Categories** (including "All") with intelligent mapping:
 
 | Category | API Sources | Keywords |
 |----------|-------------|----------|
@@ -247,6 +251,7 @@ Score = recencyScore(40pts max)
 | **Health** | Guardian lifeandstyle | 30+ keywords (medical, fitness, wellness) |
 | **Sports** | All sports sections | 30+ keywords (football, olympics, racing) |
 | **Entertainment** | Arts & culture sections | 40+ keywords (movies, music, gaming) |
+| **All** | All sources combined | Passthrough — no filtering applied |
 
 **Mapping Priority:** API-provided category → Keyword fallback → "general"
 
@@ -257,7 +262,7 @@ Score = recencyScore(40pts max)
 ```
 NewsApto/
 ├── NewsApto/
-│   ├── App/                          # @main entry, DI container, navigation
+│   ├── App/                          # @main entry, DI container, RootNavigationView (TabView)
 │   ├── Domain/
 │   │   ├── Entities/                 # Article, ArticleScorer, APISource
 │   │   ├── RepositoryInterfaces/     # Protocols + PaginatedResult
@@ -273,13 +278,14 @@ NewsApto/
 │   │   ├── DesignSystem/             # AppPalette, AppTypography, reusable components
 │   │   ├── Networking/               # ImageCache, RetryPolicy, NetworkMonitor
 │   │   ├── Notifications/            # SentinelNotificationService
-│   │   ├── Localization/             # en/tr string catalogs
+│   │   ├── Localization/             # en/tr string catalogs (126 keys each)
 │   │   └── PreviewSupport/           # Mock data + repositories
 │   └── Presentation/
 │       ├── Feed/                     # FeedView + FeedViewModel
 │       ├── Articles/                 # ArticleImageView, SafariView
 │       ├── ReadingList/              # ReadingListView + ViewModel
-│       └── Shared/                   # HeroDetail, Search, Splash, Attribution
+│       ├── Settings/                 # SettingsView with cache mgmt + attribution
+│       └── Shared/                   # HeroDetail, Search, Splash, Attribution, Onboarding, MatrixCodeRain
 ├── NewsAptoTests/                    # Unit tests
 ├── NewsAptoUITests/                  # UI tests
 ├── Config/                           # Secrets.xcconfig
@@ -292,14 +298,18 @@ NewsApto/
 
 | Metric | Value |
 |--------|-------|
+| **Build warnings** | 0 (Swift), 0 (zero-warning policy) |
+| **Tests** | 49 total (48 unit + 1 UI), all passing |
 | **Memory cache** | 50MB NSCache with automatic eviction |
-| **Disk cache** | 200MB with 7-day TTL |
+| **Disk cache** | 200MB with age + size-based eviction |
 | **Image downsampling** | All images rendered at 400×400 max |
 | **Content limit** | 2000 chars per article for detail view |
 | **Category mappings** | 150+ API mappings, 300+ keywords |
 | **Prefetch trigger** | Auto-loads next page at last 5 items |
 | **Request coalescing** | Actor-based in-flight deduplication |
 | **Retry** | Exponential backoff with jitter (max 3 attempts) |
+| **Localizations** | 2 (English + Turkish, 126 strings each) |
+| **Matrix rain FPS** | 10fps (optimized from 20fps for battery) |
 
 ---
 

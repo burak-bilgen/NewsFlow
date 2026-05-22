@@ -154,9 +154,7 @@ struct SettingsView: View {
 
     private func clearCache() {
         Task {
-            let cache = ImageCache()
-            await cache.clearDiskCache()
-            await cache.clearMemoryCache()
+            await ImageCacheAdapter.clearShared()
             updateCacheSize()
         }
     }

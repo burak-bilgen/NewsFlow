@@ -10,10 +10,7 @@ actor HackerNewsClient {
     private let session: URLSession
     
     init() {
-        guard let url = URL(string: "https://hacker-news.firebaseio.com/v0") else {
-            fatalError("Invalid HackerNews base URL")
-        }
-        self.baseURL = url
+        self.baseURL = URL(string: "https://hacker-news.firebaseio.com/v0")!
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         self.session = URLSession(configuration: config)

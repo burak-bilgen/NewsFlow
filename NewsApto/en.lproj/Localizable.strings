@@ -15,7 +15,7 @@
 "articles.latest" = "Latest News";
 "articles.loadMore" = "Load More Articles";
 
-"readingList.title" = "Reading List";
+
 "readingList.empty.title" = "Your reading list is empty";
 "readingList.empty.message" = "Save articles to read later by tapping the bookmark icon.";
 "readingList.add" = "Add to Reading List";
@@ -133,6 +133,8 @@
 "onboarding.feature.readinglist" = "Save articles to read later, even offline";
 "onboarding.notifications.title" = "Breaking News Alerts";
 "onboarding.notifications.message" = "Get notified about breaking stories and important developments. You can change this anytime in Settings.";
+"onboarding.next" = "> NEXT";
+"onboarding.get_started" = "> GET STARTED";
 
 "settings.title" = "> SETTINGS";
 "settings.notifications" = "> NOTIFICATIONS";
@@ -150,4 +152,5 @@
 "settings.sources" = "News Sources";
 "settings.disclaimer" = "NewsApto is an independent aggregator. Content belongs to original publishers.";
 
+"tab.feed" = "Feed";
 "tab.settings" = "Settings";

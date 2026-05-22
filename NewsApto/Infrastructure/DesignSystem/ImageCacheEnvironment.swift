@@ -31,7 +31,16 @@ final class ImageCacheAdapter: ImageCacheServicing {
     func clearMemory() async {
         await cache.clearMemoryCache()
     }
-}
+
+    func clearAll() async {
+        await cache.clearDiskCache()
+        await cache.clearMemoryCache()
+    }
+
+    static func clearShared() async {
+        let adapter = ImageCacheAdapter()
+        await adapter.clearAll()
+    }
 
 // MARK: - ImageCache Environment Key
 

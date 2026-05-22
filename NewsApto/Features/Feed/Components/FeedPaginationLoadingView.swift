@@ -65,8 +65,8 @@ struct FeedPaginationLoadingView: View {
             withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
                 cursorVisible = false
             }
-            let t = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
-                dotCount += 1
+            let t = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
+                self?.dotCount += 1
             }
             timer = t
             RunLoop.current.add(t, forMode: .common)

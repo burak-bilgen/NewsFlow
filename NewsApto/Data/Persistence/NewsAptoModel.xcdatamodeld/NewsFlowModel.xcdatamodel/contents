@@ -8,7 +8,7 @@
         <attribute name="sourceID" attributeType="String"/>
         <attribute name="sourceName" optional="YES" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
-        <attribute name="url" attributeType="String"/>
+        <attribute name="url" optional="YES" attributeType="String"/>
         <attribute name="urlToImage" optional="YES" attributeType="String"/>
         <fetchIndex name="byIDIndex">
             <fetchIndexElement property="id" type="Binary" order="ascending"/>

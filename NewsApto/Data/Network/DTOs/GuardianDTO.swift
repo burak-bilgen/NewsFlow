@@ -57,8 +57,10 @@ struct GuardianArticleDTO: Decodable {
             return url
         }
         if let assets = blocks?.main?.elements?.first?.assets, !assets.isEmpty {
-            let sorted = assets.sorted { (Int($0.typeData?.width ?? 0) > Int($1.typeData?.width ?? 0)) }
-            if let file = sorted.first?.file, let url = URL(string: file) {
+            if assets.count > 1 {
+                let sorted = assets.sorted { (Int($0.typeData?.width ?? 0) > Int($1.typeData?.width ?? 0)) }
+                if let file = sorted.first?.file, let url = URL(string: file) { return url }
+            } else if let file = assets.first?.file, let url = URL(string: file) {
                 return url
             }
         }

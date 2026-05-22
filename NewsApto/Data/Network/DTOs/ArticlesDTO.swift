@@ -7,6 +7,19 @@ struct ArticlesResponseDTO: NewsAPIResponseEnvelope {
     let code: String?
     let message: String?
 
+    enum CodingKeys: String, CodingKey {
+        case status, totalResults, articles, code, message
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = try container.decode(String.self, forKey: .status)
+        totalResults = try container.decodeIfPresent(Int.self, forKey: .totalResults)
+        articles = try container.decodeIfPresent([ArticleDTO].self, forKey: .articles) ?? []
+        code = try container.decodeIfPresent(String.self, forKey: .code)
+        message = try container.decodeIfPresent(String.self, forKey: .message)
+    }
+
     init(
         status: String,
         totalResults: Int? = nil,
@@ -30,6 +43,8 @@ struct ArticleDTO: Decodable {
 
     let source: Source?
     let title: String?
+    let description: String?
+    let content: String?
     let url: String?
     let urlToImage: String?
     let publishedAt: String?
@@ -45,9 +60,12 @@ struct ArticleDTO: Decodable {
             id: stableID,
             sourceID: source?.id?.nilIfBlank ?? fallbackSourceID,
             title: resolvedTitle,
+            description: description?.nilIfBlank,
             imageURL: imageURL,
             publishedAt: publishedDate,
-            url: articleURL
+            url: articleURL,
+            sourceName: source?.name?.nilIfBlank ?? "",
+            contentSnippet: content?.nilIfBlank
         )
     }
 }

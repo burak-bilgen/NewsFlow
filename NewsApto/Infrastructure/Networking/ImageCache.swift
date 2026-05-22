@@ -18,10 +18,7 @@ actor ImageCache {
 
     init(configuration: Configuration = Configuration()) {
         self.configuration = configuration
-        let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        guard let cacheDir = caches.first else {
-            fatalError("Caches directory not available")
-        }
+        let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first ?? FileManager.default.temporaryDirectory
         self.diskCacheURL = cacheDir.appendingPathComponent("NewsAptoImageCache", isDirectory: true)
         try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
         memoryCache.totalCostLimit = configuration.memoryCostLimitMB * 1024 * 1024
