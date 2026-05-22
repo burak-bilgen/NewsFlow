@@ -38,6 +38,7 @@
 "home.subtitle" = "A clean, focused feed of the stories worth your attention.";
 "home.topStory" = "Top Story";
 
+"category.all" = "All";
 "category.business" = "Business";
 "category.entertainment" = "Entertainment";
 "category.general" = "General";
@@ -46,9 +47,6 @@
 "category.sports" = "Sports";
 "category.technology" = "Technology";
 
-"tab.feed" = "Feed";
-"tab.sources" = "Sources";
-"tab.readingList" = "Reading List";
 
 "feed.accessibility.carousel" = "Featured stories";
 "feed.accessibility.carousel.hint" = "Swipe to browse top stories";
@@ -124,3 +122,32 @@
 "attribution.disclosure.text" = "NewsApto is an independent news aggregator and is not affiliated with the listed publishers. Article content belongs to the original publishers and is provided by third-party APIs under their own terms.";
 "attribution.version" = "> VERSION %@ (%@)";
 "attribution.visit_source" = "> VISIT SOURCE";
+
+"onboarding.welcome.message" = "A terminal-inspired news aggregator that learns what matters to you.";
+"onboarding.features.title" = "> FEATURES";
+"onboarding.feature.sources" = "NewsAPI, Guardian, NYT, GNews, NewsData, HackerNews";
+"onboarding.feature.scoring" = "Smart Scoring";
+"onboarding.feature.scoring.desc" = "AI-powered ranking by quality, recency, and source authority";
+"onboarding.feature.search" = "Fuzzy Search";
+"onboarding.feature.search.desc" = "Typo-tolerant search across all your articles";
+"onboarding.feature.readinglist" = "Save articles to read later, even offline";
+"onboarding.notifications.title" = "Breaking News Alerts";
+"onboarding.notifications.message" = "Get notified about breaking stories and important developments. You can change this anytime in Settings.";
+
+"settings.title" = "> SETTINGS";
+"settings.notifications" = "> NOTIFICATIONS";
+"settings.notifications.breaking" = "Breaking News Alerts";
+"settings.notifications.description" = "Receive alerts for important breaking stories";
+"settings.data" = "> DATA";
+"settings.clear_cache" = "Clear Cache";
+"settings.clear_cache.description" = "Remove cached images and article data";
+"settings.clear_cache.alert" = "Clear Cache?";
+"settings.clear_cache.message" = "This will remove cached images and data.";
+"settings.clear" = "Clear";
+"settings.about" = "> ABOUT";
+"settings.version" = "Version";
+"settings.build" = "Build";
+"settings.sources" = "News Sources";
+"settings.disclaimer" = "NewsApto is an independent aggregator. Content belongs to original publishers.";
+
+"tab.settings" = "Settings";

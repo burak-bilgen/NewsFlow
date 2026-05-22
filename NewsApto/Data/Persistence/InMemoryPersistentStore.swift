@@ -19,6 +19,11 @@ actor InMemoryPersistentStore: PersistentStore {
         metadata[key] = nil
     }
 
+    func removeAll() async {
+        storage.removeAll()
+        metadata.removeAll()
+    }
+
     func lastUpdated(forKey key: String) async -> Date? {
         metadata[key]
     }

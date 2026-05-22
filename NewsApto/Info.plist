@@ -12,5 +12,7 @@
 	<string>$(GNEWS_API_KEY)</string>
 	<key>NewsDataAPIKey</key>
 	<string>$(NEWSDATA_API_KEY)</string>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>NewsApto sends notifications about breaking news and important stories so you never miss critical updates.</string>
 </dict>
 </plist>

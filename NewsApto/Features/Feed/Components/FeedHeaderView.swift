@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct FeedHeaderView: View {
-    let onReadingListTap: () -> Void
     let onAttributionTap: () -> Void
+    @Binding var selectedTab: Int
 
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
@@ -17,7 +17,7 @@ struct FeedHeaderView: View {
             HStack(spacing: 10) {
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    onReadingListTap()
+                    withAnimation { selectedTab = 1 }
                 } label: {
                     HomeHeaderIcon(systemName: "bookmark", accessibilityLabel: L10n.text("accessibility.reading_list"))
                 }
@@ -74,8 +74,8 @@ private struct HomeHeaderButtonStyle: ButtonStyle {
     ZStack {
         AppPalette.background.ignoresSafeArea()
         FeedHeaderView(
-            onReadingListTap: {},
-            onAttributionTap: {}
+            onAttributionTap: {},
+            selectedTab: .constant(0)
         )
         .padding()
     }

@@ -84,11 +84,14 @@ actor NewsAggregatorService: NewsAggregating {
         allArticles.append(contentsOf: newsDataRes?.articles ?? [])
         allArticles.append(contentsOf: hnRes ?? [])
         
-        // Only sort by quality score - NO filtering, NO caps, NO diversity limits
+        // Score articles
         allArticles = await enhancedScorer.scoreAndEnrich(allArticles)
         
+        // Apply topic diversity: max 2 articles per topic to prevent feed flooding
+        let diverseArticles = await topicDiversity.ensureDiversity(in: allArticles, maxPerTopic: 2)
+        
         return AggregatedResult(
-            articles: allArticles,
+            articles: diverseArticles,
             sourceCount: 6
         )
     }

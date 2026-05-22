@@ -44,7 +44,7 @@ struct MagazineGridCard: View {
             .overlay(Rectangle().stroke(AppPalette.cardBorder, lineWidth: 0.5))
         }
         .buttonStyle(.plain)
-        .contentShape(Rectangle())
+        .accessibilityLabel(article.title)
     }
 }
 

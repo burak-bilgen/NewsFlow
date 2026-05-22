@@ -81,6 +81,7 @@ actor CachedArticlesRepository: ArticlesRepositoryProtocol, CacheBypassing {
     }
 
     func invalidateAllCaches() async {
+        await store.removeAll()
     }
 
     func fetchArticlesBypassingCache(sourceID: String, page: Int, pageSize: Int) async throws -> PaginatedResult<Article> {

@@ -3,13 +3,15 @@ import SwiftUI
 struct FeedView: View {
     @StateObject private var viewModel: FeedViewModel
     let makeReadingListViewModel: () -> ReadingListViewModel
+    @Binding var selectedTab: Int
     @State private var showAttribution = false
     @State private var selectedArticle: Article?
     @State private var terminalSearchText = ""
 
-    init(viewModel: FeedViewModel, makeReadingListViewModel: @escaping () -> ReadingListViewModel) {
+    init(viewModel: FeedViewModel, makeReadingListViewModel: @escaping () -> ReadingListViewModel, selectedTab: Binding<Int>) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeReadingListViewModel = makeReadingListViewModel
+        _selectedTab = selectedTab
     }
 
     var body: some View {
@@ -125,8 +127,8 @@ struct FeedView: View {
                 }
 
                 FeedHeaderView(
-                    onReadingListTap: { /* Navigation handled by NavigationLink in FeedHeaderView */ },
-                    onAttributionTap: { showAttribution = true }
+                    onAttributionTap: { showAttribution = true },
+                    selectedTab: $selectedTab
                 )
 
                 TerminalSearchBar(text: $terminalSearchText) { query in
@@ -144,7 +146,10 @@ struct FeedView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
 
-                let feedArticles = viewModel.filteredArticles
+                categoryRibbon
+                    .padding(.bottom, 12)
+
+                let feedArticles = viewModel.filteredByCategory
                 let filterHash = viewModel.searchQuery
 
                 Group {
@@ -261,6 +266,38 @@ struct FeedView: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+
+    private var categoryRibbon: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                categoryChip(title: L10n.text("category.all"), isSelected: viewModel.selectedCategory == nil) {
+                    viewModel.selectedCategory = nil
+                }
+                ForEach(viewModel.availableCategories, id: \.self) { category in
+                    categoryChip(title: category, isSelected: viewModel.selectedCategory == category) {
+                        viewModel.selectedCategory = category
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private func categoryChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        } label: {
+            Text(title.uppercased())
+                .font(AppTypography.monoTiny.weight(.bold))
+                .foregroundColor(isSelected ? .black : AppPalette.accent)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(isSelected ? AppPalette.accent : AppPalette.surface)
+                .overlay(Rectangle().stroke(isSelected ? AppPalette.accent : AppPalette.accent.opacity(0.3), lineWidth: 0.5))
+        }
+        .buttonStyle(.plain)
     }
 
     private func sectionHeader(_ title: String) -> some View {

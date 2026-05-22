@@ -38,17 +38,12 @@ actor HackerNewsClient {
     
     func fetchStories(ids: [Int]) async throws -> [Article] {
         try await withThrowingTaskGroup(of: Article?.self) { group in
-            var articles: [Article] = []
             for id in ids {
                 group.addTask {
                     try? await self.fetchStory(id: id)
                 }
-                if articles.count > 5 {
-                    if let article = try await group.next() as? Article {
-                        articles.append(article)
-                    }
-                }
             }
+            var articles: [Article] = []
             for try await article in group {
                 if let article = article {
                     articles.append(article)

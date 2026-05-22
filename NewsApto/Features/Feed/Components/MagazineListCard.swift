@@ -47,6 +47,7 @@ struct MagazineListCard: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(article.title)
     }
 }
 

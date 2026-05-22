@@ -4,6 +4,7 @@ protocol PersistentStore {
     func save<T: Encodable & Sendable>(_ value: T, forKey key: String) async throws
     func load<T: Decodable & Sendable>(_ type: T.Type, forKey key: String) async -> T?
     func remove(forKey key: String) async
+    func removeAll() async
     func lastUpdated(forKey key: String) async -> Date?
 }
 
@@ -47,6 +48,13 @@ actor FilePersistentStore: PersistentStore {
         let metaURL = baseURL.appendingPathComponent("\(key).meta")
         try? fileManager.removeItem(at: url)
         try? fileManager.removeItem(at: metaURL)
+    }
+
+    func removeAll() async {
+        guard let files = try? fileManager.contentsOfDirectory(at: baseURL, includingPropertiesForKeys: nil) else { return }
+        for file in files {
+            try? fileManager.removeItem(at: file)
+        }
     }
 
     func lastUpdated(forKey key: String) async -> Date? {

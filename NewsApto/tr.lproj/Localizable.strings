@@ -1,0 +1,152 @@
+"sources.title" = "Haber Kaynakları";
+"sources.loading" = "Kaynaklar yükleniyor...";
+"sources.empty.title" = "Kaynak bulunamadı";
+"sources.empty.message" = "Kategori filtresini değiştirin veya tekrar deneyin.";
+"source.description.missing" = "Açıklama mevcut değil.";
+"sources.mastheadSubtitle" = "Dünya Çapında Güvenilir Kaynaklar";
+
+"articles.loading" = "Makaleler yükleniyor...";
+"articles.empty.title" = "Makale bulunamadı";
+"articles.empty.message" = "Bu kaynak için güncel manşet bulunmuyor.";
+"article.title.untitled" = "Başlıksız makale";
+"article.date.unknown" = "Tarih yok";
+"article.image.placeholder" = "Makale görseli";
+"article.readFull" = "Tam Makaleyi Oku";
+"articles.latest" = "Son Haberler";
+"articles.loadMore" = "Daha Fazla Makale";
+
+"readingList.title" = "Okuma Listesi";
+"readingList.empty.title" = "Okuma listeniz boş";
+"readingList.empty.message" = "Makaleleri yer imi simgesine dokunarak kaydedin.";
+"readingList.add" = "Okuma Listesine Ekle";
+"readingList.remove" = "Okuma Listesinden Çıkar";
+
+"retry.button" = "Tekrar Dene";
+"ok.button" = "Tamam";
+"warning.title" = "Uyarı";
+"error.title" = "Bir şey ters gitti";
+"error.generic" = "Bilgi alınamadı.";
+"error.network" = "Bağlantınızı kontrol edin ve tekrar deneyin.";
+"error.missingApiKey" = "NewsAPI anahtarı eksik. Kurulum adımlarını kontrol edin.";
+"error.rateLimit" = "Çok fazla istek. Lütfen daha sonra tekrar deneyin.";
+"error.cancelled" = "İstek iptal edildi";
+
+"offline.banner" = "İnternet bağlantısı yok";
+"offline.check" = "Bağlantınızı kontrol edin";
+"search.placeholder" = "Makalelerde ara...";
+"home.title" = "Bugün";
+"home.subtitle" = "Dikkatinizi hak eden haberlerin temiz, odaklanmış akışı.";
+"home.topStory" = "Manşet";
+
+"category.all" = "Tümü";
+"category.business" = "İş Dünyası";
+"category.entertainment" = "Eğlence";
+"category.general" = "Genel";
+"category.health" = "Sağlık";
+"category.science" = "Bilim";
+"category.sports" = "Spor";
+"category.technology" = "Teknoloji";
+
+"feed.accessibility.carousel" = "Öne çıkan haberler";
+"feed.accessibility.carousel.hint" = "Öne çıkan haberlere göz atmak için kaydırın";
+"feed.breaking.prefix" = "Son Dakika:";
+"feed.breaking.action" = "Oku";
+"feed.breaking.message" = "Son Dakika: %@";
+"feed.accessibility.featured" = "Öne çıkan haber %lld / %lld";
+"feed.accessibility.featured.hint" = "Öne çıkan haberlere göz atmak için kaydırın";
+"feed.accessibility.source.hint" = "Bu kaynaktan haberlere göz atmak için dokunun";
+
+"article.accessibility.read" = "Okumak için çift dokunun. %@";
+"article.accessibility.saved" = "Kaydedildi.";
+"article.accessibility.save_hint" = "Kaydetmek için yer imine dokunun.";
+"article.accessibility.source_hint" = "Bu kaynaktan haberlere göz atmak için dokunun";
+
+"reading.time.short" = "%lld dk okuma";
+"reading.time.under1" = "<1 dk";
+
+"state.handoff.title" = "Makale Okunuyor";
+
+"search.empty.title" = "Sonuç bulunamadı";
+"search.empty.message" = "Farklı bir arama terimi deneyin.";
+
+"feed.empty.title" = "> VERİ.YOK";
+"feed.empty.message" = "Filtrenize uygun makale bulunamadı.";
+"feed.editors_picks" = "Editörün Seçtikleri";
+"feed.latest" = "Son Haberler";
+"feed.load_more" = "> DAHA.FAZLA.YÜKLE";
+"feed.error.title" = "> HATA";
+"feed.error.retry" = "> TEKRAR.DENE";
+
+"readinglist.title" = "> OKUMA.LİSTESİ";
+"readinglist.empty.title" = "> BOŞ";
+"readinglist.empty.message" = "Kaydedilmiş makale yok";
+"readinglist.loading" = "> YÜKLENİYOR";
+
+"detail.summary" = "> ÖZET";
+"detail.full_article" = "> TAM.MAKALE";
+"detail.read_original" = "> ORİJİNALİ.OKU";
+"detail.swipe" = "> KAYDIR";
+"detail.quality" = "> KALİTE: %d/100";
+
+"splash.tagline" = "Akıllı. Uyarlanabilir. Kişisel.";
+"splash.sources" = "6 Kaynak: NewsAPI · Guardian · NYT · GNews · NewsData · HN";
+
+"attribution.title" = "> KAYNAK.GÖSTERİMİ";
+"attribution.description" = "Bağımsız haber okuyucu";
+"attribution.body" = "NewsApto, birden fazla kaynaktan beslenen bağımsız bir haber toplayıcıdır.";
+"attribution.subtitle" = "Bağımsız haber okuyucu";
+"attribution.data_sources" = "VERİ KAYNAKLARI (6 TOPLAM)";
+"attribution.newsapi.desc" = "Dünya çapındaki yayıncılardan manşetler. 10.000+ kaynak.";
+"attribution.guardian.desc" = "Guardian Open Platform tarafından sağlanan küresel haberler.";
+"attribution.nyt.desc" = "New York Times Makale Arama API'sinden haberler.";
+"attribution.gnews.desc" = "Google News toplama. 10.000+ küresel kaynak.";
+"attribution.newsdata.desc" = "10.000+ kaynaktan kapsamlı haber toplama.";
+"attribution.hn.desc" = "Geliştirici topluluğu tarafından seçilen teknoloji haberleri.";
+"attribution.disclosure.section" = "BİLDİRİM";
+"attribution.disclosure.text" = "NewsApto bağımsız bir haber toplayıcıdır. Makale içerikleri orijinal yayıncılara aittir.";
+"attribution.version" = "> SÜRÜM %@ (%@)";
+"attribution.visit_source" = "> KAYNAĞI.ZİYARET.ET";
+
+"loading.more" = "> DAHA.FAZLA.YÜKLENİYOR";
+"loading.text" = "> YÜKLENİYOR";
+"refreshing.text" = "YENİLENİYOR";
+"refreshing.system" = "SİSTEM";
+"score.label" = "Puan: %d";
+
+"state.error.title" = "> HATA";
+"state.error.message" = "Makaleler yüklenemedi.";
+"state.retry" = "> TEKRAR.DENE";
+
+"quality.score" = "%dpt";
+"accessibility.reading_list" = "Okuma listesi";
+"accessibility.about" = "Hakkında";
+
+"onboarding.welcome.message" = "Size göre haberleri öğrenen, terminal temalı bir haber toplayıcı.";
+"onboarding.features.title" = "> ÖZELLİKLER";
+"onboarding.feature.sources" = "NewsAPI, Guardian, NYT, GNews, NewsData, HackerNews";
+"onboarding.feature.scoring" = "Akıllı Puanlama";
+"onboarding.feature.scoring.desc" = "Kalite, güncellik ve kaynak güvenilirliğine göre yapay zeka sıralaması";
+"onboarding.feature.search" = "Bulank Arama";
+"onboarding.feature.search.desc" = "Yazım hatasına toleranslı, tüm makalelerde arama";
+"onboarding.feature.readinglist" = "Makaleleri daha sonra okumak için kaydedin";
+"onboarding.notifications.title" = "Son Dakika Bildirimleri";
+"onboarding.notifications.message" = "Önemli gelişmelerden anında haberdar olun. Ayarlar'dan her zaman değiştirebilirsiniz.";
+
+"settings.title" = "> AYARLAR";
+"settings.notifications" = "> BİLDİRİMLER";
+"settings.notifications.breaking" = "Son Dakika Bildirimleri";
+"settings.notifications.description" = "Önemli haberler için bildirim alın";
+"settings.data" = "> VERİ";
+"settings.clear_cache" = "Önbelleği Temizle";
+"settings.clear_cache.description" = "Önbelleğe alınmış görsel ve verileri temizler";
+"settings.clear_cache.alert" = "Önbellek Temizlensin mi?";
+"settings.clear_cache.message" = "Önbelleğe alınmış görsel ve veriler silinecek.";
+"settings.clear" = "Temizle";
+"settings.about" = "> HAKKINDA";
+"settings.version" = "Sürüm";
+"settings.build" = "Yapı";
+"settings.sources" = "Haber Kaynakları";
+"settings.disclaimer" = "NewsApto bağımsız bir toplayıcıdır. İçerikler orijinal yayıncılara aittir.";
+
+"tab.feed" = "Akış";
+"tab.settings" = "Ayarlar";

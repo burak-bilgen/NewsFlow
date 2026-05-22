@@ -25,6 +25,7 @@ actor ImageCache {
         self.diskCacheURL = cacheDir.appendingPathComponent("NewsAptoImageCache", isDirectory: true)
         try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
         memoryCache.totalCostLimit = configuration.memoryCostLimitMB * 1024 * 1024
+        Task { await cleanDiskCache() }
     }
 
     func loadImage(from url: URL, targetSize: CGSize? = nil) async -> UIImage? {
@@ -68,6 +69,45 @@ actor ImageCache {
     func clearDiskCache() async {
         try? fileManager.removeItem(at: diskCacheURL)
         try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
+    }
+
+    func cleanDiskCache() async {
+        let resourceKeys: Set<URLResourceKey> = [.contentModificationDateKey, .fileSizeKey]
+        guard let allFiles = try? fileManager.contentsOfDirectory(at: diskCacheURL, includingPropertiesForKeys: Array(resourceKeys)) else { return }
+
+        var files: [(url: URL, modDate: Date, size: Int)] = []
+        var totalSize = 0
+
+        for file in allFiles {
+            guard file.pathExtension != "meta" else { continue }
+            guard let resources = try? file.resourceValues(forKeys: resourceKeys),
+                  let modDate = resources.contentModificationDate,
+                  let fileSize = resources.fileSize else { continue }
+            files.append((file, modDate, fileSize))
+            totalSize += fileSize
+        }
+
+        let maxAge: TimeInterval = TimeInterval(configuration.maxDiskAgeDays * 86400)
+        let maxSize = configuration.diskSizeLimitMB * 1024 * 1024
+        let now = Date()
+
+        for file in files where now.timeIntervalSince(file.modDate) > maxAge {
+            try? fileManager.removeItem(at: file.url)
+            try? fileManager.removeItem(at: file.url.appendingPathExtension("meta"))
+            totalSize -= file.size
+        }
+
+        if totalSize > maxSize {
+            let sorted = files
+                .filter { now.timeIntervalSince($0.modDate) <= maxAge }
+                .sorted { $0.modDate < $1.modDate }
+            for file in sorted {
+                try? fileManager.removeItem(at: file.url)
+                try? fileManager.removeItem(at: file.url.appendingPathExtension("meta"))
+                totalSize -= file.size
+                if totalSize <= maxSize { break }
+            }
+        }
     }
 
     // MARK: - Private

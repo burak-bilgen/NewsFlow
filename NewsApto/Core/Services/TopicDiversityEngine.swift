@@ -67,7 +67,8 @@ actor TopicDiversityEngine {
     
     // MARK: - Diversity Filtering
     
-    func ensureDiversity(in articles: [Article], maxPerTopic: Int = 2) async -> [Article] {
+    func ensureDiversity(in articles: [Article], maxPerTopic: Int = 2, minArticles: Int = 15) async -> [Article] {
+        guard articles.count >= minArticles else { return articles }
         var topicCounts: [String: Int] = [:]
         var diverseArticles: [Article] = []
         
@@ -79,7 +80,6 @@ actor TopicDiversityEngine {
                 diverseArticles.append(article)
                 topicCounts[topicID] = currentCount + 1
             }
-            // else: skip - too many articles on this topic
         }
         
         return diverseArticles

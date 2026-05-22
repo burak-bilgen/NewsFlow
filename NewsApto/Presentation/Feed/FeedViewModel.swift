@@ -66,6 +66,37 @@ final class FeedViewModel: ObservableObject {
     @Published private(set) var searchResults: [ArticleSearchService.SearchResult] = []
     @Published private(set) var isSearching = false
     @Published private(set) var errorMessage: String?
+    @Published var selectedCategory: String? = nil
+
+    private static let categoryKeywords: [(name: String, keywords: [String])] = [
+        ("technology", ["tech", "apple", "google", "microsoft", "ai", "software", "startup", "cyber", "digital", "code", "app", "iphone", "android", "robot", "computer", "data", "algorithm", "program", "chip", "semiconductor", "electric", "autonomous", "blockchain", "crypto"]),
+        ("science", ["science", "study", "research", "nasa", "space", "dna", "climate", "nature", "physics", "biology", "chemistry", "medical", "gene", "evolution", "planet", "mars", "moon", "quantum", "lab"]),
+        ("health", ["health", "covid", "vaccine", "hospital", "drug", "disease", "patient", "doctor", "mental", "pandemic", "virus", "fda", "treatment", "surgery", "wellness", "medicine", "nutrition"]),
+        ("business", ["business", "market", "stock", "economy", "trade", "bank", "finance", "merger", "ipo", "revenue", "profit", "ceo", "startup", "investment", "fund", "dollar", "inflation", "crypto"]),
+        ("sports", ["sport", "nba", "nfl", "soccer", "football", "basketball", "tennis", "champion", "olympic", "player", "coach", "league", "mlb", "nhl", "fifa", "athlete", "world cup", "super bowl"]),
+        ("entertainment", ["movie", "film", "music", "actor", "actress", "game", "hollywood", "netflix", "concert", "album", "award", "oscar", "celebrity", "theatre", "stream", "artist", "show", "tv", "series"]),
+        ("general", ["news", "world", "president", "government", "election", "congress", "senate", "law", "policy", "military", "war", "attack", "treaty", "minister", "court", "protest", "interview"])
+    ]
+
+    private func detectCategory(for article: Article) -> String {
+        let text = (article.title + " " + (article.description ?? "")).lowercased()
+        var scores: [(String, Int)] = Self.categoryKeywords.map { category, keywords in
+            (category, keywords.filter { text.contains($0) }.count)
+        }
+        scores.sort { $0.1 > $1.1 }
+        return scores.first?.0 ?? "general"
+    }
+
+    var availableCategories: [String] {
+        let all = Set(articles.map { detectCategory(for: $0) })
+        return ["technology", "science", "health", "business", "sports", "entertainment", "general"].filter { all.contains($0) }
+    }
+
+    var filteredByCategory: [Article] {
+        let searched = filteredArticles
+        guard let category = selectedCategory else { return searched }
+        return searched.filter { detectCategory(for: $0) == category }
+    }
     
     var filteredArticles: [Article] {
         let query = searchQuery.trimmingCharacters(in: .whitespaces)

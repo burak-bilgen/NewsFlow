@@ -64,6 +64,7 @@ struct HeroCardView: View {
         }
         .buttonStyle(.plain)
         .contentShape(Rectangle())
+        .accessibilityLabel(article.title)
     }
 }
 
