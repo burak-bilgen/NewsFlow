@@ -21,8 +21,8 @@ struct TerminalLoadingIndicator: View {
         }
         .onAppear {
             withAnimation(AppAnimation.blink) { cursorVisible = false }
-            let t = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
-                self?.dotCount += 1
+            let t = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { _ in
+                dotCount += 1
             }
             timer = t
             RunLoop.current.add(t, forMode: .common)

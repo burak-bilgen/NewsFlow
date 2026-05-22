@@ -41,6 +41,7 @@ final class ImageCacheAdapter: ImageCacheServicing {
         let adapter = ImageCacheAdapter()
         await adapter.clearAll()
     }
+}
 
 // MARK: - ImageCache Environment Key
 

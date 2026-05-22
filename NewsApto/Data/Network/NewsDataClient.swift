@@ -41,8 +41,9 @@ actor NewsDataClient {
             queryItems.append(URLQueryItem(name: "category", value: category))
         }
         
-        if let page = page {
-            queryItems.append(URLQueryItem(name: "page", value: page))
+        let pageValue = page ?? nextPageToken
+        if let pageValue {
+            queryItems.append(URLQueryItem(name: "page", value: pageValue))
         }
         
         components.queryItems = queryItems
@@ -59,6 +60,7 @@ actor NewsDataClient {
         }
         
         let newsDataResponse = try JSONDecoder().decode(NewsDataResponse.self, from: data)
+        nextPageToken = newsDataResponse.nextPage
         
         return NewsDataResult(
             articles: newsDataResponse.results.map { $0.toArticle() },

@@ -50,8 +50,8 @@ struct TerminalSearchBar: View {
         .contentShape(Rectangle())
         .onTapGesture { isFocused = true }
         .onAppear {
-            let t = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-                self?.cursorVisible.toggle()
+            let t = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                cursorVisible.toggle()
             }
             blinkTimer = t
             RunLoop.current.add(t, forMode: .common)
