@@ -12,7 +12,6 @@ struct Article: Identifiable, Codable, Equatable, Hashable, Sendable {
     var apiSource: APISource = .newsAPI
     var contentSnippet: String?
     
-    // Ranking Fields (sorted by these scores)
     var qualityScore: Double?
     var engagementScore: Double?
     var sourceAuthority: Double?

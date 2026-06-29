@@ -1,6 +1,5 @@
 import Foundation
 
-// MARK: - Manage Reading List Use Case
 
 protocol ManageReadingListUseCaseProtocol {
     func toggle(_ article: Article) async throws -> Bool
