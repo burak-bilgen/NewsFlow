@@ -39,10 +39,8 @@ struct ArticleImageView: View {
 
     private var loadingPlaceholder: some View {
         ZStack {
-            // Matrix digital rain background
             AppPalette.surface
             
-            // Scan line effect
             VStack(spacing: 0) {
                 ForEach(0..<8) { i in
                     Rectangle()
@@ -51,15 +49,12 @@ struct ArticleImageView: View {
                 }
             }
             
-            // Central loading indicator
             VStack(spacing: 8) {
-                // Animated matrix bracket
                 HStack(spacing: 4) {
                     Text("[")
                         .font(AppTypography.monoSmall.weight(.bold))
                         .foregroundColor(AppPalette.accent)
                     
-                    // Blinking cursor effect
                     Rectangle()
                         .fill(AppPalette.accent)
                         .frame(width: 8, height: 16)
@@ -83,13 +78,10 @@ struct ArticleImageView: View {
 
     private var placeholder: some View {
         ZStack {
-            // Matrix-themed background
             AppPalette.surface
             
-            // Digital rain matrix pattern
             MatrixRainPattern()
             
-            // Gradient overlay for depth
             LinearGradient(
                 colors: [
                     AppPalette.accent.opacity(0.05),
@@ -100,7 +92,6 @@ struct ArticleImageView: View {
                 endPoint: .bottomTrailing
             )
             
-            // Matrix frame corners
             VStack {
                 HStack {
                     MatrixCorner(position: .topLeft)
@@ -116,10 +107,8 @@ struct ArticleImageView: View {
             }
             .padding(12)
             
-            // Center icon with matrix styling
             VStack(spacing: 8) {
                 ZStack {
-                    // Glow effect
                     Circle()
                         .fill(AppPalette.accent.opacity(0.1))
                         .frame(width: 56, height: 56)
@@ -144,7 +133,6 @@ struct ArticleImageView: View {
     }
 }
 
-// MARK: - Matrix Pattern Views
 
 private struct MatrixRainPattern: View {
     var body: some View {
@@ -157,10 +145,8 @@ private struct MatrixRainPattern: View {
                     let x = CGFloat(col) * 12 + 6
                     let y = CGFloat(row) * 16 + 8
                     
-                    // Random opacity for matrix effect
                     let opacity = Double.random(in: 0.02...0.15)
                     
-                    // Draw small matrix characters
                     let chars = ["0", "1", "│", "║", "▌", "▐"]
                     let char = chars.randomElement()!
                     
@@ -185,7 +171,6 @@ private struct MatrixCorner: View {
     
     var body: some View {
         ZStack {
-            // Corner bracket lines
             HStack(spacing: 0) {
                 if position == .topLeft || position == .bottomLeft {
                     horizontalLine

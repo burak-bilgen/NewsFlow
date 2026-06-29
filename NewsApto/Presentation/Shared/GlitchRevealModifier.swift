@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - Smooth Matrix Emission Transition
 
 struct MatrixEmissionTransition: ViewModifier {
     let trigger: AnyHashable
@@ -39,7 +38,6 @@ struct MatrixEmissionTransition: ViewModifier {
     }
 }
 
-// MARK: - Glitch Reveal (initial load)
 
 struct GlitchRevealModifier: ViewModifier {
     @State private var offsetX: CGFloat = 0
@@ -66,7 +64,6 @@ struct GlitchRevealModifier: ViewModifier {
     }
 }
 
-// MARK: - Glow Pulse (active category button)
 
 struct GlowPulseModifier: ViewModifier {
     let isActive: Bool
@@ -86,7 +83,6 @@ struct GlowPulseModifier: ViewModifier {
     }
 }
 
-// MARK: - View Extensions
 
 extension View {
     func glitchReveal() -> some View { modifier(GlitchRevealModifier()) }

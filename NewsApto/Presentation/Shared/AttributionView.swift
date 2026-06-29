@@ -45,7 +45,6 @@ struct AttributionView: View {
             sectionTitle(L10n.text("attribution.data_sources"))
 
             VStack(spacing: 0) {
-                // Tier 1: Original Sources
                 APITerminalRow(
                     name: "NewsAPI.org",
                     description: L10n.text("attribution.newsapi.desc"),
