@@ -2,7 +2,6 @@ import Foundation
 
 #if DEBUG
 
-// MARK: - Mock Articles Repository
 
 final class MockArticlesRepository: ArticlesRepositoryProtocol {
     private let articlesBySource: [String: [Article]]
@@ -46,7 +45,6 @@ final class MockArticlesRepository: ArticlesRepositoryProtocol {
     }
 }
 
-// MARK: - In-Memory Reading List Repository
 
 actor InMemoryReadingListRepository: ReadingListRepositoryProtocol {
     private var articles: [String: Article] = [:]
@@ -74,7 +72,6 @@ actor InMemoryReadingListRepository: ReadingListRepositoryProtocol {
     }
 }
 
-// MARK: - Mock Guardian Client
 
 final class MockGuardianClient: GuardianClientProtocol {
     func search(query: String?, page: Int, pageSize: Int, section: String?) async throws -> [Article] {
@@ -82,7 +79,6 @@ final class MockGuardianClient: GuardianClientProtocol {
     }
 }
 
-// MARK: - Mock NYT Client
 
 final class MockNYTClient: NYTClientProtocol {
     func search(query: String?, page: Int, section: String?) async throws -> NYTSearchResult {

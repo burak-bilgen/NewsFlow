@@ -3,10 +3,7 @@ import Combine
 import Network
 import SwiftUI
 
-// MARK: - Network Monitor
 
-/// Monitors network connectivity and publishes status changes.
-/// Uses NWPathMonitor for accurate reachability detection including VPN and captive portals.
 @MainActor
 final class NetworkMonitor: ObservableObject {
     enum Status: Equatable {
@@ -49,7 +46,6 @@ final class NetworkMonitor: ObservableObject {
     }
 }
 
-// MARK: - Offline Banner View
 
 struct OfflineBannerView: View {
     let isOffline: Bool
@@ -71,7 +67,6 @@ struct OfflineBannerView: View {
             Spacer()
             
             Button {
-                // Try to refresh or dismiss
             } label: {
                 Image(systemName: "arrow.clockwise")
                     .font(.system(size: 14, weight: .semibold))
@@ -94,7 +89,6 @@ struct OfflineBannerView: View {
     }
 }
 
-// MARK: - View Modifier
 
 struct OfflineAwareModifier: ViewModifier {
     @StateObject private var monitor = NetworkMonitor()

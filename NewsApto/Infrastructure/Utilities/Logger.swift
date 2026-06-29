@@ -1,7 +1,6 @@
 import Foundation
 import OSLog
 
-// MARK: - Log Level
 
 enum LogLevel: Int, Comparable {
     case verbose = 0
@@ -37,7 +36,6 @@ enum LogLevel: Int, Comparable {
     }
 }
 
-// MARK: - Log Entry
 
 struct LogEntry {
     let timestamp: Date
@@ -50,10 +48,8 @@ struct LogEntry {
     let metadata: [String: Any]?
 }
 
-// MARK: - Logger Protocol
 
 protocol Logging {
-    // swiftlint:disable:next function_parameter_count
     func log(
         _ level: LogLevel,
         _ message: String,
@@ -133,12 +129,10 @@ extension Logging {
     }
 }
 
-// MARK: - Console Logger
 
 final class ConsoleLogger: Logging {
     var minimumLevel: LogLevel = .debug
 
-    // swiftlint:disable:next function_parameter_count
     func log(
         _ level: LogLevel,
         _ message: String,
@@ -163,17 +157,12 @@ final class ConsoleLogger: Logging {
         print(output)
         #endif
 
-        // Also send to unified logging
         let osLog = OSLog(subsystem: "burakbilgen.NewsApto", category: category)
         os_log("%{public}@", log: osLog, type: level.osLogType, output)
     }
 }
 
-// MARK: - NewsApto Logger
 
-/// Centralized logger for the entire app.
-/// Injects into ViewModels, Use Cases, and Services for consistent logging.
-/// Not isolated to MainActor since os_log and print are thread-safe.
 final class NewsAptoLogger: Logging, @unchecked Sendable {
     static let shared = NewsAptoLogger()
 
@@ -183,7 +172,6 @@ final class NewsAptoLogger: Logging, @unchecked Sendable {
         self.logger = logger
     }
 
-    // swiftlint:disable:next function_parameter_count
     func log(
         _ level: LogLevel,
         _ message: String,

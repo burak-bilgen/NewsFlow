@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - Color Palette (AMOLED True Black + #39FF14 Neon Green)
 
 enum AppPalette {
     static let background = Color(red: 0, green: 0, blue: 0)
@@ -15,7 +14,6 @@ enum AppPalette {
     static let textSecondary = Color(red: 0.60, green: 0.60, blue: 0.60)
     static let textTertiary = Color(red: 0.40, green: 0.40, blue: 0.40)
 
-    /// #39FF14 — True Neon Green
     static let accent = Color(red: 0.224, green: 1.0, blue: 0.078)
     static let accentDim = accent.opacity(0.12)
     static let accentMuted = accent.opacity(0.06)
@@ -24,7 +22,6 @@ enum AppPalette {
     static let success = accent
 }
 
-// MARK: - Typography
 
 enum AppTypography {
     static let largeTitle = Font.system(size: 28, weight: .bold, design: .default)
@@ -36,13 +33,11 @@ enum AppTypography {
     static let monoSmall = Font.system(size: 10, weight: .regular, design: .monospaced)
     static let monoTiny = Font.system(size: 8, weight: .regular, design: .monospaced)
 
-    // Extended tokens for specific screens
     static let splashTitle = Font.system(size: 32, weight: .black, design: .serif)
     static let splashSubtitle = Font.system(size: 14, weight: .regular, design: .serif)
     static let stateTitle = Font.system(size: 22, weight: .black, design: .serif)
 }
 
-// MARK: - Spacing (8pt Grid)
 
 enum AppSpacing {
     static let xxs: CGFloat = 4
@@ -54,30 +49,21 @@ enum AppSpacing {
     static let xxl: CGFloat = 32
 }
 
-// MARK: - Animation (Crisp Digital / Terminal Style)
 
 enum AppAnimation {
-    /// Fast, crisp press feedback — no bounce
     static let press = Animation.easeOut(duration: 0.10)
-    /// Standard digital reveal
     static let reveal = Animation.easeOut(duration: 0.20)
-    /// Content transition (category switch, filter change)
     static let transition = Animation.easeOut(duration: 0.25)
-    /// Staggered list item appearance
     static func stagger(index: Int) -> Animation {
         .easeOut(duration: 0.22).delay(Double(index) * 0.04)
     }
-    /// Slow ambient pulse (glow effects)
     static let pulse = Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true)
-    /// Terminal cursor blink
     static let blink = Animation.easeInOut(duration: 0.5).repeatForever(autoreverses: true)
 }
 
-// MARK: - Minimum Tap Target (HIG: 44pt)
 
 private let kMinTapTarget: CGFloat = 44
 
-// MARK: - View Extensions
 
 extension View {
     func cardStyle() -> some View {
@@ -90,7 +76,6 @@ extension View {
     }
 }
 
-// MARK: - Digital Button Style (Crisp, No Bounce)
 
 struct DigitalButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -101,7 +86,6 @@ struct DigitalButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - Buttons (44pt Minimum Tap Targets)
 
 struct NeonButton: View {
     let title: String
@@ -143,7 +127,6 @@ struct OutlineButton: View {
     }
 }
 
-// MARK: - Shimmer
 
 struct ShimmerEffect: ViewModifier {
     @State private var phase: CGFloat = -1

@@ -1,7 +1,6 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Image Cache Servicing Protocol
 
 protocol ImageCacheServicing: AnyObject {
     func loadImage(from url: URL) async -> UIImage?
@@ -9,7 +8,6 @@ protocol ImageCacheServicing: AnyObject {
     func clearMemory() async
 }
 
-// MARK: - Adapter
 
 final class ImageCacheAdapter: ImageCacheServicing {
     private static let sharedCache = ImageCache()
@@ -43,7 +41,6 @@ final class ImageCacheAdapter: ImageCacheServicing {
     }
 }
 
-// MARK: - ImageCache Environment Key
 
 private struct ImageCacheKey: EnvironmentKey {
     static let defaultValue: ImageCacheServicing = ImageCacheAdapter()

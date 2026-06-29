@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - StateMessageView (Empty / Error / Success states)
 
 struct StateMessageView: View {
     let systemImage: String
@@ -15,20 +14,16 @@ struct StateMessageView: View {
         VStack(spacing: AppSpacing.lg) {
             Spacer()
 
-            // Animated illustration with bounce — sharp edges for terminal aesthetic
             ZStack {
-                // Outer pulsing frame
                 Rectangle()
                     .stroke(AppPalette.accent.opacity(0.15), lineWidth: 2)
                     .frame(width: isAnimating ? 120 : 100, height: isAnimating ? 120 : 100)
                     .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isAnimating)
 
-                // Middle frame
                 Rectangle()
                     .fill(AppPalette.accent.opacity(0.08))
                     .frame(width: 90, height: 90)
 
-                // Icon
                 Image(systemName: systemImage)
                     .font(.system(size: 40, weight: .semibold))
                     .foregroundColor(AppPalette.accent)

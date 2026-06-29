@@ -107,7 +107,6 @@ actor ImageCache {
         }
     }
 
-    // MARK: - Private
 
     private func cachedImage(key: String) -> UIImage? {
         if let entry = memoryCache.object(forKey: key as NSString) {

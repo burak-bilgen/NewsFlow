@@ -1,10 +1,7 @@
 import Foundation
 import Security
 
-// MARK: - Keychain API Key Store
 
-/// Securely stores and retrieves the NewsAPI key from the iOS Keychain.
-/// Falls back to Info.plist if no keychain entry exists (first launch).
 enum KeychainAPIKeyStore {
     private static func service(for key: String) -> String {
         "burakbilgen.NewsApto.\(key.lowercased())"
@@ -21,7 +18,6 @@ enum KeychainAPIKeyStore {
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         ]
 
-        // Delete any existing entry first
         SecItemDelete(query as CFDictionary)
 
         let status = SecItemAdd(query as CFDictionary, nil)

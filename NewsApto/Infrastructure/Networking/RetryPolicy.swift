@@ -1,9 +1,6 @@
 import Foundation
 
-// MARK: - Retry Policy
 
-/// Configurable retry policy with exponential backoff.
-/// Suitable for transient network failures (timeout, 5xx, etc.).
 struct RetryPolicy {
     let maxRetries: Int
     let baseDelay: TimeInterval
@@ -22,8 +19,6 @@ struct RetryPolicy {
         self.jitter = jitter
     }
 
-    /// Calculates the delay for a given attempt using exponential backoff.
-    /// delay = min(baseDelay * 2^attempt, maxDelay) + optional jitter
     func delay(forAttempt attempt: Int) -> TimeInterval {
         let exponential = baseDelay * pow(2.0, Double(attempt))
         let clamped = min(exponential, maxDelay)
@@ -33,10 +28,7 @@ struct RetryPolicy {
     }
 }
 
-// MARK: - Retrying NewsAPI Client Decorator
 
-/// Wraps a NewsAPIClientProtocol with automatic retry logic.
-/// Retries on network errors and 5xx server errors, but not on client errors (4xx) or cancellation.
 final class RetryingNewsAPIClientDecorator: NewsAPIClientProtocol {
     private let client: NewsAPIClientProtocol
     private let retryPolicy: RetryPolicy
@@ -77,14 +69,12 @@ final class RetryingNewsAPIClientDecorator: NewsAPIClientProtocol {
         throw lastError ?? NewsAPIError.network
     }
 
-    // MARK: - Private
 
     private func shouldRetry(_ error: NewsAPIError) -> Bool {
         switch error {
         case .network, .invalidResponse, .emptyResponse:
             return true
         case .apiStatus(let code, _):
-            // Retry on server errors (5xx) and rate limits (429)
             if let code = code, code.hasPrefix("5") || code == "rateLimited" {
                 return true
             }
