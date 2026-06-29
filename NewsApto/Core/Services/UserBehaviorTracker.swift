@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - User Behavior Tracker
-// Tracks user interactions for personalization
 
 actor UserBehaviorTracker {
     static let shared = UserBehaviorTracker()
@@ -68,7 +66,6 @@ actor UserBehaviorTracker {
         }
     }
     
-    // MARK: - Track Interactions
     
     func trackTap(article: Article) async {
         let interaction = ArticleInteraction(
@@ -124,7 +121,6 @@ actor UserBehaviorTracker {
         )
         await addInteraction(interaction)
         
-        // If read for more than 30 seconds, count as engaged
         if duration > 30 {
             await updateProfile(for: article, action: .readComplete)
         }
@@ -143,12 +139,10 @@ actor UserBehaviorTracker {
         await addInteraction(interaction)
     }
     
-    // MARK: - Profile Updates
     
     private func addInteraction(_ interaction: ArticleInteraction) async {
         interactions.append(interaction)
         
-        // Keep only last 1000 interactions
         if interactions.count > 1000 {
             interactions.removeFirst(interactions.count - 1000)
         }
@@ -161,12 +155,10 @@ actor UserBehaviorTracker {
         
         switch action {
         case .tapped, .saved, .readComplete:
-            // Positive signal
             let currentScore = userProfile.preferredSources[source, default: 0.5]
             userProfile.preferredSources[source] = min(1.0, currentScore + 0.05)
             
         case .dismissed, .scrolledPast:
-            // Negative signal
             let currentScore = userProfile.preferredSources[source, default: 0.5]
             userProfile.preferredSources[source] = max(0.0, currentScore - 0.02)
             
@@ -175,7 +167,6 @@ actor UserBehaviorTracker {
         }
     }
     
-    // MARK: - Get Profile
     
     func getUserProfile() async -> UserPreferenceProfile {
         return userProfile
@@ -188,7 +179,6 @@ actor UserBehaviorTracker {
             .map { (source: $0.key, score: $0.value) }
     }
     
-    // MARK: - Storage
     
     private func saveToStorage() async {
         if let data = try? JSONEncoder().encode(interactions) {
@@ -210,7 +200,6 @@ actor UserBehaviorTracker {
         }
     }
     
-    // MARK: - Analytics
     
     func getReadingStats() async -> (totalArticles: Int, totalReadTime: TimeInterval, avgReadTime: TimeInterval) {
         let readInteractions = interactions.filter { $0.action == .timeSpent }

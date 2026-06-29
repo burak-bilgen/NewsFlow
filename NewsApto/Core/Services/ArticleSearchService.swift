@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Advanced Article Search Service
-// Fuzzy search with ranking, typo tolerance, and multi-field search
 
 actor ArticleSearchService {
     
@@ -42,7 +40,6 @@ actor ArticleSearchService {
         )
     }
     
-    // MARK: - Search Methods
     
     func search(
         query: String,
@@ -52,7 +49,6 @@ actor ArticleSearchService {
         let trimmedQuery = query.trimmingCharacters(in: .whitespaces)
         guard !trimmedQuery.isEmpty else { return [] }
         
-        // Split query into terms (AND logic)
         let searchTerms = trimmedQuery
             .lowercased()
             .components(separatedBy: .whitespacesAndNewlines)
@@ -72,14 +68,11 @@ actor ArticleSearchService {
             }
         }
         
-        // Sort by relevance score descending
         results.sort { $0.relevanceScore > $1.relevanceScore }
         
-        // Return top results
         return Array(results.prefix(options.maxResults))
     }
     
-    // MARK: - Article Scoring
     
     private func scoreArticle(
         article: Article,
@@ -99,7 +92,6 @@ actor ArticleSearchService {
                 options: options
             )
             
-            // All terms must match (AND logic)
             if score == 0 {
                 return nil
             }
@@ -109,33 +101,27 @@ actor ArticleSearchService {
                 matchedFields.insert(field)
             }
             
-            // Upgrade match type if better
             if matchTypePriority(matchType) > matchTypePriority(bestMatchType) {
                 bestMatchType = matchType
             }
         }
         
-        // Normalize score by term count
         let normalizedScore = totalScore / Double(searchTerms.count)
         
         guard normalizedScore >= options.minRelevanceScore else {
             return nil
         }
         
-        // Boost score based on match quality
         var finalScore = normalizedScore
         
-        // Title match is most valuable
         if matchedFields.contains(.title) {
             finalScore *= 1.5
         }
         
-        // Exact matches are better
         if bestMatchType == .exact {
             finalScore *= 1.3
         }
         
-        // Multiple field matches are good
         finalScore *= (1.0 + Double(matchedFields.count) * 0.1)
         
         return SearchResult(
@@ -146,7 +132,6 @@ actor ArticleSearchService {
         )
     }
     
-    // MARK: - Term Scoring
     
     private func scoreTerm(
         term: String,
@@ -157,7 +142,6 @@ actor ArticleSearchService {
         var bestField: SearchResult.SearchField?
         var bestMatchType: SearchResult.MatchType = .partial
         
-        // Check title (highest priority)
         if let (score, type) = matchScore(term: term, text: content.title, options: options) {
             if score > bestScore {
                 bestScore = score * 3.0 // Title multiplier
@@ -166,7 +150,6 @@ actor ArticleSearchService {
             }
         }
         
-        // Check source name
         if let (score, type) = matchScore(term: term, text: content.source, options: options) {
             if score > bestScore {
                 bestScore = score * 1.5 // Source multiplier
@@ -175,7 +158,6 @@ actor ArticleSearchService {
             }
         }
         
-        // Check description
         if let (score, type) = matchScore(term: term, text: content.description, options: options) {
             if score > bestScore {
                 bestScore = score * 1.2 // Description multiplier
@@ -184,7 +166,6 @@ actor ArticleSearchService {
             }
         }
         
-        // Check content snippet
         if options.searchContentSnippet,
            let (score, type) = matchScore(term: term, text: content.contentSnippet, options: options) {
             if score > bestScore {
@@ -197,7 +178,6 @@ actor ArticleSearchService {
         return (bestScore, bestField, bestMatchType)
     }
     
-    // MARK: - Match Algorithms
     
     private func matchScore(
         term: String,
@@ -207,12 +187,10 @@ actor ArticleSearchService {
         let textLower = text.lowercased()
         let termLower = term.lowercased()
         
-        // Exact match
         if textLower == termLower {
             return (1.0, .exact)
         }
         
-        // Prefix match (word starts with term)
         let words = textLower.components(separatedBy: .alphanumerics.inverted)
         for word in words {
             if word.hasPrefix(termLower) {
@@ -221,9 +199,7 @@ actor ArticleSearchService {
             }
         }
         
-        // Contains match
         if textLower.contains(termLower) {
-            // Score based on position (earlier is better)
             let position = textLower.range(of: termLower)?.lowerBound
             let positionScore = position.map {
                 1.0 - (Double(textLower.distance(from: textLower.startIndex, to: $0)) / Double(textLower.count) * 0.3)
@@ -232,7 +208,6 @@ actor ArticleSearchService {
             return (positionScore * 0.8, .partial)
         }
         
-        // Fuzzy match (for typos)
         for word in words where word.count >= term.count {
             let similarity = calculateSimilarity(termLower, word)
             if similarity >= options.fuzzyThreshold {
@@ -243,7 +218,6 @@ actor ArticleSearchService {
         return nil
     }
     
-    // MARK: - Fuzzy Matching
     
     private func calculateSimilarity(_ s1: String, _ s2: String) -> Double {
         let maxDistance = max(s1.count, s2.count)
@@ -283,7 +257,6 @@ actor ArticleSearchService {
         return matrix[rows-1][cols-1]
     }
     
-    // MARK: - Helpers
     
     private func prepareSearchableContent(from article: Article, options: SearchOptions) -> SearchableContent {
         return SearchableContent(
@@ -311,16 +284,12 @@ actor ArticleSearchService {
     }
 }
 
-// MARK: - Search Extensions
 
 extension ArticleSearchService.SearchResult {
-    /// Highlights matched terms in text
     func highlightedTitle(query: String) -> String {
-        // Simple highlight - in real app, use AttributedString
         return article.title
     }
     
-    /// Returns a relevance description for debugging
     var relevanceDescription: String {
         let fields = matchedFields.map { $0.rawValue }.joined(separator: ", ")
         return "\(matchType.rawValue) match in \(fields) - Score: \(String(format: "%.1f", relevanceScore))"

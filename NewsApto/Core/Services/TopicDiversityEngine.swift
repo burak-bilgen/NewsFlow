@@ -1,8 +1,6 @@
 import Foundation
 import NaturalLanguage
 
-// MARK: - Topic Diversity Engine
-// Prevents feed flooding with same topic using NLP
 
 actor TopicDiversityEngine {
     
@@ -14,10 +12,8 @@ actor TopicDiversityEngine {
         self.tagger = NLTagger(tagSchemes: [.lemma, .nameType])
     }
     
-    // MARK: - Topic Extraction
     
     func extractTopicID(from article: Article) async -> String {
-        // Check cache first
         if let cached = topicCache[article.id] {
             return cached
         }
@@ -25,7 +21,6 @@ actor TopicDiversityEngine {
         let text = "\(article.title) \(article.description ?? "")"
         let keywords = extractKeywords(from: text)
         
-        // Create topic fingerprint
         let topicID = keywords.sorted().joined(separator: "-").lowercased()
             .replacingOccurrences(of: "[^a-z0-9-]", with: "", options: .regularExpression)
             .prefix(50)
@@ -51,7 +46,6 @@ actor TopicDiversityEngine {
             return true
         }
         
-        // Add named entities
         tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .nameType, options: options) { tag, range in
             if let tag = tag, (tag == .placeName || tag == .personalName || tag == .organizationName) {
                 let entity = String(text[range]).lowercased()
@@ -60,12 +54,10 @@ actor TopicDiversityEngine {
             return true
         }
         
-        // Return top keywords by frequency
         let frequency = keywords.reduce(into: [:]) { counts, word in counts[word, default: 0] += 1 }
         return Array(frequency.sorted { $0.value > $1.value }.prefix(5).map { $0.key })
     }
     
-    // MARK: - Diversity Filtering
     
     func ensureDiversity(in articles: [Article], maxPerTopic: Int = 2, minArticles: Int = 15) async -> [Article] {
         guard articles.count >= minArticles else { return articles }
@@ -85,7 +77,6 @@ actor TopicDiversityEngine {
         return diverseArticles
     }
     
-    // MARK: - Topic Similarity
     
     func calculateSimilarity(between article1: Article, and article2: Article) async -> Double {
         let topic1 = await extractTopicID(from: article1)
@@ -101,7 +92,6 @@ actor TopicDiversityEngine {
         return Double(intersection.count) / Double(union.count)
     }
     
-    // MARK: - Helper
     
     private func isStopWord(_ word: String) -> Bool {
         let stopWords: Set<String> = [

@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Enhanced Article Scorer v2.0
-// Fine-tuned 5-factor scoring with exponential decay and content analysis
 
 actor EnhancedArticleScorer {
     
@@ -35,7 +33,6 @@ actor EnhancedArticleScorer {
         }
     }
     
-    // MARK: - Scoring Weights (Fine-tuned)
     private enum Weights {
         static let recency: Double = 28
         static let quality: Double = 22
@@ -44,14 +41,12 @@ actor EnhancedArticleScorer {
         static let authority: Double = 15
     }
     
-    // MARK: - Recency Parameters
     private enum RecencyParams {
         static let halfLife: Double = 6 // Hours - 50% score after 6 hours
         static let breakingThreshold: Double = 0.5 // 30 mins
         static let maxAge: Double = 168 // 1 week
     }
     
-    // MARK: - Quality Parameters
     private enum QualityParams {
         static let optimalTitleRange = 45...90
         static let optimalDescRange = 120...400
@@ -59,7 +54,6 @@ actor EnhancedArticleScorer {
         static let maxCapsRatio = 0.3 // Max 30% caps in title
     }
     
-    // MARK: - Engagement Parameters
     private enum EngagementParams {
         static let viralThreshold: Double = 1000
         static let trendingThreshold: Double = 200
@@ -74,10 +68,8 @@ actor EnhancedArticleScorer {
         self.now = now
     }
     
-    // MARK: - Main Scoring Method
     
     func scoreAndEnrich(_ articles: [Article]) async -> [Article] {
-        // Reset source history for each new batch
         sourceHistory.removeAll()
         
         var scoredArticles: [(article: Article, score: ArticleScore)] = []
@@ -89,13 +81,11 @@ actor EnhancedArticleScorer {
             scoredArticles.append((enrichedArticle, score))
         }
         
-        // Sort by total score descending
         scoredArticles.sort { $0.score.total > $1.score.total }
         
         return scoredArticles.map { $0.article }
     }
     
-    // MARK: - Individual Score Calculations
     
     private func calculateScore(for article: Article) async -> ArticleScore {
         async let recency = calculateRecencyScore(article)
@@ -118,21 +108,17 @@ actor EnhancedArticleScorer {
         
         let hoursAgo = now.timeIntervalSince(publishedAt) / 3600
         
-        // Exponential decay for smooth scoring
         let decayFactor = pow(0.5, hoursAgo / RecencyParams.halfLife)
         var score = Weights.recency * decayFactor
         
-        // Breaking news bonus (first 30 minutes)
         if hoursAgo < RecencyParams.breakingThreshold {
             score *= 1.15 // 15% bonus for fresh news
         }
         
-        // Penalty for very old content
         if hoursAgo > RecencyParams.maxAge {
             score *= 0.5
         }
         
-        // Boost for today's news
         if hoursAgo < 24 {
             score = max(score, 18) // Minimum 18 for today
         }
@@ -143,12 +129,10 @@ actor EnhancedArticleScorer {
     private func calculateQualityScore(_ article: Article) async -> Double {
         var score: Double = 0
         
-        // Title quality analysis
         let titleLength = article.title.count
         let titleScore = calculateTitleQuality(title: article.title, length: titleLength)
         score += titleScore * 8 // Up to 8 points
         
-        // Description quality with depth scoring
         if let desc = article.description {
             let descLength = desc.count
             if QualityParams.optimalDescRange.contains(descLength) {
@@ -159,19 +143,16 @@ actor EnhancedArticleScorer {
                 score += 2
             }
             
-            // Content depth indicators
             let sentenceCount = desc.components(separatedBy: ".").count
             if sentenceCount >= 3 {
                 score += 2 // Well-formed description
             }
         }
         
-        // Rich media bonus
         if article.imageURL != nil {
             score += 5 // Visual content bonus
         }
         
-        // Full content available
         if let snippet = article.contentSnippet {
             let snippetLength = snippet.count
             if snippetLength > 1000 {
@@ -181,7 +162,6 @@ actor EnhancedArticleScorer {
             }
         }
         
-        // Security and professionalism
         if let url = article.url?.absoluteString {
             if url.hasPrefix("https") {
                 score += 1
@@ -194,27 +174,23 @@ actor EnhancedArticleScorer {
     private func calculateTitleQuality(title: String, length: Int) -> Double {
         var quality: Double = 0
         
-        // Length scoring (optimal: 45-90 chars)
         if QualityParams.optimalTitleRange.contains(length) {
             quality += 0.5
         } else if length >= QualityParams.minTitleLength {
             quality += 0.3
         }
         
-        // Title case analysis
         let words = title.split(separator: " ")
         if words.count >= 5 && words.count <= 15 {
             quality += 0.3
         }
         
-        // Avoid excessive caps (shouting)
         let capsCount = title.filter { $0.isUppercase }.count
         let capsRatio = Double(capsCount) / Double(length)
         if capsRatio < QualityParams.maxCapsRatio {
             quality += 0.2
         }
         
-        // Has substance (not just buzzwords)
         let substanceWords = ["announces", "launches", "reports", "study", "research", "data", "analysis"]
         let hasSubstance = substanceWords.contains { title.lowercased().contains($0) }
         if hasSubstance {
@@ -227,20 +203,16 @@ actor EnhancedArticleScorer {
     private func calculateDiversityScore(_ article: Article) async -> Double {
         var score = Weights.diversity * 0.6 // Base 60%
         
-        // Source diversity bonus (don't repeat same source too often)
         let sourceLower = article.sourceName.lowercased()
         if sourceHistory.contains(sourceLower) {
-            // Small penalty for repeated sources, but not zero
             score *= 0.85
         }
         sourceHistory.insert(sourceLower)
         
-        // Content variety indicators
         let hasImage = article.imageURL != nil
         let hasDescription = (article.description?.count ?? 0) > 100
         let hasSnippet = (article.contentSnippet?.count ?? 0) > 500
         
-        // Rich content gets diversity bonus
         let richnessScore = [hasImage, hasDescription, hasSnippet].filter { $0 }.count
         score += Double(richnessScore) * 1.5
         
@@ -252,12 +224,9 @@ actor EnhancedArticleScorer {
             return Weights.engagement * 0.3 // Base 30% for unknown engagement
         }
         
-        // Logarithmic scaling for engagement
-        // Prevents viral posts from completely dominating
         let logScore = log(engagement + 1) / log(EngagementParams.logBase)
         var score = min(Weights.engagement, logScore * 6)
         
-        // Viral bonus (but capped)
         if engagement > EngagementParams.viralThreshold {
             score += 2 // Small bonus for viral
         } else if engagement > EngagementParams.trendingThreshold {
@@ -269,7 +238,6 @@ actor EnhancedArticleScorer {
     
     private func calculateSourceAuthority(_ article: Article) async -> Double {
         let authorityScores: [String: Double] = [
-            // Tier 1: Elite global outlets (15 pts)
             "bbc": 15, "reuters": 15, "associated press": 15, "ap": 15,
             "new york times": 14, "nyt": 14,
             "the guardian": 14, "guardian": 14,
@@ -277,27 +245,22 @@ actor EnhancedArticleScorer {
             "washington post": 13, "financial times": 13, "economist": 13,
             "nature": 14, "science": 13, "scientific american": 13,
             
-            // Tier 2: Premium tech/business (11-13 pts)
             "the verge": 12, "wired": 12, "ars technica": 12,
             "bloomberg": 13, "business insider": 11, "fortune": 12,
             "techcrunch": 11, "the information": 12,
             "axios": 12, "politico": 12,
             
-            // Tier 3: Quality sources (9-10 pts)
             "hackernews": 10, "hacker news": 10,
             "gnews": 9, "newsdata": 9,
             "newsapi": 8, "news api": 8,
             
-            // Tier 4: Regional/Local (6-8 pts)
             "usa today": 10, "cnn": 9, "abc news": 9, "nbc news": 9, "cbs news": 9,
             "fox news": 8, "npr": 10, "pbs": 10,
             "al jazeera": 11, "deutsche welle": 10, "france24": 10,
             
-            // Tech aggregators (8-10 pts)
             "engadget": 9, "gizmodo": 9, "cnet": 9, "zdnet": 9,
             "slashdot": 9, "product hunt": 9,
             
-            // Financial (10-12 pts)
             "marketwatch": 10, "seeking alpha": 9, "investopedia": 10,
             "cnbc": 10, "yahoo finance": 9,
         ]
@@ -305,7 +268,6 @@ actor EnhancedArticleScorer {
         let sourceLower = article.sourceName.lowercased()
         let baseScore = authorityScores[sourceLower] ?? 6 // Default for unknown sources
         
-        // Domain TLD bonus for credibility
         if let url = article.url?.absoluteString {
             if url.contains(".edu") || url.contains(".gov") {
                 return min(Weights.authority, baseScore + 2)
@@ -315,16 +277,13 @@ actor EnhancedArticleScorer {
         return min(Weights.authority, baseScore)
     }
     
-    // MARK: - Advanced Scoring Features
     
-    /// Detects if article is duplicate/similar to already seen content
     func calculateDuplicatePenalty(_ article: Article, against existingArticles: [Article]) -> Double {
         let articleText = (article.title + " " + (article.description ?? "")).lowercased()
         
         for existing in existingArticles {
             let existingText = (existing.title + " " + (existing.description ?? "")).lowercased()
             
-            // Simple Jaccard similarity on word sets
             let articleWords = Set(articleText.split(separator: " "))
             let existingWords = Set(existingText.split(separator: " "))
             
@@ -333,7 +292,6 @@ actor EnhancedArticleScorer {
             
             let similarity = Double(intersection) / Double(union)
             
-            // High similarity = duplicate
             if similarity > 0.7 {
                 return 0.5 // 50% penalty for duplicates
             } else if similarity > 0.5 {
@@ -344,7 +302,6 @@ actor EnhancedArticleScorer {
         return 1.0 // No penalty
     }
     
-    /// Detects time-sensitive vs evergreen content
     func isTimeSensitive(_ article: Article) -> Bool {
         let timeSensitiveWords = [
             "breaking", "just", "update", "developing", "live", "urgent",
@@ -358,7 +315,6 @@ actor EnhancedArticleScorer {
         return wordCount >= 2 || text.contains("breaking")
     }
     
-    /// Calculates cross-source verification bonus
     func calculateVerificationBonus(_ article: Article, allArticles: [Article]) -> Double {
         let articleKeyTerms = extractKeyTerms(article.title)
         var verificationCount = 0
@@ -370,13 +326,11 @@ actor EnhancedArticleScorer {
             let otherTerms = extractKeyTerms(other.title)
             let commonTerms = articleKeyTerms.intersection(otherTerms)
             
-            // If 3+ key terms match across different sources = verification
             if commonTerms.count >= 3 {
                 verificationCount += 1
             }
         }
         
-        // Bonus for being verified by multiple sources
         switch verificationCount {
         case 0: return 0
         case 1: return 1 // 1 other source confirms
@@ -385,7 +339,6 @@ actor EnhancedArticleScorer {
         }
     }
     
-    /// Extract key terms from title for verification
     private func extractKeyTerms(_ title: String) -> Set<String> {
         let stopWords = Set(["the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by"])
         let words = title.lowercased()
@@ -398,7 +351,6 @@ actor EnhancedArticleScorer {
     
 }
 
-// MARK: - Batch Scoring with Advanced Features
 
 extension EnhancedArticleScorer {
     
@@ -409,13 +361,10 @@ extension EnhancedArticleScorer {
         for article in articles {
             let baseScore = await calculateScore(for: article)
             
-            // Apply duplicate penalty
             let duplicatePenalty = calculateDuplicatePenalty(article, against: processedArticles)
             
-            // Calculate verification bonus
             let verificationBonus = calculateVerificationBonus(article, allArticles: articles)
             
-            // Adjust diversity score based on duplicate status
             let adjustedDiversity = baseScore.diversity * duplicatePenalty + verificationBonus
             
             let finalScore = ArticleScore(
@@ -430,16 +379,13 @@ extension EnhancedArticleScorer {
             enrichedArticle.qualityScore = finalScore.total
             enrichedArticle.engagementScore = baseScore.engagement
             
-            // Mark if time-sensitive for UI indicator
             if isTimeSensitive(article) {
-                // Could add a flag to article for UI
             }
             
             scoredArticles.append((enrichedArticle, finalScore))
             processedArticles.append(article)
         }
         
-        // Sort by total score descending
         scoredArticles.sort { $0.score.total > $1.score.total }
         
         return scoredArticles.map { $0.article }
