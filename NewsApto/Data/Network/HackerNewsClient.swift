@@ -1,9 +1,5 @@
 import Foundation
 
-// MARK: - HackerNews API Client
-// Completely FREE - Firebase API
-// Best for: Tech, Programming, Startups
-// Docs: https://github.com/HackerNews/API
 
 actor HackerNewsClient {
     private let baseURL: URL
@@ -16,7 +12,6 @@ actor HackerNewsClient {
         self.session = URLSession(configuration: config)
     }
     
-    // MARK: - Fetch Methods
     
     func fetchTopStories(limit: Int = 30) async throws -> [Article] {
         let topIds = try await fetchTopStoryIds(limit: limit)
@@ -50,7 +45,6 @@ actor HackerNewsClient {
         }
     }
     
-    // MARK: - Private Methods
     
     private func fetchTopStoryIds(limit: Int) async throws -> [Int] {
         let url = baseURL.appendingPathComponent("topstories.json")
@@ -78,17 +72,14 @@ actor HackerNewsClient {
         let (data, _) = try await session.data(from: url)
         let story = try JSONDecoder().decode(HNStory.self, from: data)
         
-        // Skip job postings and polls
         guard story.type == "story", let title = story.title else {
             return nil
         }
         
         let date = Date(timeIntervalSince1970: TimeInterval(story.time))
         
-        // Use HN URL as fallback
         let storyUrl = story.url ?? "https://news.ycombinator.com/item?id=\(id)"
         
-        // HN text only available for "self posts" - for link posts, create description from URL domain
         let description: String?
         if let text = story.text, !text.isEmpty {
             description = text.htmlToPlainText.prefix(200).description
@@ -116,7 +107,6 @@ actor HackerNewsClient {
     }
 }
 
-// MARK: - DTOs
 
 struct HNStory: Codable {
     let id: Int

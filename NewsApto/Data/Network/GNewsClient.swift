@@ -1,8 +1,5 @@
 import Foundation
 
-// MARK: - GNews API Client
-// Free tier: 100 requests/day
-// Docs: https://gnews.io/docs
 
 actor GNewsClient {
     private let apiKey: String
@@ -84,7 +81,6 @@ actor GNewsClient {
     }
 }
 
-// MARK: - DTOs
 
 struct GNewsResponse: Codable {
     let totalArticles: Int
@@ -92,7 +88,6 @@ struct GNewsResponse: Codable {
 }
 
 struct GNewsArticle: Codable {
-    // ALL fields optional for robust API handling
     let title: String?
     let description: String?
     let content: String?
@@ -107,18 +102,14 @@ struct GNewsArticle: Codable {
     }
     
     func toArticle() -> Article {
-        // Robust fallbacks for all fields
         let effectiveTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Untitled Article"
         let effectiveURL = url?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let effectiveSourceName = source?.name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "GNews Source"
         
-        // Multiple date format support
         let publishedDate = parseDate(publishedAt)
         
-        // Generate stable ID
         let effectiveId = effectiveURL.isEmpty ? "gnews-\(abs(effectiveTitle.hashValue % 1_000_000))" : effectiveURL.md5Hash
         
-        // Clean and validate URLs
         let imageURL: URL? = {
             guard let image = image else { return nil }
             let cleanUrl = image.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -1,19 +1,16 @@
 import Foundation
 
-// MARK: - Aggregated Result
 
 struct AggregatedResult: Sendable {
     let articles: [Article]
     let sourceCount: Int
 }
 
-// MARK: - News Aggregating Protocol
 
 protocol NewsAggregating: Sendable {
     func fetchFeed(page: Int, pageSize: Int) async -> AggregatedResult
 }
 
-// MARK: - News Aggregator Service
 
 actor NewsAggregatorService: NewsAggregating {
     private let newsAPIRepository: ArticlesRepositoryProtocol
@@ -63,7 +60,6 @@ actor NewsAggregatorService: NewsAggregating {
     }
 
     private func _fetchFeed(page: Int, pageSize: Int) async -> AggregatedResult {
-        // Fetch from all sources concurrently
         async let newsResult = fetchNewsAPI(page: page, pageSize: pageSize)
         async let guardianArticles = fetchGuardian(page: page, pageSize: pageSize)
         async let nytResult = fetchNYT(page: page)

@@ -1,9 +1,5 @@
 import Foundation
 
-// MARK: - NewsData.io API Client
-// Free tier: 200 requests/day
-// 10,000+ news sources
-// Docs: https://newsdata.io/docs
 
 actor NewsDataClient {
     private let apiKey: String
@@ -74,7 +70,6 @@ actor NewsDataClient {
     }
 }
 
-// MARK: - DTOs
 
 struct NewsDataResponse: Codable {
     let status: String
@@ -84,7 +79,6 @@ struct NewsDataResponse: Codable {
 }
 
 struct NewsDataArticle: Codable {
-    // ALL fields are optional to handle inconsistent API responses
     let articleId: String?
     let title: String?  // Made optional with fallback
     let link: String?
@@ -104,23 +98,17 @@ struct NewsDataArticle: Codable {
     let category: [String]?
     
     func toArticle() -> Article {
-        // Robust fallback chain for title
         let effectiveTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Untitled Article"
         
-        // Robust fallback for source name
         let effectiveSourceName = sourceName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Unknown Source"
         
-        // Parse date with multiple format fallbacks
         let publishedDate = parseDate(pubDate)
         
-        // Generate fallback ID using available data
         let effectiveId = articleId?.trimmingCharacters(in: .whitespacesAndNewlines) ?? generateFallbackId(title: effectiveTitle, source: effectiveSourceName, date: pubDate)
         
-        // Generate source ID with fallbacks
         let effectiveSourceID = sourceId?.trimmingCharacters(in: .whitespacesAndNewlines) 
             ?? effectiveSourceName.lowercased().replacingOccurrences(of: " ", with: "-").replacingOccurrences(of: "[^a-z0-9-]", with: "", options: .regularExpression)
         
-        // Clean and validate URL
         let articleURL: URL? = {
             guard let link = link else { return nil }
             let cleanUrl = link.trimmingCharacters(in: .whitespacesAndNewlines)

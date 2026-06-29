@@ -1,7 +1,6 @@
 import CoreData
 import Foundation
 
-// MARK: - ReadingListItem (NSManagedObject)
 
 @objc(ReadingListItem)
 public class ReadingListItem: NSManagedObject {

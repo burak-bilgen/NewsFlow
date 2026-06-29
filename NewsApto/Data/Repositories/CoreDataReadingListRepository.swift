@@ -1,11 +1,7 @@
 import CoreData
 import Foundation
 
-// MARK: - CoreDataReadingListRepository
 
-/// Production-ready reading list repository backed by Core Data.
-/// Provides thread-safe persistence with background context writes,
-/// uniqueness constraints, and indexed fetch support.
 actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
     private let coreDataStack: CoreDataStack
 
@@ -13,7 +9,6 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
         self.coreDataStack = coreDataStack
     }
 
-    // MARK: - ReadingListRepositoryProtocol
 
     func savedArticles() async -> [Article] {
         let context = coreDataStack.newBackgroundContext()
@@ -113,7 +108,6 @@ actor CoreDataReadingListRepository: ReadingListRepositoryProtocol {
         }
     }
 
-    // MARK: - Private
 
     private func fetchItem(withID id: String) async -> ReadingListItem? {
         let context = coreDataStack.newBackgroundContext()
