@@ -88,7 +88,6 @@ struct FeedView: View {
     private var magazineContent: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
-                // Pull-to-refresh custom indicator at top
                 if viewModel.isRefreshing {
                     PullToRefreshLoadingView()
                         .frame(maxWidth: .infinity)

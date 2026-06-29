@@ -12,12 +12,10 @@ struct HeroCardView: View {
             onSelect()
         } label: {
             ZStack(alignment: .bottomLeading) {
-                // Image section with Matrix loading/placeholder
                 ArticleImageView(url: article.imageURL)
                     .frame(height: 320)
                     .clipped()
 
-                // Gradient overlay only when image exists
                 if article.imageURL != nil {
                     LinearGradient(
                         colors: [.clear, .black.opacity(0.8)],
@@ -25,7 +23,6 @@ struct HeroCardView: View {
                         endPoint: .bottom
                     )
                 } else {
-                    // Matrix overlay for no-image articles
                     LinearGradient(
                         colors: [AppPalette.surface, AppPalette.surface.opacity(0.95)],
                         startPoint: .top,
